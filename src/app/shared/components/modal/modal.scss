@@ -1,0 +1,46 @@
+.fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--esp-6) var(--esp-4);
+  background: rgba(11, 42, 56, 0.35);
+  overflow-y: auto;
+}
+
+.caixa {
+  width: 100%;
+  max-width: 640px;
+  background: var(--superficie);
+  border-radius: var(--raio-g);
+  box-shadow: var(--sombra-3);
+}
+
+.caixa__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: 1px solid var(--borda);
+}
+
+.caixa__corpo {
+  padding: var(--esp-4);
+}
+
+.caixa__rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-4);
+  border-top: 1px solid var(--borda);
+  background: var(--cinza-25);
+  border-radius: 0 0 var(--raio-g) var(--raio-g);
+}
+
+.caixa__rodape:not(:has(*)) {
+  display: none;
+}

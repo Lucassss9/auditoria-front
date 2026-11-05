@@ -1,0 +1,25 @@
+<header class="cabecalho">
+  <div class="cabecalho__texto">
+    @if (trilha().length) {
+      <nav class="cabecalho__trilha" aria-label="Trilha de navegação">
+        @for (passo of trilha(); track passo.rotulo; let ultimo = $last) {
+          @if (passo.rota && !ultimo) {
+            <a [routerLink]="passo.rota">{{ passo.rotulo }}</a>
+          } @else {
+            <span aria-current="page">{{ passo.rotulo }}</span>
+          }
+          @if (!ultimo) {
+            <span class="cabecalho__separador" aria-hidden="true">/</span>
+          }
+        }
+      </nav>
+    }
+    <h1>{{ titulo() }}</h1>
+    @if (descricao()) {
+      <p class="cabecalho__descricao">{{ descricao() }}</p>
+    }
+  </div>
+  <div class="cabecalho__acoes">
+    <ng-content />
+  </div>
+</header>

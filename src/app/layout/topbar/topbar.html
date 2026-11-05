@@ -1,0 +1,22 @@
+<header class="topo">
+  <button
+    type="button"
+    class="botao botao--discreto botao--icone botao--pequeno"
+    [attr.aria-label]="recolhida() ? 'Expandir menu' : 'Recolher menu'"
+    (click)="alternar.emit()"
+  >
+    <i-lucide
+      [img]="recolhida() ? icones.abrir : icones.recolher"
+      [size]="16"
+      aria-hidden="true"
+    ></i-lucide>
+  </button>
+
+  <div class="topo__espaco"></div>
+
+  @if (usandoMock) {
+    <span class="selo selo--atencao">Dados de demonstração</span>
+  }
+
+  <span class="topo__usuario">{{ usuario }}</span>
+</header>

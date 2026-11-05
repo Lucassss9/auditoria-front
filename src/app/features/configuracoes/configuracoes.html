@@ -1,0 +1,88 @@
+<app-cabecalho-pagina
+  titulo="Configurações"
+  descricao="Preferências do auditor e origem dos dados exibidos no sistema."
+/>
+
+<div class="painel">
+  <section class="cartao">
+    <h2>Preferências da auditoria</h2>
+
+    <div class="linha">
+      <div class="campo">
+        <label class="campo__rotulo" for="prazo">Prazo padrão do e-mail (dias)</label>
+        <input
+          id="prazo"
+          class="entrada entrada--numero"
+          type="number"
+          min="1"
+          max="90"
+          [value]="valores().prazoPadraoDias"
+          (change)="definirPrazo($any($event.target).value)"
+        />
+        <span class="campo__ajuda">Usado como sugestão ao preparar o e-mail da obra.</span>
+      </div>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="responsavel">Responsável padrão pela auditoria</label>
+        <input
+          id="responsavel"
+          class="entrada"
+          type="text"
+          placeholder="Seu nome"
+          [value]="valores().responsavelPadrao"
+          (change)="definirResponsavel($any($event.target).value)"
+        />
+        <span class="campo__ajuda">Preenchido automaticamente ao criar uma auditoria.</span>
+      </div>
+    </div>
+
+    <label class="opcao">
+      <input
+        type="checkbox"
+        [checked]="valores().mostrarValoresNaConferencia"
+        (change)="definirMostrarValores($any($event.target).checked)"
+      />
+      <span>
+        Mostrar colunas de valor na tela de conferência
+        <span class="campo__ajuda">
+          Desligue para uma contagem mais rápida, só com quantidades.
+        </span>
+      </span>
+    </label>
+
+    <div class="acoes">
+      <button type="button" class="botao" (click)="restaurar()">Restaurar padrões</button>
+    </div>
+  </section>
+
+  <section class="cartao">
+    <h2>Origem dos dados</h2>
+    <dl class="dados">
+      <div>
+        <dt>Modo atual</dt>
+        <dd>
+          @if (ambiente.usarDadosMock) {
+            <span class="selo selo--atencao">Dados de demonstração</span>
+          } @else {
+            <span class="selo selo--ok">API do backend próprio</span>
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Endereço base da API</dt>
+        <dd><code>{{ ambiente.apiBaseUrl }}</code></dd>
+      </div>
+      <div>
+        <dt>Como trocar</dt>
+        <dd>
+          Altere <code>usarDadosMock</code> em
+          <code>src/environments/environment.ts</code> e recarregue a aplicação.
+        </dd>
+      </div>
+    </dl>
+    <p class="aviso">
+      O sistema não acessa o CF Obras diretamente. A leitura do estoque é responsabilidade do
+      backend próprio, que guarda as credenciais fora do navegador.
+    </p>
+  </section>
+</div>

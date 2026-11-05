@@ -1,0 +1,43 @@
+<div class="evidencias">
+  @if (!somenteLeitura()) {
+    <label class="botao botao--pequeno">
+      <i-lucide [img]="icones.foto" [size]="14" aria-hidden="true"></i-lucide>
+      Anexar foto
+      <input
+        type="file"
+        class="visivel-leitor"
+        accept="image/*"
+        multiple
+        (change)="aoEscolher($event)"
+      />
+    </label>
+  }
+
+  @if (lista().length) {
+    <ul class="evidencias__grade">
+      @for (evidencia of lista(); track evidencia.id) {
+        <li class="evidencias__item">
+          @if (evidencia.conteudo) {
+            <img [src]="evidencia.conteudo" [alt]="evidencia.nome" />
+          } @else {
+            <span class="evidencias__vazia" [title]="evidencia.nome">
+              <i-lucide [img]="icones.imagem" [size]="16" aria-hidden="true"></i-lucide>
+            </span>
+          }
+          @if (!somenteLeitura()) {
+            <button
+              type="button"
+              class="evidencias__remover"
+              [attr.aria-label]="'Remover ' + evidencia.nome"
+              (click)="remover(evidencia.id)"
+            >
+              <i-lucide [img]="icones.fechar" [size]="12" aria-hidden="true"></i-lucide>
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  } @else if (somenteLeitura()) {
+    <span class="evidencias__nenhuma">Sem fotos</span>
+  }
+</div>

@@ -1,0 +1,24 @@
+.moldura {
+  display: flex;
+  height: 100%;
+}
+
+.moldura__corpo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.moldura__conteudo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--esp-5);
+}
+
+@media (max-width: 720px) {
+  .moldura__conteudo {
+    padding: var(--esp-4) var(--esp-3);
+  }
+}

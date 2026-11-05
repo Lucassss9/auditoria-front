@@ -1,0 +1,110 @@
+<app-cabecalho-pagina
+  titulo="Visão geral"
+  descricao="Acompanhamento das auditorias de estoque em andamento e das pendências abertas."
+>
+  <a class="botao botao--primario" routerLink="/auditorias/nova">
+    <i-lucide [img]="icones.novo" [size]="15" aria-hidden="true"></i-lucide>
+    Nova auditoria
+  </a>
+</app-cabecalho-pagina>
+
+@if (estado().carregando && !estado().dados) {
+  <app-carregando texto="Carregando auditorias…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
+} @else if (!auditorias().length) {
+  <app-estado-vazio
+    titulo="Nenhuma auditoria registrada"
+    descricao="Quando a primeira auditoria for criada, os indicadores e o histórico aparecem aqui."
+  >
+    <a class="botao botao--primario" routerLink="/auditorias/nova">Criar a primeira auditoria</a>
+  </app-estado-vazio>
+} @else {
+  <section class="metricas">
+    <app-cartao-metrica rotulo="Auditorias registradas" [valor]="indicadores().total" />
+    <app-cartao-metrica
+      rotulo="Em andamento"
+      [valor]="indicadores().emAndamento"
+      tom="info"
+      detalhe="Contagem ainda aberta"
+    />
+    <app-cartao-metrica
+      rotulo="Aguardando regularização"
+      [valor]="indicadores().aguardando"
+      tom="atencao"
+      detalhe="Dentro do prazo informado"
+    />
+    <app-cartao-metrica
+      rotulo="Prazos vencidos"
+      [valor]="indicadores().vencidos"
+      tom="erro"
+      detalhe="Sem procedimento automático"
+    />
+  </section>
+
+  <div class="colunas">
+    <section class="bloco">
+      <div class="bloco__topo">
+        <h2>Auditorias recentes</h2>
+        <a class="botao botao--pequeno" routerLink="/auditorias">Ver todas</a>
+      </div>
+      <div class="rolagem-x">
+        <table class="tabela">
+          <caption class="visivel-leitor">
+            Auditorias mais recentes com situação e divergências
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Obra</th>
+              <th scope="col">Início</th>
+              <th scope="col">Conferidos</th>
+              <th scope="col">Divergências</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="visivel-leitor">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linha of recentes(); track linha.auditoria.id) {
+              <tr>
+                <td>
+                  <span class="atividade__texto">{{ linha.auditoria.obraNome }}</span>
+                  @if (linha.auditoria.filialNome) {
+                    <div class="atividade__obra">{{ linha.auditoria.filialNome }}</div>
+                  }
+                </td>
+                <td class="tabela__num">{{ linha.auditoria.iniciadaEm | date: 'dd/MM/yyyy' }}</td>
+                <td class="tabela__num">
+                  {{ linha.resumo.conferidos }} / {{ linha.resumo.totalItens }}
+                </td>
+                <td class="tabela__num">{{ linha.resumo.divergentes }}</td>
+                <td>
+                  <app-selo [tipo]="linha.tom">{{ linha.situacao }}</app-selo>
+                </td>
+                <td>
+                  <a class="botao botao--pequeno" [routerLink]="linha.rota">Abrir</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="bloco">
+      <div class="bloco__topo">
+        <h2>Atividades recentes</h2>
+      </div>
+      <ul class="atividades">
+        @for (atividade of atividades(); track atividade.id) {
+          <li class="atividade">
+            <span class="atividade__data">{{ atividade.data | date: 'dd/MM HH:mm' }}</span>
+            <span>
+              <span class="atividade__texto">{{ atividade.texto }}</span>
+              <span class="atividade__obra">{{ atividade.obra }}</span>
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+}

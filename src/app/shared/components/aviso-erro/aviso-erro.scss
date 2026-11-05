@@ -1,0 +1,24 @@
+.erro {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  padding: var(--esp-3);
+  border: 1px solid var(--vermelho-700);
+  border-radius: var(--raio);
+  background: var(--vermelho-100);
+  color: var(--vermelho-700);
+}
+
+.erro__corpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.erro__titulo {
+  font-size: var(--t-13);
+  font-weight: 600;
+}
+
+.erro__detalhe {
+  font-size: var(--t-12);
+}

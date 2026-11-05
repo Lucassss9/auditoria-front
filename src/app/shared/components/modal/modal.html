@@ -1,0 +1,21 @@
+<div class="fundo" (click)="aoClicarFundo($event)">
+  <div class="caixa" role="dialog" aria-modal="true" [attr.aria-label]="titulo()">
+    <header class="caixa__topo">
+      <h2>{{ titulo() }}</h2>
+      <button
+        type="button"
+        class="botao botao--discreto botao--icone botao--pequeno"
+        aria-label="Fechar"
+        (click)="fechar.emit()"
+      >
+        <i-lucide [img]="icones.fechar" [size]="16" aria-hidden="true"></i-lucide>
+      </button>
+    </header>
+    <div class="caixa__corpo">
+      <ng-content />
+    </div>
+    <footer class="caixa__rodape">
+      <ng-content select="[rodape]" />
+    </footer>
+  </div>
+</div>

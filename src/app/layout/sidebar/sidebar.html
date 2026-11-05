@@ -1,0 +1,29 @@
+<nav class="lateral" [class.lateral--recolhida]="recolhida()" aria-label="Navegação principal">
+  <div class="lateral__marca">
+    <span class="lateral__sigla" aria-hidden="true">AE</span>
+    @if (!recolhida()) {
+      <span class="lateral__nome">Auditoria de Estoque</span>
+    }
+  </div>
+
+  <ul class="lateral__lista">
+    @for (item of itens; track item.rota) {
+      <li>
+        <a
+          class="lateral__link"
+          [routerLink]="item.rota"
+          routerLinkActive="lateral__link--ativo"
+          [routerLinkActiveOptions]="{ exact: item.exato }"
+          [attr.title]="recolhida() ? item.rotulo : null"
+        >
+          <i-lucide [img]="item.icone" [size]="17" aria-hidden="true"></i-lucide>
+          @if (!recolhida()) {
+            <span>{{ item.rotulo }}</span>
+          } @else {
+            <span class="visivel-leitor">{{ item.rotulo }}</span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+</nav>

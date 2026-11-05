@@ -1,0 +1,18 @@
+.topo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  height: var(--topo);
+  padding: 0 var(--esp-4);
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borda);
+}
+
+.topo__espaco {
+  flex: 1;
+}
+
+.topo__usuario {
+  font-size: var(--t-13);
+  color: var(--texto-fraco);
+}

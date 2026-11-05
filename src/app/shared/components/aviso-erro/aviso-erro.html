@@ -1,0 +1,14 @@
+<div class="erro" role="alert">
+  <i-lucide [img]="icones.atencao" [size]="16" aria-hidden="true"></i-lucide>
+  <div class="erro__corpo">
+    <p class="erro__titulo">{{ titulo() }}</p>
+    @if (detalhe()) {
+      <p class="erro__detalhe">{{ detalhe() }}</p>
+    }
+  </div>
+  @if (mostrarTentarNovamente()) {
+    <button type="button" class="botao botao--pequeno" (click)="tentarNovamente.emit()">
+      Tentar novamente
+    </button>
+  }
+</div>

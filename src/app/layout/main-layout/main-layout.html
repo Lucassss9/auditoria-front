@@ -1,0 +1,9 @@
+<div class="moldura">
+  <app-sidebar [recolhida]="recolhida()" />
+  <div class="moldura__corpo">
+    <app-topbar [recolhida]="recolhida()" (alternar)="alternarMenu()" />
+    <main class="moldura__conteudo">
+      <router-outlet />
+    </main>
+  </div>
+</div>
