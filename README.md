@@ -44,8 +44,8 @@ export const environment = {
 a implementação HTTP de cada serviço. Os componentes não sabem a diferença: dependem das classes
 abstratas em `core/services`.
 
-Para construir o backend, comece pelo [`docs/guia-backend.md`](docs/guia-backend.md). O índice
-da documentação está em [`docs/LEIA-ME.md`](docs/LEIA-ME.md).
+Para construir o backend, siga o [`docs/guia-backend.md`](docs/guia-backend.md) — está tudo lá:
+o vocabulário, os passos, as tabelas e as rotas.
 
 ## O que o sistema faz
 
