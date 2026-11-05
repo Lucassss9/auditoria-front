@@ -1,0 +1,32 @@
+.grupo {
+  margin-bottom: var(--esp-4);
+}
+
+.celula-nome {
+  font-weight: 500;
+}
+
+.acoes-linha {
+  display: flex;
+  gap: var(--esp-1);
+  justify-content: flex-end;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+}
+
+.formulario__linha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--esp-3);
+}
+
+.opcao {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--t-13);
+}

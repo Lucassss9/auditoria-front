@@ -13,6 +13,22 @@ export const routes: Routes = [
         loadComponent: () => import('./features/painel/painel').then((m) => m.Painel),
       },
       {
+        path: 'obras',
+        title: 'Obras',
+        loadComponent: () => import('./features/obras/obras').then((m) => m.Obras),
+      },
+      {
+        path: 'obras/:id',
+        title: 'Detalhe da obra',
+        loadComponent: () =>
+          import('./features/obras/obra-detalhe/obra-detalhe').then((m) => m.ObraDetalhe),
+      },
+      {
+        path: 'equipes',
+        title: 'Equipes',
+        loadComponent: () => import('./features/equipes/equipes').then((m) => m.Equipes),
+      },
+      {
         path: 'configuracoes',
         title: 'Configurações',
         loadComponent: () =>

@@ -1,0 +1,188 @@
+<app-cabecalho-pagina
+  titulo="Equipes"
+  descricao="Responsáveis de cada obra e quem recebe o e-mail da auditoria."
+>
+  <button type="button" class="botao botao--primario" (click)="abrirNovo()">
+    Novo responsável
+  </button>
+</app-cabecalho-pagina>
+
+@if (estado().carregando && !estado().dados) {
+  <app-carregando texto="Carregando equipes…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
+} @else {
+  <section class="filtros">
+    <label class="visivel-leitor" for="filtro-obra">Obra</label>
+    <select
+      id="filtro-obra"
+      class="entrada filtros__select"
+      [value]="obraSelecionada()"
+      (change)="obraSelecionada.set($any($event.target).value)"
+    >
+      <option value="">Todas as obras</option>
+      @for (obra of obras(); track obra.id) {
+        <option [value]="obra.id">{{ obra.nome }}</option>
+      }
+    </select>
+    <span class="filtros__contagem">{{ responsaveis().length }} responsáveis</span>
+  </section>
+
+  @if (!agrupados().length) {
+    <app-estado-vazio
+      titulo="Nenhum responsável cadastrado"
+      descricao="O e-mail da auditoria precisa de pelo menos um destinatário por obra."
+    >
+      <button type="button" class="botao botao--primario" (click)="abrirNovo()">
+        Cadastrar responsável
+      </button>
+    </app-estado-vazio>
+  } @else {
+    @for (grupo of agrupados(); track grupo.obra) {
+      <section class="quadro grupo">
+        <div class="quadro__topo">
+          <h2>{{ grupo.obra }}</h2>
+          <span class="filtros__contagem">{{ grupo.pessoas.length }} pessoas</span>
+        </div>
+        <div class="rolagem-x">
+          <table class="tabela">
+            <caption class="visivel-leitor">Responsáveis da obra {{ grupo.obra }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Função</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Cadastro</th>
+                <th scope="col">E-mail da auditoria</th>
+                <th scope="col"><span class="visivel-leitor">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (pessoa of grupo.pessoas; track pessoa.id) {
+                <tr>
+                  <td class="celula-nome">{{ pessoa.nome }}</td>
+                  <td>{{ rotuloFuncao(pessoa.funcao) }}</td>
+                  <td>{{ pessoa.email }}</td>
+                  <td>
+                    <app-selo [tipo]="pessoa.ativo ? 'ok' : 'neutro'">
+                      {{ pessoa.ativo ? 'Ativo' : 'Inativo' }}
+                    </app-selo>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="botao botao--pequeno"
+                      (click)="alternarRecebimento(pessoa)"
+                    >
+                      {{ pessoa.receberEmail ? 'Recebe' : 'Não recebe' }}
+                    </button>
+                  </td>
+                  <td class="acoes-linha">
+                    <button type="button" class="botao botao--pequeno" (click)="abrirEdicao(pessoa)">
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      class="botao botao--pequeno botao--perigo"
+                      (click)="remover(pessoa)"
+                    >
+                      Remover
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  }
+}
+
+@if (formularioAberto()) {
+  <app-modal
+    [titulo]="editando() ? 'Editar responsável' : 'Novo responsável'"
+    (fechar)="fechar()"
+  >
+    <form [formGroup]="formulario" class="formulario" (ngSubmit)="salvar()">
+      <div class="campo">
+        <label class="campo__rotulo" for="nome">Nome</label>
+        <input
+          id="nome"
+          class="entrada"
+          [class.entrada--invalido]="campoInvalido('nome')"
+          type="text"
+          formControlName="nome"
+        />
+        @if (campoInvalido('nome')) {
+          <span class="campo__erro">Informe o nome completo, com pelo menos 3 letras.</span>
+        }
+      </div>
+
+      <div class="formulario__linha">
+        <div class="campo">
+          <label class="campo__rotulo" for="funcao">Função na obra</label>
+          <select id="funcao" class="entrada" formControlName="funcao">
+            @for (funcao of funcoes; track funcao.valor) {
+              <option [value]="funcao.valor">{{ funcao.rotulo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="obraId">Obra</label>
+          <select
+            id="obraId"
+            class="entrada"
+            [class.entrada--invalido]="campoInvalido('obraId')"
+            formControlName="obraId"
+          >
+            <option value="">Selecione…</option>
+            @for (obra of obras(); track obra.id) {
+              <option [value]="obra.id">{{ obra.nome }}</option>
+            }
+          </select>
+          @if (campoInvalido('obraId')) {
+            <span class="campo__erro">Escolha a obra deste responsável.</span>
+          }
+        </div>
+      </div>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="email">E-mail</label>
+        <input
+          id="email"
+          class="entrada"
+          [class.entrada--invalido]="campoInvalido('email')"
+          type="email"
+          formControlName="email"
+        />
+        @if (campoInvalido('email')) {
+          <span class="campo__erro">Informe um e-mail válido.</span>
+        }
+      </div>
+
+      <label class="opcao">
+        <input type="checkbox" formControlName="ativo" />
+        <span>Cadastro ativo</span>
+      </label>
+
+      <label class="opcao">
+        <input type="checkbox" formControlName="receberEmail" />
+        <span>Recebe o e-mail de auditoria desta obra</span>
+      </label>
+    </form>
+
+    <div rodape>
+      <button type="button" class="botao" (click)="fechar()">Cancelar</button>
+      <button
+        type="button"
+        class="botao botao--primario"
+        [disabled]="salvando()"
+        (click)="salvar()"
+      >
+        {{ salvando() ? 'Salvando…' : 'Salvar' }}
+      </button>
+    </div>
+  </app-modal>
+}

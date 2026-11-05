@@ -1,0 +1,76 @@
+.ficha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  margin-bottom: var(--esp-4);
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-g);
+}
+
+.ficha__rotulo {
+  display: block;
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+}
+
+.ficha__valor {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--t-13);
+  font-weight: 500;
+}
+
+.colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--esp-4);
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .colunas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.equipe {
+  margin: 0;
+  padding: var(--esp-2) var(--esp-4) var(--esp-3);
+  list-style: none;
+}
+
+.equipe__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  flex-wrap: wrap;
+  padding: var(--esp-2) 0;
+  border-bottom: 1px solid var(--cinza-100);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.equipe__nome {
+  display: block;
+  font-size: var(--t-13);
+  font-weight: 500;
+}
+
+.equipe__funcao {
+  display: block;
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+}
+
+.equipe__email {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,13 @@
+.celula-nome {
+  font-weight: 500;
+}
+
+.regional {
+  display: inline-block;
+  margin-left: var(--esp-1);
+  padding: 0 5px;
+  border: 1px solid var(--borda);
+  border-radius: 3px;
+  font-size: var(--t-11);
+  color: var(--texto-apagado);
+}

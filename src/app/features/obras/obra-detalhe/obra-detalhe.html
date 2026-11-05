@@ -1,0 +1,135 @@
+@if (estado().carregando && !estado().dados) {
+  <app-carregando texto="Carregando dados da obra…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
+} @else if (!obra()) {
+  <app-estado-vazio
+    titulo="Obra não encontrada"
+    descricao="O registro pode ter sido removido ou o endereço está incorreto."
+  >
+    <a class="botao" routerLink="/obras">Voltar para a lista</a>
+  </app-estado-vazio>
+} @else {
+  <app-cabecalho-pagina [titulo]="obra()!.nome" [trilha]="trilha()">
+    <a class="botao botao--primario" routerLink="/auditorias/nova">Nova auditoria</a>
+  </app-cabecalho-pagina>
+
+  <section class="ficha">
+    <div>
+      <span class="ficha__rotulo">Código</span>
+      <span class="ficha__valor">{{ obra()!.codigo }}</span>
+    </div>
+    <div>
+      <span class="ficha__rotulo">Filial</span>
+      <span class="ficha__valor">
+        @if (obra()!.filial; as filial) {
+          {{ filial.codigo }} - {{ filial.nome }}
+        } @else {
+          <span class="indisponivel">sem filial vinculada</span>
+        }
+      </span>
+    </div>
+    <div>
+      <span class="ficha__rotulo">Regional</span>
+      <span class="ficha__valor">{{ obra()!.filial?.regional ?? '—' }}</span>
+    </div>
+    <div>
+      <span class="ficha__rotulo">Segmento</span>
+      <span class="ficha__valor">{{ obra()!.segmento }}</span>
+    </div>
+    <div>
+      <span class="ficha__rotulo">Situação</span>
+      <span class="ficha__valor">
+        <app-selo [tipo]="obra()!.situacao === 'ATIVA' ? 'ok' : 'neutro'">
+          {{ obra()!.situacao === 'ATIVA' ? 'Ativa' : 'Encerrada' }}
+        </app-selo>
+      </span>
+    </div>
+  </section>
+
+  <div class="colunas">
+    <section class="quadro">
+      <div class="quadro__topo">
+        <h2>Auditorias desta obra</h2>
+      </div>
+      @if (!auditoriasDaObra().length) {
+        <app-estado-vazio
+          titulo="Nenhuma auditoria nesta obra"
+          descricao="A primeira contagem registrada aparece aqui."
+        />
+      } @else {
+        <div class="rolagem-x">
+          <table class="tabela">
+            <caption class="visivel-leitor">Auditorias registradas nesta obra</caption>
+            <thead>
+              <tr>
+                <th scope="col">Início</th>
+                <th scope="col">Responsável</th>
+                <th scope="col">Conferidos</th>
+                <th scope="col">Divergências</th>
+                <th scope="col">Situação</th>
+                <th scope="col"><span class="visivel-leitor">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (linha of auditoriasDaObra(); track linha.auditoria.id) {
+                <tr>
+                  <td class="tabela__num">{{ linha.auditoria.iniciadaEm | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ linha.auditoria.responsavel }}</td>
+                  <td class="tabela__num">
+                    {{ linha.resumo.conferidos }} / {{ linha.resumo.totalItens }}
+                  </td>
+                  <td class="tabela__num">{{ linha.resumo.divergentes }}</td>
+                  <td>
+                    <app-selo
+                      [tipo]="linha.auditoria.status === 'EM_ANDAMENTO' ? 'info' : 'neutro'"
+                    >
+                      {{ linha.auditoria.status === 'EM_ANDAMENTO' ? 'Em andamento' : 'Concluída' }}
+                    </app-selo>
+                  </td>
+                  <td>
+                    <a class="botao botao--pequeno" [routerLink]="rotaDaAuditoria(linha.auditoria)">
+                      Abrir
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="quadro">
+      <div class="quadro__topo">
+        <h2>Equipe responsável</h2>
+        <a class="botao botao--pequeno" routerLink="/equipes">Gerenciar</a>
+      </div>
+      @if (!equipeDaObra().length) {
+        <app-estado-vazio
+          titulo="Sem responsáveis cadastrados"
+          descricao="Sem equipe cadastrada, o e-mail da auditoria fica sem destinatários."
+        >
+          <a class="botao" routerLink="/equipes">Cadastrar responsável</a>
+        </app-estado-vazio>
+      } @else {
+        <ul class="equipe">
+          @for (pessoa of equipeDaObra(); track pessoa.id) {
+            <li class="equipe__item">
+              <div>
+                <span class="equipe__nome">{{ pessoa.nome }}</span>
+                <span class="equipe__funcao">{{ rotuloFuncao(pessoa.funcao) }}</span>
+              </div>
+              <span class="equipe__email">{{ pessoa.email }}</span>
+              @if (!pessoa.ativo) {
+                <app-selo tipo="neutro">Inativo</app-selo>
+              } @else if (pessoa.receberEmail) {
+                <app-selo tipo="info">Recebe e-mail</app-selo>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+}
