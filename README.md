@@ -5,6 +5,7 @@ materiais a conferir, registra a quantidade física encontrada, anexa evidência
 divergências e prepara o e-mail que cobra a regularização da obra.
 
 Angular 21 · TypeScript · SCSS · Reactive Forms · lucide-angular.
+Tema claro e escuro, login com sessão e dados de demonstração trocáveis por API numa linha.
 
 ## Como rodar
 
@@ -49,16 +50,18 @@ O contrato que o backend precisa expor está em [`docs/contrato-backend.md`](doc
 
 | Tela | O que resolve |
 |---|---|
-| Visão geral | Auditorias em andamento, pendências e prazos vencidos |
+| Entrar | Login com sessão e proteção de rota (`auditor@exemplo.com.br` / `demo1234`) |
+| Início | Onde você parou: contagens abertas, pendências e prazos |
 | Auditorias | Lista das contagens, com busca e filtro por situação |
 | Nova auditoria | Escolha da obra, seleção explícita dos materiais e congelamento do estoque |
 | Conferência | Quantidade real item a item, divergência automática, fotos e observações |
-| Relatório | Resultado em seções, com versão imprimível e exportável em PDF |
+| Relatório | Resultado em seções, com botão de salvar em PDF |
 | E-mail | Destinatários, prazo, assunto e corpo prontos para copiar |
-| Obras | Consulta das obras e da equipe responsável |
+| Buscas salvas | Regras de pesquisa suas, reaproveitadas em qualquer obra |
+| Obras | Obras agrupadas por filial, com a equipe responsável |
 | Equipes | Cadastro de responsáveis e de quem recebe o e-mail |
 | Histórico | Consulta das auditorias passadas, sem alterar o original |
-| Configurações | Prazo padrão, responsável padrão e origem dos dados |
+| Configurações | Sua conta, tema, prazo padrão e origem dos dados |
 
 ## Regras que o código garante
 
@@ -73,6 +76,7 @@ O contrato que o backend precisa expor está em [`docs/contrato-backend.md`](doc
   *não disponível* em vez de somar zero e fazer o total mentir para baixo.
 - **O e-mail não é enviado pelo sistema.** O texto é montado e copiado; o envio é feito pela
   pessoa, no cliente de e-mail dela.
+- **Busca salva guarda termos, não códigos.** É o que faz a mesma regra valer em qualquer obra.
 - **Prazo vencido é sinalizado, não resolvido.** O procedimento após o vencimento ainda não foi
   definido pela empresa, então o sistema não inventa um.
 
