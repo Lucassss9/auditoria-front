@@ -44,10 +44,8 @@ export const environment = {
 a implementação HTTP de cada serviço. Os componentes não sabem a diferença: dependem das classes
 abstratas em `core/services`.
 
-O contrato que o backend precisa expor está em [`docs/contrato-backend.md`](docs/contrato-backend.md).
-
-Para construir o backend, siga o [`docs/guia-backend.md`](docs/guia-backend.md) passo a passo.
-As decisões tomadas ficam em [`docs/decisoes/`](docs/decisoes/LEIA-ME.md).
+Para construir o backend, comece pelo [`docs/guia-backend.md`](docs/guia-backend.md). O índice
+da documentação está em [`docs/LEIA-ME.md`](docs/LEIA-ME.md).
 
 ## O que o sistema faz
 
