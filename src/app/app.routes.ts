@@ -13,6 +13,26 @@ export const routes: Routes = [
         loadComponent: () => import('./features/painel/painel').then((m) => m.Painel),
       },
       {
+        path: 'auditorias',
+        title: 'Auditorias',
+        loadComponent: () =>
+          import('./features/auditorias/auditorias').then((m) => m.Auditorias),
+      },
+      {
+        path: 'auditorias/nova',
+        title: 'Nova auditoria',
+        loadComponent: () =>
+          import('./features/auditorias/nova-auditoria/nova-auditoria').then(
+            (m) => m.NovaAuditoria,
+          ),
+      },
+      {
+        path: 'auditorias/:id',
+        title: 'Conferência',
+        loadComponent: () =>
+          import('./features/auditorias/conferencia/conferencia').then((m) => m.Conferencia),
+      },
+      {
         path: 'obras',
         title: 'Obras',
         loadComponent: () => import('./features/obras/obras').then((m) => m.Obras),

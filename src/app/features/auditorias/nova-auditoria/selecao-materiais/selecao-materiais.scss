@@ -1,0 +1,128 @@
+.selecao {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--esp-4);
+  align-items: start;
+}
+
+@media (max-width: 1080px) {
+  .selecao {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.selecao__busca,
+.selecao__escolhidos {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-g);
+  overflow: hidden;
+}
+
+.busca {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: 1px solid var(--borda);
+}
+
+.favoritas {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  flex-wrap: wrap;
+}
+
+.favoritas__titulo {
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+}
+
+.favoritas__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.salvar-lista,
+.destino {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  flex-wrap: wrap;
+
+  .entrada {
+    flex: 1 1 180px;
+  }
+}
+
+.destino .campo__rotulo {
+  flex: 0 0 auto;
+}
+
+.linha--escolhida td {
+  background: var(--azul-50);
+}
+
+.acoes-busca {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-4) var(--esp-3);
+}
+
+.grupo {
+  padding: var(--esp-2) var(--esp-4) 0;
+}
+
+.grupo__titulo {
+  display: flex;
+  gap: var(--esp-1);
+  padding: var(--esp-2) 0 var(--esp-1);
+  font-size: var(--t-12);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texto-apagado);
+}
+
+.escolhidos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.escolhido {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) 0;
+  border-bottom: 1px solid var(--cinza-100);
+}
+
+.escolhido__texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.escolhido__codigo {
+  font-family: var(--fonte-num);
+  font-size: var(--t-11);
+  color: var(--texto-apagado);
+}
+
+.escolhido__descricao {
+  display: block;
+  font-size: var(--t-13);
+}
+
+.escolhido__meta {
+  font-size: var(--t-11);
+  color: var(--texto-fraco);
+}
+
+.escolhido__lista {
+  width: 96px;
+  height: 26px;
+  font-size: var(--t-12);
+}

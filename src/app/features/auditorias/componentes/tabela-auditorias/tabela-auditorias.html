@@ -1,0 +1,50 @@
+@if (!linhas().length) {
+  <app-estado-vazio [titulo]="tituloVazio()" [descricao]="descricaoVazio()">
+    <ng-content />
+  </app-estado-vazio>
+} @else {
+  <div class="rolagem-x">
+    <table class="tabela">
+      <caption class="visivel-leitor">Auditorias registradas</caption>
+      <thead>
+        <tr>
+          <th scope="col">Obra</th>
+          <th scope="col">Início</th>
+          <th scope="col">Responsável</th>
+          <th scope="col">Itens</th>
+          <th scope="col">Conferidos</th>
+          <th scope="col">Divergências</th>
+          <th scope="col">Prazo</th>
+          <th scope="col">Situação</th>
+          <th scope="col"><span class="visivel-leitor">Ações</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (linha of linhas(); track linha.auditoria.id) {
+          <tr>
+            <td class="celula-obra">
+              <span class="celula-obra__nome">{{ linha.auditoria.obraNome }}</span>
+              @if (linha.auditoria.filialNome) {
+                <span class="celula-obra__filial">{{ linha.auditoria.filialNome }}</span>
+              }
+            </td>
+            <td class="tabela__num">{{ linha.auditoria.iniciadaEm | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ linha.auditoria.responsavel }}</td>
+            <td class="tabela__num">{{ linha.resumo.totalItens }}</td>
+            <td class="tabela__num">{{ linha.resumo.conferidos }}</td>
+            <td class="tabela__num">{{ linha.resumo.divergentes }}</td>
+            <td class="tabela__num">
+              @if (linha.auditoria.comunicado) {
+                {{ linha.auditoria.comunicado.prazo | date: 'dd/MM/yyyy' }}
+              } @else {
+                <span class="indisponivel">—</span>
+              }
+            </td>
+            <td><app-selo [tipo]="linha.tom">{{ linha.situacao }}</app-selo></td>
+            <td><a class="botao botao--pequeno" [routerLink]="linha.rota">Abrir</a></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

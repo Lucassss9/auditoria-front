@@ -1,0 +1,18 @@
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+}
+
+.formulario__linha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--esp-3);
+}
+
+.formulario__nota {
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+  border-left: 2px solid var(--ambar-700);
+  padding-left: var(--esp-3);
+}

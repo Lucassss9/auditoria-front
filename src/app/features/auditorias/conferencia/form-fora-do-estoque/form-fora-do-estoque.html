@@ -1,0 +1,94 @@
+<app-modal
+  [titulo]="item() ? 'Editar material fora do estoque' : 'Material encontrado fora do estoque'"
+  (fechar)="cancelar.emit()"
+>
+  <form [formGroup]="formulario" class="formulario" (ngSubmit)="enviar()">
+    <p class="formulario__nota">
+      Este material não consta no estoque consultado. Ele entra no relatório como achado, e não
+      como item com saldo zero.
+    </p>
+
+    <div class="campo">
+      <label class="campo__rotulo" for="descricao">Descrição do que você encontrou</label>
+      <input
+        id="descricao"
+        class="entrada"
+        [class.entrada--invalido]="campoInvalido('descricao')"
+        type="text"
+        placeholder="Perfil metálico 50x70"
+        formControlName="descricao"
+      />
+      @if (campoInvalido('descricao')) {
+        <span class="campo__erro">Descreva o material com pelo menos 3 letras.</span>
+      }
+    </div>
+
+    <div class="formulario__linha">
+      <div class="campo">
+        <label class="campo__rotulo" for="quantidade">Quantidade encontrada</label>
+        <input
+          id="quantidade"
+          class="entrada entrada--numero"
+          [class.entrada--invalido]="campoInvalido('quantidade')"
+          type="text"
+          inputmode="decimal"
+          formControlName="quantidade"
+        />
+        @if (campoInvalido('quantidade')) {
+          <span class="campo__erro">Informe um número maior que zero.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="unidade">Unidade</label>
+        <select id="unidade" class="entrada" formControlName="unidade">
+          @for (unidade of unidades; track unidade) {
+            <option [value]="unidade">{{ unidade }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="codigo">Código, se houver</label>
+        <input id="codigo" class="entrada" type="text" formControlName="codigo" />
+      </div>
+    </div>
+
+    <div class="formulario__linha">
+      <div class="campo">
+        <label class="campo__rotulo" for="valorUnitario">Valor unitário, se souber</label>
+        <input
+          id="valorUnitario"
+          class="entrada entrada--numero"
+          type="text"
+          inputmode="decimal"
+          placeholder="deixe vazio se não souber"
+          formControlName="valorUnitario"
+        />
+        <span class="campo__ajuda">Sem valor, o achado não entra no total financeiro.</span>
+      </div>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="local">Onde estava</label>
+        <input id="local" class="entrada" type="text" formControlName="local" />
+      </div>
+    </div>
+
+    <div class="campo">
+      <label class="campo__rotulo" for="observacao">Observação</label>
+      <textarea id="observacao" class="entrada" rows="2" formControlName="observacao"></textarea>
+    </div>
+
+    <div class="campo">
+      <span class="campo__rotulo">Fotos</span>
+      <app-evidencias [(lista)]="evidencias" />
+    </div>
+  </form>
+
+  <div rodape>
+    <button type="button" class="botao" (click)="cancelar.emit()">Cancelar</button>
+    <button type="button" class="botao botao--primario" (click)="enviar()">
+      {{ item() ? 'Salvar alterações' : 'Adicionar à auditoria' }}
+    </button>
+  </div>
+</app-modal>

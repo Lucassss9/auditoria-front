@@ -1,0 +1,55 @@
+<app-cabecalho-pagina
+  titulo="Auditorias"
+  descricao="Contagens abertas e concluídas, com o estado de cada uma."
+>
+  <a class="botao botao--primario" routerLink="/auditorias/nova">
+    <i-lucide [img]="icones.novo" [size]="15" aria-hidden="true"></i-lucide>
+    Nova auditoria
+  </a>
+</app-cabecalho-pagina>
+
+@if (estado().carregando && !estado().dados) {
+  <app-carregando texto="Carregando auditorias…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
+} @else {
+  <section class="filtros">
+    <div class="filtros__busca">
+      <i-lucide [img]="icones.buscar" [size]="15" aria-hidden="true"></i-lucide>
+      <label class="visivel-leitor" for="busca-auditoria">Buscar por obra ou responsável</label>
+      <input
+        id="busca-auditoria"
+        class="entrada"
+        type="search"
+        placeholder="Obra ou responsável"
+        [value]="termo()"
+        (input)="termo.set($any($event.target).value)"
+      />
+    </div>
+
+    <label class="visivel-leitor" for="filtro-status">Situação</label>
+    <select
+      id="filtro-status"
+      class="entrada filtros__select"
+      [value]="status()"
+      (change)="status.set($any($event.target).value)"
+    >
+      <option value="">Todas as situações</option>
+      <option value="EM_ANDAMENTO">Em andamento</option>
+      <option value="CONCLUIDA">Concluídas</option>
+      <option value="CANCELADA">Canceladas</option>
+    </select>
+
+    <span class="filtros__contagem">{{ filtradas().length }} de {{ todas().length }}</span>
+  </section>
+
+  <div class="quadro">
+    <app-tabela-auditorias
+      [auditorias]="filtradas()"
+      tituloVazio="Nenhuma auditoria nesta busca"
+      descricaoVazio="Crie uma auditoria ou limpe os filtros para ver os registros existentes."
+    >
+      <button type="button" class="botao" (click)="limpar()">Limpar filtros</button>
+    </app-tabela-auditorias>
+  </div>
+}

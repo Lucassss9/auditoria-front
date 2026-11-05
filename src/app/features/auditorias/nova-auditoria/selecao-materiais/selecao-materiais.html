@@ -1,0 +1,202 @@
+<div class="selecao">
+  <section class="selecao__busca">
+    <div class="quadro__topo">
+      <h2>Pesquisar materiais da obra</h2>
+      <span class="filtros__contagem">{{ resultados().length }} resultados</span>
+    </div>
+
+    <div class="busca">
+      <div class="filtros__busca">
+        <i-lucide [img]="icones.buscar" [size]="15" aria-hidden="true"></i-lucide>
+        <label class="visivel-leitor" for="busca-insumo">
+          Buscar por nome, descrição ou código
+        </label>
+        <input
+          id="busca-insumo"
+          class="entrada"
+          type="search"
+          placeholder="pia, cuba, tanque, bloco, aço, cabo ou o código"
+          [value]="termo()"
+          (input)="buscar($any($event.target).value)"
+        />
+      </div>
+
+      @if (favoritas.estado().dados?.length) {
+        <div class="favoritas">
+          <span class="favoritas__titulo">Listas salvas</span>
+          @for (favorita of favoritas.estado().dados ?? []; track favorita.id) {
+            <span class="favoritas__item">
+              <button type="button" class="botao botao--pequeno" (click)="aplicarFavorita(favorita)">
+                {{ favorita.nome }}
+              </button>
+              <button
+                type="button"
+                class="botao botao--pequeno botao--discreto botao--icone"
+                [attr.aria-label]="'Remover lista ' + favorita.nome"
+                (click)="removerFavorita(favorita.id)"
+              >
+                <i-lucide [img]="icones.fechar" [size]="12" aria-hidden="true"></i-lucide>
+              </button>
+            </span>
+          }
+        </div>
+      }
+
+      <div class="salvar-lista">
+        <label class="visivel-leitor" for="nome-lista">Nome da nova lista salva</label>
+        <input
+          id="nome-lista"
+          class="entrada"
+          type="text"
+          placeholder="Salvar esta busca como…"
+          [value]="nomeNovaLista()"
+          (input)="nomeNovaLista.set($any($event.target).value)"
+        />
+        <button
+          type="button"
+          class="botao botao--pequeno"
+          [disabled]="!nomeNovaLista().trim() || !termo().trim()"
+          (click)="salvarComoFavorita()"
+        >
+          Salvar busca
+        </button>
+      </div>
+
+      <div class="destino">
+        <label class="campo__rotulo" for="lista-destino">Adicionar os próximos itens à lista</label>
+        <input
+          id="lista-destino"
+          class="entrada"
+          type="text"
+          list="listas-existentes"
+          placeholder="Louças, Blocos, Aço…"
+          [value]="listaDestino()"
+          (input)="listaDestino.set($any($event.target).value)"
+        />
+        <datalist id="listas-existentes">
+          @for (nome of nomesDeListas(); track nome) {
+            <option [value]="nome"></option>
+          }
+        </datalist>
+      </div>
+    </div>
+
+    @if (buscando()) {
+      <app-carregando texto="Consultando o estoque da obra…" />
+    } @else if (erroBusca()) {
+      <app-aviso-erro
+        titulo="Falha ao consultar o estoque"
+        [detalhe]="erroBusca() ?? ''"
+        [mostrarTentarNovamente]="false"
+      />
+    } @else if (!resultados().length) {
+      <app-estado-vazio
+        [titulo]="jaBuscou() ? 'Nenhum material encontrado' : 'Pesquise os materiais a auditar'"
+        descricao="A seleção é explícita: nenhum item entra na auditoria sem você marcar."
+      />
+    } @else {
+      <div class="rolagem-x">
+        <table class="tabela">
+          <caption class="visivel-leitor">Resultados da busca no estoque da obra</caption>
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Descrição</th>
+              <th scope="col">Un.</th>
+              <th scope="col">Qtde. sistema</th>
+              <th scope="col">Valor unit.</th>
+              <th scope="col"><span class="visivel-leitor">Selecionar</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (insumo of resultados(); track insumo.id) {
+              <tr [class.linha--escolhida]="selecionadosIds().has(insumo.id)">
+                <td class="tabela__codigo">{{ insumo.codigo }}</td>
+                <td>{{ insumo.descricao }}</td>
+                <td>{{ insumo.unidade }}</td>
+                <td class="tabela__num">{{ insumo.quantidade | quantidade }}</td>
+                <td class="tabela__num">
+                  @if (insumo.valorUnitario === null) {
+                    <span class="indisponivel">não disponível</span>
+                  } @else {
+                    {{ insumo.valorUnitario | moeda }}
+                  }
+                </td>
+                <td>
+                  <button type="button" class="botao botao--pequeno" (click)="alternar(insumo)">
+                    {{ selecionadosIds().has(insumo.id) ? 'Remover' : 'Selecionar' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="acoes-busca">
+        <button type="button" class="botao botao--pequeno" (click)="adicionarTodosOsResultados()">
+          Selecionar os {{ resultados().length }} resultados
+        </button>
+      </div>
+    }
+  </section>
+
+  <aside class="selecao__escolhidos">
+    <div class="quadro__topo">
+      <h2>Selecionados</h2>
+      <span class="filtros__contagem">{{ selecionados().length }} itens</span>
+    </div>
+
+    @if (!selecionados().length) {
+      <app-estado-vazio
+        titulo="Nada selecionado ainda"
+        descricao="Os materiais escolhidos aparecem aqui, separados pelas listas que você criar."
+      />
+    } @else {
+      @for (grupo of grupos(); track grupo.nome) {
+        <div class="grupo">
+          <h3 class="grupo__titulo">{{ grupo.nome }} <span>({{ grupo.itens.length }})</span></h3>
+          <ul class="escolhidos">
+            @for (item of grupo.itens; track item.insumo.id) {
+              <li class="escolhido">
+                <div class="escolhido__texto">
+                  <span class="escolhido__codigo">{{ item.insumo.codigo }}</span>
+                  <span class="escolhido__descricao">{{ item.insumo.descricao }}</span>
+                  <span class="escolhido__meta">
+                    {{ item.insumo.quantidade | quantidade }} {{ item.insumo.unidade }} no sistema
+                  </span>
+                </div>
+                <label class="visivel-leitor" [attr.for]="'lista-' + item.insumo.id">
+                  Lista do item {{ item.insumo.descricao }}
+                </label>
+                <input
+                  [id]="'lista-' + item.insumo.id"
+                  class="entrada escolhido__lista"
+                  type="text"
+                  list="listas-existentes"
+                  placeholder="Lista"
+                  [value]="item.lista ?? ''"
+                  (change)="moverParaLista(item.insumo.id, $any($event.target).value)"
+                />
+                <button
+                  type="button"
+                  class="botao botao--pequeno botao--discreto botao--icone"
+                  [attr.aria-label]="'Remover ' + item.insumo.descricao"
+                  (click)="removerSelecionado(item.insumo.id)"
+                >
+                  <i-lucide [img]="icones.fechar" [size]="13" aria-hidden="true"></i-lucide>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="acoes-busca">
+        <button type="button" class="botao botao--pequeno botao--perigo" (click)="limparSelecao()">
+          Limpar seleção
+        </button>
+      </div>
+    }
+  </aside>
+</div>
