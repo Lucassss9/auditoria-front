@@ -3,10 +3,16 @@
   align-items: flex-start;
   gap: var(--esp-2);
   padding: var(--esp-3);
-  border: 1px solid var(--vermelho-700);
+  border: 1px solid var(--critico-contorno);
   border-radius: var(--raio);
-  background: var(--vermelho-100);
-  color: var(--vermelho-700);
+  background: var(--critico-fundo);
+  color: var(--critico);
+
+  i-lucide {
+    display: flex;
+    flex: 0 0 auto;
+    margin-top: 1px;
+  }
 }
 
 .erro__corpo {

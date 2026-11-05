@@ -4,8 +4,6 @@
   justify-content: space-between;
   gap: var(--esp-4);
   flex-wrap: wrap;
-  padding-bottom: var(--esp-4);
-  border-bottom: 1px solid var(--borda);
   margin-bottom: var(--esp-4);
 }
 
@@ -17,6 +15,7 @@
   display: flex;
   align-items: center;
   gap: var(--esp-1);
+  flex-wrap: wrap;
   margin-bottom: var(--esp-1);
   font-size: var(--t-12);
   color: var(--texto-apagado);
@@ -26,14 +25,14 @@
     text-decoration: none;
 
     &:hover {
-      color: var(--azul-600);
+      color: var(--acao);
       text-decoration: underline;
     }
   }
 }
 
 .cabecalho__separador {
-  color: var(--cinza-300);
+  color: var(--borda-forte);
 }
 
 .cabecalho__descricao {

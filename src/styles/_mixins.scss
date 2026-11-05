@@ -1,6 +1,7 @@
 @mixin foco {
-  outline: 2px solid var(--azul-500);
+  outline: 2px solid var(--acao);
   outline-offset: 1px;
+  border-radius: var(--raio-p);
 }
 
 @mixin cartao {
@@ -18,7 +19,7 @@
 @mixin rotulo {
   font-size: var(--t-11);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--texto-apagado);
 }

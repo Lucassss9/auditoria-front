@@ -1,0 +1,116 @@
+<div class="entrada-pagina">
+  <aside class="apresentacao" aria-hidden="true">
+    <div class="apresentacao__marca">
+      <span class="apresentacao__sinal">CE</span>
+      <span>Contagem</span>
+    </div>
+
+    <div class="apresentacao__texto">
+      <h2>A auditoria de estoque da obra, do começo ao fim.</h2>
+      <p>
+        Selecione os materiais, congele o estoque de referência, conte em campo com foto e feche
+        com o e-mail de regularização pronto.
+      </p>
+    </div>
+
+    <ul class="apresentacao__passos">
+      <li><span>1</span> Escolher obra e materiais</li>
+      <li><span>2</span> Contar e registrar evidências</li>
+      <li><span>3</span> Apurar divergências</li>
+      <li><span>4</span> Cobrar o prazo com a obra</li>
+    </ul>
+  </aside>
+
+  <main class="acesso">
+    <div class="acesso__topo">
+      <span class="acesso__marca">
+        <span class="acesso__sinal">CE</span>
+        Contagem
+      </span>
+      <app-seletor-tema />
+    </div>
+
+    <div class="acesso__corpo">
+      <header class="acesso__titulo">
+        <h1>Entrar</h1>
+        <p>Use a conta da sua equipe de auditoria.</p>
+      </header>
+
+      @if (erro(); as mensagem) {
+        <p class="aviso-faixa aviso-faixa--critico" role="alert">
+          <i-lucide [img]="icones.atencao" [size]="14" aria-hidden="true"></i-lucide>
+          {{ mensagem }}
+        </p>
+      }
+
+      <form [formGroup]="formulario" class="formulario" (ngSubmit)="entrar()">
+        <div class="campo">
+          <label class="campo__rotulo" for="email">E-mail</label>
+          <input
+            id="email"
+            class="entrada"
+            [class.entrada--invalido]="campoInvalido('email')"
+            type="email"
+            autocomplete="username"
+            placeholder="nome@empresa.com.br"
+            formControlName="email"
+          />
+          @if (campoInvalido('email')) {
+            <span class="campo__erro">
+              <i-lucide [img]="icones.atencao" [size]="12" aria-hidden="true"></i-lucide>
+              Informe um e-mail válido.
+            </span>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="senha">Senha</label>
+          <div class="senha">
+            <input
+              id="senha"
+              class="entrada"
+              [class.entrada--invalido]="campoInvalido('senha')"
+              [type]="mostrarSenha() ? 'text' : 'password'"
+              autocomplete="current-password"
+              formControlName="senha"
+            />
+            <button
+              type="button"
+              class="botao botao--fantasma botao--pequeno senha__botao"
+              [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'"
+              (click)="alternarSenha()"
+            >
+              {{ mostrarSenha() ? 'Ocultar' : 'Mostrar' }}
+            </button>
+          </div>
+          @if (campoInvalido('senha')) {
+            <span class="campo__erro">
+              <i-lucide [img]="icones.atencao" [size]="12" aria-hidden="true"></i-lucide>
+              A senha tem pelo menos 6 caracteres.
+            </span>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="botao botao--primario botao--largo"
+          [disabled]="enviando()"
+        >
+          {{ enviando() ? 'Entrando…' : 'Entrar' }}
+        </button>
+      </form>
+
+      @if (usandoMock) {
+        <div class="demonstracao">
+          <p class="demonstracao__titulo">Ambiente de demonstração</p>
+          <p class="demonstracao__texto">
+            <code>auditor&#64;exemplo.com.br</code> · senha <code>demo1234</code>
+          </p>
+          <button type="button" class="botao botao--pequeno" (click)="preencherDemonstracao()">
+            Preencher automaticamente
+          </button>
+        </div>
+      }
+    </div>
+  </main>
+</div>

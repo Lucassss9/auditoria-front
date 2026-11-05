@@ -1,5 +1,7 @@
 <div class="vazio">
-  <i-lucide [img]="icones.vazio" [size]="28" class="vazio__icone" aria-hidden="true"></i-lucide>
+  <span class="vazio__icone">
+    <i-lucide [img]="icones.vazio" [size]="20" aria-hidden="true"></i-lucide>
+  </span>
   <p class="vazio__titulo">{{ titulo() }}</p>
   @if (descricao()) {
     <p class="vazio__descricao">{{ descricao() }}</p>

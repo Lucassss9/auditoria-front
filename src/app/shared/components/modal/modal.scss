@@ -1,19 +1,20 @@
 .fundo {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: 60;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: var(--esp-6) var(--esp-4);
-  background: rgba(11, 42, 56, 0.35);
+  padding: var(--esp-5) var(--esp-3);
+  background: rgba(23, 26, 36, 0.5);
   overflow-y: auto;
 }
 
 .caixa {
   width: 100%;
-  max-width: 640px;
+  max-width: 620px;
   background: var(--superficie);
+  border: 1px solid var(--borda);
   border-radius: var(--raio-g);
   box-shadow: var(--sombra-3);
 }
@@ -35,9 +36,10 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--esp-2);
+  flex-wrap: wrap;
   padding: var(--esp-3) var(--esp-4);
   border-top: 1px solid var(--borda);
-  background: var(--cinza-25);
+  background: var(--superficie-alt);
   border-radius: 0 0 var(--raio-g) var(--raio-g);
 }
 

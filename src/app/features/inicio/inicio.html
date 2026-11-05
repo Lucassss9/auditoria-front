@@ -1,0 +1,130 @@
+@if (estado().carregando && !estado().dados) {
+  <app-carregando texto="Carregando seu trabalho…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
+} @else if (!auditorias().length) {
+  <app-estado-vazio
+    titulo="Nada em andamento por aqui"
+    descricao="Uma auditoria começa escolhendo a obra e os materiais que você vai contar em campo."
+  >
+    <a class="botao botao--primario" routerLink="/auditorias/nova">Iniciar auditoria</a>
+  </app-estado-vazio>
+} @else {
+  <header class="abertura">
+    <div>
+      <p class="rotulo-secao">Central de trabalho</p>
+      <h1>Onde você parou</h1>
+    </div>
+    <a class="botao botao--primario" routerLink="/auditorias/nova">
+      <i-lucide [img]="icones.novo" [size]="15" aria-hidden="true"></i-lucide>
+      Iniciar auditoria
+    </a>
+  </header>
+
+  @if (emAndamento().length) {
+    <section class="retomar" aria-label="Auditorias em andamento">
+      @for (linha of emAndamento(); track linha.auditoria.id) {
+        <a class="retomar__item" [routerLink]="['/auditorias', linha.auditoria.id]">
+          <div class="retomar__cabeca">
+            <span class="retomar__obra">{{ linha.auditoria.obraNome }}</span>
+            <app-selo tipo="info">Em contagem</app-selo>
+          </div>
+          @if (linha.auditoria.filialNome) {
+            <span class="retomar__filial">{{ linha.auditoria.filialNome }}</span>
+          }
+          <div class="progresso">
+            <div class="progresso__trilho">
+              <span class="progresso__barra" [style.width.%]="linha.percentual"></span>
+            </div>
+            <span class="progresso__numero">{{ linha.percentual }}%</span>
+          </div>
+          <p class="retomar__detalhe">
+            {{ linha.resumo.conferidos }} de {{ linha.resumo.totalItens }} conferidos
+            @if (linha.restantes) {
+              · faltam {{ linha.restantes }}
+            }
+            @if (linha.resumo.divergentes) {
+              · <span class="texto-critico">{{ linha.resumo.divergentes }} divergências</span>
+            }
+          </p>
+          <span class="retomar__acao">
+            Continuar contagem
+            <i-lucide [img]="icones.proximo" [size]="14" aria-hidden="true"></i-lucide>
+          </span>
+        </a>
+      }
+    </section>
+  }
+
+  <section class="numeros" aria-label="Resumo das auditorias">
+    <span><strong>{{ numeros().total }}</strong> auditorias</span>
+    <span class="separador" aria-hidden="true"></span>
+    <span><strong>{{ numeros().andamento }}</strong> em contagem</span>
+    <span class="separador" aria-hidden="true"></span>
+    <span><strong>{{ numeros().aguardando }}</strong> aguardando a obra</span>
+    <span class="separador" aria-hidden="true"></span>
+    <span class="numeros--critico">
+      <strong>{{ numeros().vencidos }}</strong> com prazo vencido
+    </span>
+  </section>
+
+  <div class="colunas">
+    <section class="quadro">
+      <div class="quadro__topo">
+        <h2>Precisa de atenção</h2>
+        <a class="botao botao--pequeno botao--fantasma" routerLink="/historico">Ver histórico</a>
+      </div>
+
+      @if (!pendencias().length) {
+        <app-estado-vazio
+          titulo="Nenhuma cobrança em aberto"
+          descricao="Auditorias concluídas com prazo aparecem aqui até a obra regularizar."
+        />
+      } @else {
+        <ul class="pendencias">
+          @for (pendencia of pendencias(); track pendencia.auditoria.id) {
+            <li class="pendencia" [class.pendencia--vencida]="pendencia.vencido">
+              <span class="pendencia__marca" aria-hidden="true"></span>
+              <div class="pendencia__corpo">
+                <span class="pendencia__obra">{{ pendencia.auditoria.obraNome }}</span>
+                <span class="pendencia__detalhe">{{ pendencia.detalhe }}</span>
+              </div>
+              @if (pendencia.valor) {
+                <span class="pendencia__valor">{{ pendencia.valor | moeda }}</span>
+              }
+              <app-selo [tipo]="pendencia.vencido ? 'erro' : 'atencao'">
+                {{ pendencia.rotulo }}
+              </app-selo>
+              <a
+                class="botao botao--pequeno"
+                [routerLink]="['/auditorias', pendencia.auditoria.id, 'relatorio']"
+              >
+                Abrir
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="quadro">
+      <div class="quadro__topo">
+        <h2>Atividades recentes</h2>
+      </div>
+      <ol class="linha-tempo">
+        @for (atividade of atividades(); track atividade.id) {
+          <li class="evento evento--{{ atividade.tipo }}">
+            <span class="evento__marca" aria-hidden="true"></span>
+            <div class="evento__corpo">
+              <span class="evento__texto">{{ atividade.texto }}</span>
+              <span class="evento__obra">{{ atividade.obra }}</span>
+            </div>
+            <time class="evento__data" [attr.datetime]="atividade.data">
+              {{ atividade.data | date: 'dd/MM HH:mm' }}
+            </time>
+          </li>
+        }
+      </ol>
+    </section>
+  </div>
+}

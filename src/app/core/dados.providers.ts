@@ -1,14 +1,17 @@
 import { Provider } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { AuditoriasApiService } from './api/auditorias.api.service';
+import { AutenticacaoApiService } from './api/autenticacao.api.service';
 import { EquipeApiService } from './api/equipe.api.service';
 import { EstoqueApiService } from './api/estoque.api.service';
 import { ObrasApiService } from './api/obras.api.service';
 import { AuditoriasMockService } from './mock/auditorias.mock.service';
+import { AutenticacaoMockService } from './mock/autenticacao.mock.service';
 import { EquipeMockService } from './mock/equipe.mock.service';
 import { EstoqueMockService } from './mock/estoque.mock.service';
 import { ObrasMockService } from './mock/obras.mock.service';
 import { AuditoriasService } from './services/auditorias.service';
+import { AutenticacaoService } from './services/autenticacao.service';
 import { EquipeService } from './services/equipe.service';
 import { EstoqueService } from './services/estoque.service';
 import { ObrasService } from './services/obras.service';
@@ -20,6 +23,7 @@ export function fornecerDados(): Provider[] {
       { provide: EstoqueService, useClass: EstoqueMockService },
       { provide: EquipeService, useClass: EquipeMockService },
       { provide: AuditoriasService, useClass: AuditoriasMockService },
+      { provide: AutenticacaoService, useClass: AutenticacaoMockService },
     ];
   }
 
@@ -28,5 +32,6 @@ export function fornecerDados(): Provider[] {
     { provide: EstoqueService, useClass: EstoqueApiService },
     { provide: EquipeService, useClass: EquipeApiService },
     { provide: AuditoriasService, useClass: AuditoriasApiService },
+    { provide: AutenticacaoService, useClass: AutenticacaoApiService },
   ];
 }

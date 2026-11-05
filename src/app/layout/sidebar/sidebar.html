@@ -1,29 +1,50 @@
 <nav class="lateral" [class.lateral--recolhida]="recolhida()" aria-label="Navegação principal">
-  <div class="lateral__marca">
-    <span class="lateral__sigla" aria-hidden="true">AE</span>
+  <a class="marca" routerLink="/inicio">
+    <span class="marca__sinal" aria-hidden="true">CE</span>
     @if (!recolhida()) {
-      <span class="lateral__nome">Auditoria de Estoque</span>
+      <span class="marca__texto">
+        <span class="marca__nome">Contagem</span>
+        <span class="marca__sub">auditoria de estoque</span>
+      </span>
     }
-  </div>
+  </a>
 
-  <ul class="lateral__lista">
-    @for (item of itens; track item.rota) {
+  <ul class="lista">
+    @for (item of principais; track item.rota) {
       <li>
         <a
-          class="lateral__link"
+          class="link"
           [routerLink]="item.rota"
-          routerLinkActive="lateral__link--ativo"
+          routerLinkActive="link--ativo"
           [routerLinkActiveOptions]="{ exact: item.exato }"
           [attr.title]="recolhida() ? item.rotulo : null"
         >
           <i-lucide [img]="item.icone" [size]="17" aria-hidden="true"></i-lucide>
-          @if (!recolhida()) {
-            <span>{{ item.rotulo }}</span>
-          } @else {
+          @if (recolhida()) {
             <span class="visivel-leitor">{{ item.rotulo }}</span>
+          } @else {
+            <span class="link__texto">{{ item.rotulo }}</span>
           }
         </a>
       </li>
     }
+  </ul>
+
+  <ul class="lista lista--rodape">
+    <li>
+      <a
+        class="link link--secundario"
+        routerLink="/configuracoes"
+        routerLinkActive="link--ativo"
+        [attr.title]="recolhida() ? 'Configurações' : null"
+      >
+        <i-lucide [img]="icones.configuracoes" [size]="16" aria-hidden="true"></i-lucide>
+        @if (recolhida()) {
+          <span class="visivel-leitor">Configurações</span>
+        } @else {
+          <span class="link__texto">Configurações</span>
+        }
+      </a>
+    </li>
   </ul>
 </nav>

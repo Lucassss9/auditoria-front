@@ -13,12 +13,13 @@ import { ICONES } from '../../shared/icones';
 export class Sidebar {
   readonly recolhida = input(false);
 
-  protected readonly itens = [
-    { rota: '/painel', rotulo: 'Visão geral', icone: ICONES.painel, exato: true },
+  protected readonly icones = ICONES;
+
+  protected readonly principais = [
+    { rota: '/inicio', rotulo: 'Início', icone: ICONES.inicio, exato: true },
     { rota: '/auditorias', rotulo: 'Auditorias', icone: ICONES.auditorias, exato: false },
     { rota: '/obras', rotulo: 'Obras', icone: ICONES.obras, exato: false },
     { rota: '/equipes', rotulo: 'Equipes', icone: ICONES.equipes, exato: false },
     { rota: '/historico', rotulo: 'Histórico', icone: ICONES.historico, exato: false },
-    { rota: '/configuracoes', rotulo: 'Configurações', icone: ICONES.configuracoes, exato: false },
   ];
 }

@@ -2,16 +2,19 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { prazoVencido, resumirAuditoria } from '../../core/domain/auditoria-calculos';
+import {
+  prazoVencido,
+  progresso,
+  resumirAuditoria,
+} from '../../core/domain/auditoria-calculos';
 import { Auditoria } from '../../core/models/auditoria.model';
 import { AuditoriasService } from '../../core/services/auditorias.service';
 import { Requisicao } from '../../core/utils/requisicao';
 import { AvisoErro } from '../../shared/components/aviso-erro/aviso-erro';
-import { CabecalhoPagina } from '../../shared/components/cabecalho-pagina/cabecalho-pagina';
 import { Carregando } from '../../shared/components/carregando/carregando';
-import { CartaoMetrica } from '../../shared/components/cartao-metrica/cartao-metrica';
 import { EstadoVazio } from '../../shared/components/estado-vazio/estado-vazio';
-import { Selo, TipoSelo } from '../../shared/components/selo/selo';
+import { Selo } from '../../shared/components/selo/selo';
+import { MoedaPipe } from '../../shared/pipes/moeda.pipe';
 import { ICONES } from '../../shared/icones';
 
 interface Atividade {
@@ -19,26 +22,34 @@ interface Atividade {
   data: string;
   texto: string;
   obra: string;
+  tipo: 'inicio' | 'fim' | 'comunicado';
+}
+
+interface Pendencia {
+  auditoria: Auditoria;
+  rotulo: string;
+  detalhe: string;
+  vencido: boolean;
+  valor: number;
 }
 
 @Component({
-  selector: 'app-painel',
+  selector: 'app-inicio',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     RouterLink,
     LucideAngularModule,
     AvisoErro,
-    CabecalhoPagina,
     Carregando,
-    CartaoMetrica,
     EstadoVazio,
     Selo,
+    MoedaPipe,
   ],
-  templateUrl: './painel.html',
-  styleUrl: './painel.scss',
+  templateUrl: './inicio.html',
+  styleUrl: './inicio.scss',
 })
-export class Painel {
+export class Inicio {
   private readonly servico = inject(AuditoriasService);
 
   protected readonly icones = ICONES;
@@ -47,12 +58,26 @@ export class Painel {
 
   protected readonly auditorias = computed(() => this.estado().dados ?? []);
 
-  protected readonly indicadores = computed(() => {
+  protected readonly emAndamento = computed(() =>
+    this.auditorias()
+      .filter((item) => item.status === 'EM_ANDAMENTO')
+      .map((auditoria) => {
+        const resumo = resumirAuditoria(auditoria);
+        return {
+          auditoria,
+          resumo,
+          percentual: progresso(auditoria),
+          restantes: resumo.naoConferidos,
+        };
+      }),
+  );
+
+  protected readonly numeros = computed(() => {
     const lista = this.auditorias();
 
     return {
       total: lista.length,
-      emAndamento: lista.filter((item) => item.status === 'EM_ANDAMENTO').length,
+      andamento: lista.filter((item) => item.status === 'EM_ANDAMENTO').length,
       aguardando: lista.filter(
         (item) => item.status === 'CONCLUIDA' && !!item.comunicado && !prazoVencido(item),
       ).length,
@@ -60,19 +85,25 @@ export class Painel {
     };
   });
 
-  protected readonly recentes = computed(() =>
+  protected readonly pendencias = computed<Pendencia[]>(() =>
     this.auditorias()
-      .slice(0, 6)
-      .map((auditoria) => ({
-        auditoria,
-        resumo: resumirAuditoria(auditoria),
-        situacao: this.descreverSituacao(auditoria),
-        tom: this.tomSituacao(auditoria),
-        rota:
-          auditoria.status === 'EM_ANDAMENTO'
-            ? ['/auditorias', auditoria.id]
-            : ['/auditorias', auditoria.id, 'relatorio'],
-      })),
+      .filter((auditoria) => auditoria.status === 'CONCLUIDA' && !!auditoria.comunicado)
+      .map((auditoria) => {
+        const resumo = resumirAuditoria(auditoria);
+        const vencido = prazoVencido(auditoria);
+
+        return {
+          auditoria,
+          rotulo: vencido ? 'Prazo vencido' : 'Aguardando a obra',
+          detalhe:
+            resumo.divergentes +
+            ' divergências · prazo ' +
+            this.formatarData(auditoria.comunicado?.prazo ?? ''),
+          vencido,
+          valor: resumo.valorFalta,
+        };
+      })
+      .sort((a, b) => Number(b.vencido) - Number(a.vencido) || b.valor - a.valor),
   );
 
   protected readonly atividades = computed(() => {
@@ -82,16 +113,18 @@ export class Painel {
       eventos.push({
         id: auditoria.id + '-inicio',
         data: auditoria.iniciadaEm,
-        texto: 'Auditoria iniciada',
+        texto: 'Contagem iniciada',
         obra: auditoria.obraNome,
+        tipo: 'inicio',
       });
 
       if (auditoria.concluidaEm) {
         eventos.push({
           id: auditoria.id + '-fim',
           data: auditoria.concluidaEm,
-          texto: auditoria.status === 'CANCELADA' ? 'Auditoria cancelada' : 'Auditoria concluída',
+          texto: auditoria.status === 'CANCELADA' ? 'Auditoria cancelada' : 'Conferência concluída',
           obra: auditoria.obraNome,
+          tipo: 'fim',
         });
       }
 
@@ -99,50 +132,23 @@ export class Painel {
         eventos.push({
           id: auditoria.id + '-comunicado',
           data: auditoria.comunicado.geradoEm,
-          texto: 'E-mail preparado com prazo até ' + this.formatarData(auditoria.comunicado.prazo),
+          texto: 'E-mail preparado, prazo até ' + this.formatarData(auditoria.comunicado.prazo),
           obra: auditoria.obraNome,
+          tipo: 'comunicado',
         });
       }
     }
 
     return eventos
       .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
-      .slice(0, 7);
+      .slice(0, 8);
   });
 
-  private descreverSituacao(auditoria: Auditoria): string {
-    if (auditoria.status === 'EM_ANDAMENTO') {
-      return 'Em andamento';
-    }
-
-    if (auditoria.status === 'CANCELADA') {
-      return 'Cancelada';
-    }
-
-    if (prazoVencido(auditoria)) {
-      return 'Prazo vencido';
-    }
-
-    return auditoria.comunicado ? 'Aguardando obra' : 'Concluída';
-  }
-
-  private tomSituacao(auditoria: Auditoria): TipoSelo {
-    if (auditoria.status === 'EM_ANDAMENTO') {
-      return 'info';
-    }
-
-    if (auditoria.status === 'CANCELADA') {
-      return 'neutro';
-    }
-
-    if (prazoVencido(auditoria)) {
-      return 'erro';
-    }
-
-    return auditoria.comunicado ? 'atencao' : 'ok';
-  }
-
   private formatarData(valor: string): string {
+    if (!valor) {
+      return 'sem data';
+    }
+
     return new Date(valor + 'T00:00:00').toLocaleDateString('pt-BR');
   }
 }

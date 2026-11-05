@@ -1,38 +1,75 @@
 :root {
-  --azul-900: #0b2a38;
-  --azul-800: #0f3a4c;
-  --azul-700: #134b61;
-  --azul-600: #185d77;
-  --azul-500: #2a7a97;
-  --azul-100: #e2edf2;
-  --azul-50: #f0f6f9;
+  color-scheme: light;
 
-  --verde-700: #1b6b45;
-  --verde-100: #e4f2ea;
-  --ambar-700: #8a5d08;
-  --ambar-100: #fbf0d9;
-  --vermelho-700: #a62a21;
-  --vermelho-100: #fae9e7;
+  --azul-500: #3157d5;
+  --azul-600: #2645b5;
+  --azul-400: #5c7bE4;
+  --azul-fundo: #eaefFD;
+  --azul-contorno: #b9c8f6;
 
-  --cinza-0: #ffffff;
-  --cinza-25: #fafbfc;
-  --cinza-50: #f4f7f8;
-  --cinza-100: #ebeff2;
-  --cinza-200: #dde4e8;
-  --cinza-300: #c6d0d6;
-  --cinza-400: #94a4ad;
-  --cinza-500: #6d7f89;
-  --cinza-600: #51636d;
-  --cinza-800: #27383f;
-  --cinza-900: #16242b;
+  --violeta-500: #7757e8;
+  --violeta-600: #6344cc;
+  --violeta-fundo: #f0ebfe;
+  --violeta-contorno: #cfc1fa;
 
-  --texto: var(--cinza-900);
-  --texto-fraco: var(--cinza-600);
-  --texto-apagado: var(--cinza-400);
-  --borda: var(--cinza-200);
-  --borda-forte: var(--cinza-300);
-  --fundo: var(--cinza-50);
-  --superficie: var(--cinza-0);
+  --ambar-cor: #a96500;
+  --ambar-fundo: #fdf1dc;
+  --ambar-contorno: #efcf96;
+
+  --rubro-cor: #c0322a;
+  --rubro-fundo: #fdeceb;
+  --rubro-contorno: #f2b6b1;
+
+  --jade-cor: #1a7f58;
+  --jade-fundo: #e6f6ef;
+  --jade-contorno: #a9dcc6;
+
+  --fundo: #f5f7fc;
+  --superficie: #ffffff;
+  --superficie-alt: #fafbfe;
+  --superficie-topo: #f0f3fa;
+  --superficie-realce: #eef2fb;
+
+  --texto: #20243a;
+  --texto-fraco: #565d7c;
+  --texto-apagado: #868da8;
+  --texto-invertido: #ffffff;
+
+  --borda: #e2e6ef;
+  --borda-forte: #ccd2e0;
+  --borda-foco: var(--azul-500);
+
+  --acao: var(--azul-500);
+  --acao-escura: var(--azul-600);
+  --acao-fundo: var(--azul-fundo);
+  --acao-contorno: var(--azul-contorno);
+  --acao-texto: #ffffff;
+
+  --realce: var(--violeta-500);
+  --realce-fundo: var(--violeta-fundo);
+  --realce-contorno: var(--violeta-contorno);
+
+  --ok: var(--jade-cor);
+  --ok-fundo: var(--jade-fundo);
+  --ok-contorno: var(--jade-contorno);
+  --atencao: var(--ambar-cor);
+  --atencao-fundo: var(--ambar-fundo);
+  --atencao-contorno: var(--ambar-contorno);
+  --critico: var(--rubro-cor);
+  --critico-fundo: var(--rubro-fundo);
+  --critico-contorno: var(--rubro-contorno);
+
+  --nav-fundo: #1b1f30;
+  --nav-texto: #a4abc7;
+  --nav-texto-forte: #ffffff;
+  --nav-hover: rgba(255, 255, 255, 0.07);
+  --nav-ativo: rgba(49, 87, 213, 0.26);
+  --nav-borda: rgba(255, 255, 255, 0.08);
+
+  --sombra-1: 0 1px 2px rgba(32, 36, 58, 0.06);
+  --sombra-2: 0 6px 18px rgba(32, 36, 58, 0.09);
+  --sombra-3: 0 18px 44px rgba(23, 26, 36, 0.18);
+  --foco-aura: 0 0 0 3px rgba(49, 87, 213, 0.22);
 
   --esp-1: 4px;
   --esp-2: 8px;
@@ -42,25 +79,98 @@
   --esp-6: 32px;
   --esp-7: 48px;
 
-  --raio: 4px;
-  --raio-g: 6px;
+  --raio-p: 4px;
+  --raio: 8px;
+  --raio-g: 12px;
 
-  --sombra-1: 0 1px 2px rgba(11, 42, 56, 0.06);
-  --sombra-2: 0 2px 8px rgba(11, 42, 56, 0.10);
-  --sombra-3: 0 8px 24px rgba(11, 42, 56, 0.14);
-
-  --fonte: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
-  --fonte-num: "Segoe UI", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --fonte: "Inter Tight", "IBM Plex Sans", "Segoe UI", -apple-system, BlinkMacSystemFont, Arial,
+    sans-serif;
+  --fonte-num: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 
   --t-11: 11px;
   --t-12: 12px;
   --t-13: 13px;
   --t-14: 14px;
-  --t-16: 16px;
-  --t-18: 18px;
-  --t-22: 22px;
+  --t-15: 15px;
+  --t-17: 17px;
+  --t-20: 20px;
+  --t-26: 26px;
 
-  --topo: 52px;
-  --lateral: 228px;
+  --topo: 54px;
+  --lateral: 214px;
   --lateral-min: 56px;
+  --painel: 380px;
+
+  --rapido: 110ms cubic-bezier(0.2, 0, 0.2, 1);
+  --suave: 180ms cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+@mixin tema-escuro {
+  color-scheme: dark;
+
+  --azul-500: #8197ff;
+  --azul-600: #9aacff;
+  --azul-400: #6c82ea;
+  --azul-fundo: rgba(129, 151, 255, 0.14);
+  --azul-contorno: rgba(129, 151, 255, 0.4);
+
+  --violeta-500: #aa96ff;
+  --violeta-600: #bcacff;
+  --violeta-fundo: rgba(170, 150, 255, 0.14);
+  --violeta-contorno: rgba(170, 150, 255, 0.38);
+
+  --ambar-cor: #f0b64b;
+  --ambar-fundo: rgba(240, 182, 75, 0.14);
+  --ambar-contorno: rgba(240, 182, 75, 0.38);
+
+  --rubro-cor: #ff8d82;
+  --rubro-fundo: rgba(255, 141, 130, 0.14);
+  --rubro-contorno: rgba(255, 141, 130, 0.38);
+
+  --jade-cor: #4fc08d;
+  --jade-fundo: rgba(79, 192, 141, 0.14);
+  --jade-contorno: rgba(79, 192, 141, 0.36);
+
+  --fundo: #171a24;
+  --superficie: #202431;
+  --superficie-alt: #1b1f2a;
+  --superficie-topo: #1d2130;
+  --superficie-realce: #252a3a;
+
+  --texto: #f1f3fa;
+  --texto-fraco: #aab1c8;
+  --texto-apagado: #828aa6;
+  --texto-invertido: #171a24;
+
+  --borda: #343b4f;
+  --borda-forte: #454d66;
+
+  --acao-texto: #171a24;
+
+  --nav-fundo: #12141c;
+  --nav-texto: #99a1bd;
+  --nav-ativo: rgba(129, 151, 255, 0.18);
+  --nav-borda: rgba(255, 255, 255, 0.06);
+
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sombra-2: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --sombra-3: 0 18px 44px rgba(0, 0, 0, 0.55);
+  --foco-aura: 0 0 0 3px rgba(129, 151, 255, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    @include tema-escuro;
+  }
+}
+
+:root[data-tema="escuro"] {
+  @include tema-escuro;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --rapido: 1ms;
+    --suave: 1ms;
+  }
 }
