@@ -1,13 +1,41 @@
+.filial {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  flex-wrap: wrap;
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: 1px solid var(--borda);
+  background: var(--superficie-alt);
+}
+
+.filial__identidade {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-width: 0;
+
+  i-lucide {
+    display: flex;
+    flex: 0 0 auto;
+    color: var(--acao);
+  }
+
+  h2 {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .celula-nome {
   font-weight: 500;
 }
 
-.regional {
-  display: inline-block;
-  margin-left: var(--esp-1);
-  padding: 0 5px;
-  border: 1px solid var(--borda);
-  border-radius: 3px;
-  font-size: var(--t-11);
-  color: var(--texto-apagado);
+.acoes {
+  text-align: right;
+}
+
+.espaco-acima {
+  margin-top: var(--esp-3);
 }

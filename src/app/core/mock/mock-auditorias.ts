@@ -7,17 +7,6 @@ import {
 import { InsumoEstoque } from '../models/insumo.model';
 import { FILIAIS_MOCK, OBRAS_MOCK } from './mock-cadastros';
 
-interface SementeItem {
-  codigo: string;
-  lista: string | null;
-  quantidadeReal?: number;
-  situacao?: SituacaoItem;
-  motivo?: MotivoNaoContagem;
-  observacao?: string;
-  local?: string;
-  fotos?: number;
-}
-
 interface SementeAuditoria {
   id: string;
   obraId: string;
@@ -25,10 +14,21 @@ interface SementeAuditoria {
   status: Auditoria['status'];
   iniciadaEm: string;
   concluidaEm: string | null;
-  itens: SementeItem[];
+  categorias: string[];
+  porCategoria: number;
+  deixarPendentes: boolean;
   foraDoEstoque: Auditoria['foraDoEstoque'];
   comunicado: Auditoria['comunicado'];
 }
+
+const MOTIVOS_CICLO: MotivoNaoContagem[] = [
+  'LOCAL_TRANCADO',
+  'OBRA_NAO_LOCALIZOU',
+  'MATERIAL_EM_USO',
+  'SEM_ACESSO_SEGURO',
+];
+
+const LOCAIS = ['Pátio dos fundos', 'Almoxarifado', 'Contêiner 2', 'Subsolo', 'Lateral do bloco B'];
 
 const SEMENTES: SementeAuditoria[] = [
   {
@@ -38,28 +38,9 @@ const SEMENTES: SementeAuditoria[] = [
     status: 'EM_ANDAMENTO',
     iniciadaEm: '2026-11-05T08:40:00',
     concluidaEm: null,
-    itens: [
-      { codigo: '29535', lista: 'Blocos', quantidadeReal: 850, situacao: 'CONFERIDO', local: 'Pátio dos fundos', fotos: 2 },
-      { codigo: '29513', lista: 'Blocos', quantidadeReal: 480, situacao: 'CONFERIDO', local: 'Pátio dos fundos', fotos: 1 },
-      { codigo: '28856', lista: 'Blocos', quantidadeReal: 148, situacao: 'CONFERIDO', local: 'Pátio dos fundos', observacao: 'Pallet aberto, contagem conferida duas vezes.' },
-      {
-        codigo: '29206',
-        lista: 'Blocos',
-        situacao: 'NAO_CONTADO',
-        motivo: 'LOCAL_TRANCADO',
-        observacao: 'Contêiner 3 sem chave no dia da visita.',
-      },
-      { codigo: '27401', lista: 'Blocos', quantidadeReal: 344, situacao: 'CONFERIDO', local: 'Almoxarifado' },
-      { codigo: '31220', lista: 'Aço', quantidadeReal: 232, situacao: 'CONFERIDO', local: 'Pátio de armação', fotos: 1 },
-      { codigo: '31222', lista: 'Aço', quantidadeReal: 304, situacao: 'CONFERIDO' },
-      { codigo: '31230', lista: 'Aço' },
-      { codigo: '30510', lista: 'Cabos' },
-      { codigo: '30512', lista: 'Cabos' },
-      { codigo: '33781', lista: null, quantidadeReal: 0, situacao: 'CONFERIDO', local: 'Contêiner 2', fotos: 1 },
-      { codigo: '41010', lista: 'Louças', quantidadeReal: 118, situacao: 'CONFERIDO', local: 'Depósito do subsolo' },
-      { codigo: '41011', lista: 'Louças' },
-      { codigo: '41014', lista: 'Louças' },
-    ],
+    categorias: ['Alvenaria', 'Aço e armação', 'Louças e metais', 'Elétrica'],
+    porCategoria: 9,
+    deixarPendentes: true,
     foraDoEstoque: [
       {
         id: 'fe1',
@@ -84,16 +65,9 @@ const SEMENTES: SementeAuditoria[] = [
     status: 'CONCLUIDA',
     iniciadaEm: '2026-10-09T08:10:00',
     concluidaEm: '2026-10-12T17:25:00',
-    itens: [
-      { codigo: '29535', lista: 'Blocos', quantidadeReal: 820, situacao: 'CONFERIDO' },
-      { codigo: '27401', lista: 'Blocos', quantidadeReal: 294, situacao: 'CONFERIDO' },
-      { codigo: '27420', lista: 'Blocos', quantidadeReal: 202, situacao: 'CONFERIDO' },
-      { codigo: '31221', lista: 'Aço', quantidadeReal: 1210, situacao: 'CONFERIDO' },
-      { codigo: '31240', lista: 'Aço', quantidadeReal: 71, situacao: 'CONFERIDO' },
-      { codigo: '30511', lista: 'Cabos', quantidadeReal: 13, situacao: 'CONFERIDO' },
-      { codigo: '30520', lista: 'Cabos', situacao: 'NAO_CONTADO', motivo: 'OBRA_NAO_LOCALIZOU' },
-      { codigo: '32111', lista: null, quantidadeReal: 118, situacao: 'CONFERIDO' },
-    ],
+    categorias: ['Alvenaria', 'Hidráulica', 'Consumíveis'],
+    porCategoria: 7,
+    deixarPendentes: false,
     foraDoEstoque: [],
     comunicado: {
       destinatariosIds: ['r8', 'r9'],
@@ -106,18 +80,13 @@ const SEMENTES: SementeAuditoria[] = [
   {
     id: 'a3',
     obraId: 'o2',
-    responsavel: 'Davi Ferreira',
+    responsavel: 'Regina Paes',
     status: 'CONCLUIDA',
     iniciadaEm: '2026-10-27T09:00:00',
     concluidaEm: '2026-10-28T16:05:00',
-    itens: [
-      { codigo: '41010', lista: 'Louças', quantidadeReal: 74, situacao: 'CONFERIDO' },
-      { codigo: '41011', lista: 'Louças', quantidadeReal: 73, situacao: 'CONFERIDO' },
-      { codigo: '41013', lista: 'Louças', quantidadeReal: 30, situacao: 'CONFERIDO' },
-      { codigo: '41041', lista: 'Louças', quantidadeReal: 130, situacao: 'CONFERIDO' },
-      { codigo: '32110', lista: null, quantidadeReal: 161, situacao: 'CONFERIDO' },
-      { codigo: '32130', lista: null, quantidadeReal: 47, situacao: 'CONFERIDO' },
-    ],
+    categorias: ['Louças e metais', 'Revestimentos'],
+    porCategoria: 8,
+    deixarPendentes: false,
     foraDoEstoque: [
       {
         id: 'fe2',
@@ -141,27 +110,51 @@ const SEMENTES: SementeAuditoria[] = [
   },
 ];
 
-function montarItem(semente: SementeItem, insumo: InsumoEstoque, indice: number): ItemAuditoria {
-  const situacao: SituacaoItem = semente.situacao ?? 'NAO_CONFERIDO';
+function montarItem(
+  insumo: InsumoEstoque,
+  indice: number,
+  deixarPendentes: boolean,
+  iniciadaEm: string,
+): ItemAuditoria {
+  let situacao: SituacaoItem = 'CONFERIDO';
+  let quantidadeReal: number | null = insumo.quantidade;
+  let motivo: MotivoNaoContagem | null = null;
+
+  if (deixarPendentes && indice % 4 === 3) {
+    situacao = 'NAO_CONFERIDO';
+    quantidadeReal = null;
+  } else if (indice % 13 === 5) {
+    situacao = 'NAO_CONTADO';
+    quantidadeReal = null;
+    motivo = MOTIVOS_CICLO[indice % MOTIVOS_CICLO.length];
+  } else if (indice % 5 === 0 && insumo.quantidade > 0) {
+    quantidadeReal = Math.max(0, insumo.quantidade - Math.ceil(insumo.quantidade * 0.08) - 2);
+  } else if (indice % 7 === 2) {
+    quantidadeReal = insumo.quantidade + 1 + (indice % 4);
+  }
+
+  const fotos = indice % 6 === 0 ? 2 : indice % 3 === 0 ? 1 : 0;
 
   return {
-    id: `${insumo.obraId}-${semente.codigo}-${indice}`,
+    id: 'item-' + insumo.obraId + '-' + insumo.codigo,
     codigo: insumo.codigo,
     descricao: insumo.descricao,
+    categoria: insumo.categoria,
     unidade: insumo.unidade,
     quantidadeSistema: insumo.quantidade,
     valorUnitarioReferencia: insumo.valorUnitario,
-    lista: semente.lista,
-    quantidadeReal: situacao === 'CONFERIDO' ? (semente.quantidadeReal ?? 0) : null,
+    lista: insumo.categoria,
+    quantidadeReal,
     situacao,
-    motivoNaoContagem: semente.motivo ?? null,
-    local: semente.local ?? null,
-    observacao: semente.observacao ?? '',
-    evidencias: Array.from({ length: semente.fotos ?? 0 }, (_, posicao) => ({
-      id: `ev-${insumo.obraId}-${semente.codigo}-${posicao}`,
-      nome: `${semente.codigo}-${posicao + 1}.jpg`,
+    motivoNaoContagem: motivo,
+    local: situacao === 'CONFERIDO' ? LOCAIS[indice % LOCAIS.length] : null,
+    observacao:
+      situacao === 'NAO_CONTADO' ? 'Registrado em campo para verificação na próxima visita.' : '',
+    evidencias: Array.from({ length: fotos }, (_, posicao) => ({
+      id: 'ev-' + insumo.obraId + '-' + insumo.codigo + '-' + posicao,
+      nome: insumo.codigo + '-' + (posicao + 1) + '.jpg',
       conteudo: '',
-      criadoEm: '2026-11-05T10:00:00',
+      criadoEm: iniciadaEm,
     })),
   };
 }
@@ -171,20 +164,24 @@ export function gerarAuditoriasMock(estoque: InsumoEstoque[]): Auditoria[] {
     const obra = OBRAS_MOCK.find((item) => item.id === semente.obraId)!;
     const filial = FILIAIS_MOCK.find((item) => item.id === obra.filialId) ?? null;
 
-    const itens = semente.itens
-      .map((item, indice) => {
-        const insumo = estoque.find(
-          (linha) => linha.obraId === semente.obraId && linha.codigo === item.codigo,
-        );
-        return insumo ? montarItem(item, insumo, indice) : null;
-      })
-      .filter((item): item is ItemAuditoria => item !== null);
+    const selecionados: InsumoEstoque[] = [];
+
+    for (const categoria of semente.categorias) {
+      const daCategoria = estoque.filter(
+        (item) => item.obraId === semente.obraId && item.categoria === categoria,
+      );
+      selecionados.push(...daCategoria.slice(0, semente.porCategoria));
+    }
+
+    const itens = selecionados.map((insumo, indice) =>
+      montarItem(insumo, indice, semente.deixarPendentes, semente.iniciadaEm),
+    );
 
     return {
       id: semente.id,
       obraId: obra.id,
       obraNome: obra.nome,
-      filialNome: filial ? `${filial.codigo} - ${filial.nome}` : null,
+      filialNome: filial ? filial.codigo + ' - ' + filial.nome : null,
       responsavel: semente.responsavel,
       status: semente.status,
       iniciadaEm: semente.iniciadaEm,

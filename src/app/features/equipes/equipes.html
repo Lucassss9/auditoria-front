@@ -12,11 +12,11 @@
 } @else if (estado().erro) {
   <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
 } @else {
-  <section class="filtros">
+  <section class="barra-ferramentas quadro espaco-abaixo">
     <label class="visivel-leitor" for="filtro-obra">Obra</label>
     <select
       id="filtro-obra"
-      class="entrada filtros__select"
+      class="entrada largura-auto"
       [value]="obraSelecionada()"
       (change)="obraSelecionada.set($any($event.target).value)"
     >
@@ -25,7 +25,7 @@
         <option [value]="obra.id">{{ obra.nome }}</option>
       }
     </select>
-    <span class="filtros__contagem">{{ responsaveis().length }} responsáveis</span>
+    <span class="contagem">{{ responsaveis().length }} responsáveis</span>
   </section>
 
   @if (!agrupados().length) {
@@ -42,7 +42,7 @@
       <section class="quadro grupo">
         <div class="quadro__topo">
           <h2>{{ grupo.obra }}</h2>
-          <span class="filtros__contagem">{{ grupo.pessoas.length }} pessoas</span>
+          <span class="contagem">{{ grupo.pessoas.length }} pessoas</span>
         </div>
         <div class="rolagem-x">
           <table class="tabela">

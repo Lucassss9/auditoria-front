@@ -13,6 +13,7 @@ function item(parcial: Partial<ItemAuditoria>): ItemAuditoria {
     id: 'i1',
     codigo: '29535',
     descricao: 'Bloco de concreto estrutural',
+    categoria: 'Alvenaria',
     unidade: 'un',
     quantidadeSistema: 1000,
     valorUnitarioReferencia: 3,

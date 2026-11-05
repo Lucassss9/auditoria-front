@@ -12,7 +12,7 @@
   gap: var(--esp-5);
   flex-wrap: wrap;
   padding-bottom: var(--esp-4);
-  border-bottom: 2px solid var(--azul-900);
+  border-bottom: 2px solid var(--texto);
 }
 
 .relatorio__obra {
@@ -66,7 +66,7 @@
     flex-direction: column;
     gap: 2px;
     padding: var(--esp-2) var(--esp-3);
-    background: var(--cinza-25);
+    background: var(--superficie-alt);
     border: 1px solid var(--borda);
     border-radius: var(--raio);
   }
@@ -89,11 +89,11 @@
 }
 
 .texto-falta {
-  color: var(--vermelho-700);
+  color: var(--critico);
 }
 
 .texto-sobra {
-  color: var(--ambar-700);
+  color: var(--atencao);
 }
 
 .lista-simples {

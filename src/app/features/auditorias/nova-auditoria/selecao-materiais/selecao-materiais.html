@@ -1,15 +1,10 @@
-<div class="selecao">
-  <section class="selecao__busca">
-    <div class="quadro__topo">
-      <h2>Pesquisar materiais da obra</h2>
-      <span class="filtros__contagem">{{ resultados().length }} resultados</span>
-    </div>
-
-    <div class="busca">
-      <div class="filtros__busca">
+<div class="area" [class.area--sem-painel]="!painelSelecao()">
+  <section class="busca quadro">
+    <div class="barra-ferramentas">
+      <div class="campo-busca">
         <i-lucide [img]="icones.buscar" [size]="15" aria-hidden="true"></i-lucide>
         <label class="visivel-leitor" for="busca-insumo">
-          Buscar por nome, descrição ou código
+          Buscar insumo por descrição ou código
         </label>
         <input
           id="busca-insumo"
@@ -17,38 +12,59 @@
           type="search"
           placeholder="pia, cuba, tanque, bloco, aço, cabo ou o código"
           [value]="termo()"
-          (input)="buscar($any($event.target).value)"
+          (input)="aoDigitar($any($event.target).value)"
         />
       </div>
 
-      @if (favoritas.estado().dados?.length) {
-        <div class="favoritas">
-          <span class="favoritas__titulo">Listas salvas</span>
-          @for (favorita of favoritas.estado().dados ?? []; track favorita.id) {
-            <span class="favoritas__item">
-              <button type="button" class="botao botao--pequeno" (click)="aplicarFavorita(favorita)">
-                {{ favorita.nome }}
-              </button>
-              <button
-                type="button"
-                class="botao botao--pequeno botao--discreto botao--icone"
-                [attr.aria-label]="'Remover lista ' + favorita.nome"
-                (click)="removerFavorita(favorita.id)"
-              >
-                <i-lucide [img]="icones.fechar" [size]="12" aria-hidden="true"></i-lucide>
-              </button>
-            </span>
-          }
-        </div>
+      <label class="visivel-leitor" for="categoria-insumo">Categoria</label>
+      <select
+        id="categoria-insumo"
+        class="entrada largura-auto"
+        [value]="categoria() ?? ''"
+        (change)="definirCategoria($any($event.target).value || null)"
+      >
+        <option value="">Todas as categorias</option>
+        @for (nome of categorias(); track nome) {
+          <option [value]="nome">{{ nome }}</option>
+        }
+      </select>
+
+      <span class="contagem">
+        {{ resultados().length }} encontrados · {{ selecionados().length }} selecionados
+      </span>
+    </div>
+
+    <div class="listas-salvas">
+      <span class="rotulo-secao">Listas salvas</span>
+      @for (favorita of favoritas.estado().dados ?? []; track favorita.id) {
+        <button
+          type="button"
+          class="chip"
+          [class.chip--ativo]="favoritaAplicada() === favorita.id"
+          (click)="aplicarFavorita(favorita)"
+        >
+          <i-lucide [img]="icones.salvo" [size]="12" aria-hidden="true"></i-lucide>
+          {{ favorita.nome }}
+          <span
+            class="chip__fechar"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="'Remover lista ' + favorita.nome"
+            (click)="removerFavorita(favorita.id, $event)"
+            (keydown.enter)="removerFavorita(favorita.id, $event)"
+          >
+            <i-lucide [img]="icones.fechar" [size]="11" aria-hidden="true"></i-lucide>
+          </span>
+        </button>
       }
 
-      <div class="salvar-lista">
-        <label class="visivel-leitor" for="nome-lista">Nome da nova lista salva</label>
+      <span class="salvar-busca">
+        <label class="visivel-leitor" for="nome-lista">Nome para salvar esta busca</label>
         <input
           id="nome-lista"
           class="entrada"
           type="text"
-          placeholder="Salvar esta busca como…"
+          placeholder="Salvar busca como…"
           [value]="nomeNovaLista()"
           (input)="nomeNovaLista.set($any($event.target).value)"
         />
@@ -58,27 +74,9 @@
           [disabled]="!nomeNovaLista().trim() || !termo().trim()"
           (click)="salvarComoFavorita()"
         >
-          Salvar busca
+          Salvar
         </button>
-      </div>
-
-      <div class="destino">
-        <label class="campo__rotulo" for="lista-destino">Adicionar os próximos itens à lista</label>
-        <input
-          id="lista-destino"
-          class="entrada"
-          type="text"
-          list="listas-existentes"
-          placeholder="Louças, Blocos, Aço…"
-          [value]="listaDestino()"
-          (input)="listaDestino.set($any($event.target).value)"
-        />
-        <datalist id="listas-existentes">
-          @for (nome of nomesDeListas(); track nome) {
-            <option [value]="nome"></option>
-          }
-        </datalist>
-      </div>
+      </span>
     </div>
 
     @if (buscando()) {
@@ -91,28 +89,88 @@
       />
     } @else if (!resultados().length) {
       <app-estado-vazio
-        [titulo]="jaBuscou() ? 'Nenhum material encontrado' : 'Pesquise os materiais a auditar'"
-        descricao="A seleção é explícita: nenhum item entra na auditoria sem você marcar."
+        titulo="Nenhum material encontrado"
+        descricao="Troque o termo ou a categoria. Nenhum item entra na auditoria sem você marcar."
       />
     } @else {
-      <div class="rolagem-x">
+      <div class="rolagem-tabela">
         <table class="tabela">
           <caption class="visivel-leitor">Resultados da busca no estoque da obra</caption>
           <thead>
             <tr>
-              <th scope="col">Código</th>
-              <th scope="col">Descrição</th>
+              <th scope="col" class="coluna-marca"><span class="visivel-leitor">Seleção</span></th>
+              <th scope="col">
+                <button type="button" class="ordenar" (click)="ordenarPor('codigo')">
+                  Código
+                  @if (campoOrdem() === 'codigo') {
+                    <i-lucide
+                      [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                      [size]="12"
+                      aria-hidden="true"
+                    ></i-lucide>
+                  }
+                </button>
+              </th>
+              <th scope="col">
+                <button type="button" class="ordenar" (click)="ordenarPor('descricao')">
+                  Descrição
+                  @if (campoOrdem() === 'descricao') {
+                    <i-lucide
+                      [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                      [size]="12"
+                      aria-hidden="true"
+                    ></i-lucide>
+                  }
+                </button>
+              </th>
               <th scope="col">Un.</th>
-              <th scope="col">Qtde. sistema</th>
-              <th scope="col">Valor unit.</th>
-              <th scope="col"><span class="visivel-leitor">Selecionar</span></th>
+              <th scope="col" class="tabela__num">
+                <button type="button" class="ordenar" (click)="ordenarPor('quantidade')">
+                  Sistema
+                  @if (campoOrdem() === 'quantidade') {
+                    <i-lucide
+                      [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                      [size]="12"
+                      aria-hidden="true"
+                    ></i-lucide>
+                  }
+                </button>
+              </th>
+              <th scope="col" class="tabela__num">
+                <button type="button" class="ordenar" (click)="ordenarPor('valor')">
+                  Valor unit.
+                  @if (campoOrdem() === 'valor') {
+                    <i-lucide
+                      [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                      [size]="12"
+                      aria-hidden="true"
+                    ></i-lucide>
+                  }
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
-            @for (insumo of resultados(); track insumo.id) {
-              <tr [class.linha--escolhida]="selecionadosIds().has(insumo.id)">
+            @for (insumo of resultadosOrdenados(); track insumo.id) {
+              <tr
+                class="linha"
+                [class.linha--escolhida]="selecionadosIds().has(insumo.id)"
+                (click)="alternar(insumo)"
+              >
+                <td class="coluna-marca">
+                  <input
+                    type="checkbox"
+                    [checked]="selecionadosIds().has(insumo.id)"
+                    [attr.aria-label]="'Selecionar ' + insumo.descricao"
+                    (click)="$event.stopPropagation()"
+                    (change)="alternar(insumo)"
+                  />
+                </td>
                 <td class="tabela__codigo">{{ insumo.codigo }}</td>
-                <td>{{ insumo.descricao }}</td>
+                <td>
+                  <span class="descricao">{{ insumo.descricao }}</span>
+                  <span class="categoria">{{ insumo.categoria }}</span>
+                </td>
                 <td>{{ insumo.unidade }}</td>
                 <td class="tabela__num">{{ insumo.quantidade | quantidade }}</td>
                 <td class="tabela__num">
@@ -122,77 +180,111 @@
                     {{ insumo.valorUnitario | moeda }}
                   }
                 </td>
-                <td>
-                  <button type="button" class="botao botao--pequeno" (click)="alternar(insumo)">
-                    {{ selecionadosIds().has(insumo.id) ? 'Remover' : 'Selecionar' }}
-                  </button>
-                </td>
               </tr>
             }
           </tbody>
         </table>
       </div>
 
-      <div class="acoes-busca">
-        <button type="button" class="botao botao--pequeno" (click)="adicionarTodosOsResultados()">
-          Selecionar os {{ resultados().length }} resultados
+      <div class="rodape-busca">
+        <span class="campo__ajuda">
+          Descrições parecidas podem ser materiais diferentes. Confira código e unidade.
+        </span>
+        <button
+          type="button"
+          class="botao botao--pequeno"
+          [disabled]="!naoSelecionadosVisiveis()"
+          (click)="adicionarResultados()"
+        >
+          Selecionar os {{ naoSelecionadosVisiveis() }} restantes
         </button>
       </div>
     }
   </section>
 
-  <aside class="selecao__escolhidos">
+  <aside class="escolhidos quadro">
     <div class="quadro__topo">
       <h2>Selecionados</h2>
-      <span class="filtros__contagem">{{ selecionados().length }} itens</span>
+      <span class="contagem">{{ selecionados().length }} itens</span>
+    </div>
+
+    <div class="destino">
+      <label class="campo__rotulo" for="lista-destino">Adicionar à lista</label>
+      <input
+        id="lista-destino"
+        class="entrada"
+        type="text"
+        list="listas-existentes"
+        placeholder="Usa a categoria do item"
+        [value]="listaDestino()"
+        (input)="listaDestino.set($any($event.target).value)"
+      />
+      <datalist id="listas-existentes">
+        @for (nome of nomesDeListas(); track nome) {
+          <option [value]="nome"></option>
+        }
+      </datalist>
     </div>
 
     @if (!selecionados().length) {
       <app-estado-vazio
-        titulo="Nada selecionado ainda"
-        descricao="Os materiais escolhidos aparecem aqui, separados pelas listas que você criar."
+        titulo="Nada selecionado"
+        descricao="Marque os materiais na busca ao lado. Eles aparecem aqui separados por lista."
       />
     } @else {
-      @for (grupo of grupos(); track grupo.nome) {
-        <div class="grupo">
-          <h3 class="grupo__titulo">{{ grupo.nome }} <span>({{ grupo.itens.length }})</span></h3>
-          <ul class="escolhidos">
-            @for (item of grupo.itens; track item.insumo.id) {
-              <li class="escolhido">
-                <div class="escolhido__texto">
-                  <span class="escolhido__codigo">{{ item.insumo.codigo }}</span>
-                  <span class="escolhido__descricao">{{ item.insumo.descricao }}</span>
-                  <span class="escolhido__meta">
-                    {{ item.insumo.quantidade | quantidade }} {{ item.insumo.unidade }} no sistema
-                  </span>
-                </div>
-                <label class="visivel-leitor" [attr.for]="'lista-' + item.insumo.id">
-                  Lista do item {{ item.insumo.descricao }}
-                </label>
-                <input
-                  [id]="'lista-' + item.insumo.id"
-                  class="entrada escolhido__lista"
-                  type="text"
-                  list="listas-existentes"
-                  placeholder="Lista"
-                  [value]="item.lista ?? ''"
-                  (change)="moverParaLista(item.insumo.id, $any($event.target).value)"
-                />
-                <button
-                  type="button"
-                  class="botao botao--pequeno botao--discreto botao--icone"
-                  [attr.aria-label]="'Remover ' + item.insumo.descricao"
-                  (click)="removerSelecionado(item.insumo.id)"
-                >
-                  <i-lucide [img]="icones.fechar" [size]="13" aria-hidden="true"></i-lucide>
-                </button>
-              </li>
-            }
-          </ul>
-        </div>
-      }
+      <div class="grupos">
+        @for (grupo of grupos(); track grupo.nome) {
+          <section class="grupo">
+            <header class="grupo__topo">
+              <h3>{{ grupo.nome }}</h3>
+              <span class="grupo__contagem">{{ grupo.itens.length }}</span>
+              <button
+                type="button"
+                class="botao botao--pequeno botao--fantasma"
+                [attr.aria-label]="'Remover a lista ' + grupo.nome"
+                (click)="removerGrupo(grupo.nome)"
+              >
+                Remover lista
+              </button>
+            </header>
 
-      <div class="acoes-busca">
+            <ul class="itens">
+              @for (item of grupo.itens; track item.insumo.id) {
+                <li class="item">
+                  <div class="item__texto">
+                    <span class="item__codigo">{{ item.insumo.codigo }}</span>
+                    <span class="item__descricao">{{ item.insumo.descricao }}</span>
+                    <span class="item__meta">
+                      {{ item.insumo.quantidade | quantidade }} {{ item.insumo.unidade }} no sistema
+                    </span>
+                  </div>
+                  <label class="visivel-leitor" [attr.for]="'lista-' + item.insumo.id">
+                    Lista do item {{ item.insumo.descricao }}
+                  </label>
+                  <input
+                    [id]="'lista-' + item.insumo.id"
+                    class="entrada item__lista"
+                    type="text"
+                    list="listas-existentes"
+                    [value]="item.lista ?? ''"
+                    (change)="moverParaLista(item.insumo.id, $any($event.target).value)"
+                  />
+                  <button
+                    type="button"
+                    class="botao botao--pequeno botao--fantasma botao--icone"
+                    [attr.aria-label]="'Remover ' + item.insumo.descricao"
+                    (click)="removerSelecionado(item.insumo.id)"
+                  >
+                    <i-lucide [img]="icones.fechar" [size]="13" aria-hidden="true"></i-lucide>
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </div>
+
+      <div class="rodape-selecao">
         <button type="button" class="botao botao--pequeno botao--perigo" (click)="limparSelecao()">
           Limpar seleção
         </button>

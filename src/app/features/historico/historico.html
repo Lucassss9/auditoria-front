@@ -8,11 +8,11 @@
 } @else if (estado().erro) {
   <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
 } @else {
-  <section class="filtros">
+  <section class="barra-ferramentas quadro espaco-abaixo">
     <label class="visivel-leitor" for="hist-obra">Obra</label>
     <select
       id="hist-obra"
-      class="entrada filtros__select"
+      class="entrada largura-auto"
       [value]="obraSelecionada()"
       (change)="obraSelecionada.set($any($event.target).value)"
     >
@@ -25,7 +25,7 @@
     <label class="visivel-leitor" for="hist-situacao">Situação</label>
     <select
       id="hist-situacao"
-      class="entrada filtros__select"
+      class="entrada largura-auto"
       [value]="situacao()"
       (change)="situacao.set($any($event.target).value)"
     >
@@ -56,7 +56,7 @@
     </div>
 
     <button type="button" class="botao botao--pequeno" (click)="limpar()">Limpar</button>
-    <span class="filtros__contagem">{{ filtradas().length }} auditorias</span>
+    <span class="contagem">{{ filtradas().length }} auditorias</span>
   </section>
 
   @if (vencidas()) {

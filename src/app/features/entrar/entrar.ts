@@ -5,13 +5,14 @@ import { LucideAngularModule } from 'lucide-angular';
 import { environment } from '../../../environments/environment';
 import { AutenticacaoService } from '../../core/services/autenticacao.service';
 import { SessaoService } from '../../core/services/sessao.service';
+import { Logo } from '../../shared/components/logo/logo';
 import { SeletorTema } from '../../shared/components/seletor-tema/seletor-tema';
 import { ICONES } from '../../shared/icones';
 
 @Component({
   selector: 'app-entrar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, LucideAngularModule, SeletorTema],
+  imports: [ReactiveFormsModule, LucideAngularModule, Logo, SeletorTema],
   templateUrl: './entrar.html',
   styleUrl: './entrar.scss',
 })

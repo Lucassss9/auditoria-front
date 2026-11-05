@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { InsumoEstoque, ListaFavorita } from '../models/insumo.model';
+import { FiltroEstoque, InsumoEstoque, ListaFavorita } from '../models/insumo.model';
 import { EstoqueService } from '../services/estoque.service';
 import { contemTermo, novoId } from '../utils/texto';
 import { MockStore } from './mock-store';
@@ -10,23 +10,37 @@ import { responder } from './responder';
 export class EstoqueMockService extends EstoqueService {
   private readonly store = inject(MockStore);
 
-  buscarPorObra(obraId: string, termo: string): Observable<InsumoEstoque[]> {
+  buscarPorObra(obraId: string, filtro: FiltroEstoque): Observable<InsumoEstoque[]> {
     const daObra = this.store.estoque().filter((item) => item.obraId === obraId);
-    const limpo = termo.trim();
+    const termo = filtro.termo.trim();
 
-    const encontrados = limpo
-      ? daObra.filter(
-          (item) => contemTermo(item.descricao, limpo) || item.codigo.includes(limpo),
-        )
-      : daObra;
+    const encontrados = daObra.filter((item) => {
+      const casaCategoria = !filtro.categoria || item.categoria === filtro.categoria;
+      const casaTermo =
+        !termo || contemTermo(item.descricao, termo) || item.codigo.includes(termo);
+      return casaCategoria && casaTermo;
+    });
 
     return responder(
       [...encontrados].sort((a, b) => a.descricao.localeCompare(b.descricao, 'pt-BR')),
     );
   }
 
+  listarCategorias(obraId: string): Observable<string[]> {
+    const categorias = new Set(
+      this.store
+        .estoque()
+        .filter((item) => item.obraId === obraId)
+        .map((item) => item.categoria),
+    );
+
+    return responder([...categorias].sort((a, b) => a.localeCompare(b, 'pt-BR')));
+  }
+
   listarListasFavoritas(): Observable<ListaFavorita[]> {
-    return responder(this.store.listasFavoritas().map((item) => ({ ...item, termos: [...item.termos] })));
+    return responder(
+      this.store.listasFavoritas().map((item) => ({ ...item, termos: [...item.termos] })),
+    );
   }
 
   salvarListaFavorita(lista: Omit<ListaFavorita, 'id'>): Observable<ListaFavorita> {

@@ -1,7 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, model, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  signal,
+} from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { forkJoin, of } from 'rxjs';
-import { InsumoEstoque, ListaFavorita } from '../../../../core/models/insumo.model';
+import { forkJoin } from 'rxjs';
+import { FiltroEstoque, InsumoEstoque, ListaFavorita } from '../../../../core/models/insumo.model';
 import { EstoqueService } from '../../../../core/services/estoque.service';
 import { Requisicao } from '../../../../core/utils/requisicao';
 import { AvisoErro } from '../../../../shared/components/aviso-erro/aviso-erro';
@@ -16,17 +25,14 @@ export interface MaterialSelecionado {
   lista: string | null;
 }
 
+type CampoOrdem = 'descricao' | 'codigo' | 'quantidade' | 'valor';
+
+const ESPERA_BUSCA = 220;
+
 @Component({
   selector: 'app-selecao-materiais',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    LucideAngularModule,
-    AvisoErro,
-    Carregando,
-    EstadoVazio,
-    MoedaPipe,
-    QuantidadePipe,
-  ],
+  imports: [LucideAngularModule, AvisoErro, Carregando, EstadoVazio, MoedaPipe, QuantidadePipe],
   templateUrl: './selecao-materiais.html',
   styleUrl: './selecao-materiais.scss',
 })
@@ -38,20 +44,67 @@ export class SelecaoMateriais {
 
   protected readonly icones = ICONES;
   protected readonly termo = signal('');
+  protected readonly categoria = signal<string | null>(null);
   protected readonly buscando = signal(false);
   protected readonly erroBusca = signal<string | null>(null);
   protected readonly resultados = signal<InsumoEstoque[]>([]);
-  protected readonly jaBuscou = signal(false);
-  protected readonly nomeNovaLista = signal('');
+  protected readonly campoOrdem = signal<CampoOrdem>('descricao');
+  protected readonly ordemCrescente = signal(true);
   protected readonly listaDestino = signal('');
+  protected readonly nomeNovaLista = signal('');
+  protected readonly favoritaAplicada = signal<string | null>(null);
+  protected readonly painelSelecao = signal(true);
 
   protected readonly favoritas = new Requisicao<ListaFavorita[]>(() =>
     this.servico.listarListasFavoritas(),
   );
 
+  protected readonly categorias = signal<string[]>([]);
+
+  private temporizador: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    effect(() => {
+      const obra = this.obraId();
+
+      if (!obra) {
+        return;
+      }
+
+      this.servico.listarCategorias(obra).subscribe((lista) => this.categorias.set(lista));
+      this.executarBusca([this.termo()]);
+    });
+  }
+
   protected readonly selecionadosIds = computed(
     () => new Set(this.selecionados().map((item) => item.insumo.id)),
   );
+
+  protected readonly resultadosOrdenados = computed(() => {
+    const campo = this.campoOrdem();
+    const sinal = this.ordemCrescente() ? 1 : -1;
+
+    return [...this.resultados()].sort((a, b) => {
+      if (campo === 'codigo') {
+        return a.codigo.localeCompare(b.codigo, 'pt-BR') * sinal;
+      }
+
+      if (campo === 'quantidade') {
+        return (a.quantidade - b.quantidade) * sinal;
+      }
+
+      if (campo === 'valor') {
+        return ((a.valorUnitario ?? -1) - (b.valorUnitario ?? -1)) * sinal;
+      }
+
+      return a.descricao.localeCompare(b.descricao, 'pt-BR') * sinal;
+    });
+  });
+
+  protected readonly naoSelecionadosVisiveis = computed(() => {
+    const escolhidos = this.selecionadosIds();
+    return this.resultadosOrdenados().filter((item) => !escolhidos.has(item.id)).length;
+  });
 
   protected readonly grupos = computed(() => {
     const mapa = new Map<string, MaterialSelecionado[]>();
@@ -67,7 +120,7 @@ export class SelecaoMateriais {
   });
 
   protected readonly nomesDeListas = computed(() => {
-    const nomes = new Set<string>();
+    const nomes = new Set<string>(this.categorias());
 
     for (const item of this.selecionados()) {
       if (item.lista) {
@@ -82,45 +135,71 @@ export class SelecaoMateriais {
     return [...nomes].sort((a, b) => a.localeCompare(b, 'pt-BR'));
   });
 
-  protected buscar(termo: string): void {
-    this.termo.set(termo);
-    this.executarBusca([termo]);
+  protected aoDigitar(valor: string): void {
+    this.termo.set(valor);
+    this.favoritaAplicada.set(null);
+
+    if (this.temporizador) {
+      clearTimeout(this.temporizador);
+    }
+
+    this.temporizador = setTimeout(() => this.executarBusca([valor]), ESPERA_BUSCA);
+  }
+
+  protected definirCategoria(valor: string | null): void {
+    this.categoria.set(valor);
+    this.executarBusca([this.termo()]);
+  }
+
+  protected ordenarPor(campo: CampoOrdem): void {
+    if (this.campoOrdem() === campo) {
+      this.ordemCrescente.update((valor) => !valor);
+      return;
+    }
+
+    this.campoOrdem.set(campo);
+    this.ordemCrescente.set(true);
   }
 
   protected aplicarFavorita(favorita: ListaFavorita): void {
     this.termo.set(favorita.termos.join(', '));
     this.listaDestino.set(favorita.nome);
+    this.categoria.set(null);
+    this.favoritaAplicada.set(favorita.id);
     this.executarBusca(favorita.termos);
   }
 
   protected alternar(insumo: InsumoEstoque): void {
-    const existe = this.selecionadosIds().has(insumo.id);
-
-    if (existe) {
-      this.selecionados.update((atuais) =>
-        atuais.filter((item) => item.insumo.id !== insumo.id),
-      );
+    if (this.selecionadosIds().has(insumo.id)) {
+      this.selecionados.update((atuais) => atuais.filter((item) => item.insumo.id !== insumo.id));
       return;
     }
 
     this.selecionados.update((atuais) => [
       ...atuais,
-      { insumo, lista: this.listaDestino() || null },
+      { insumo, lista: this.listaDestino() || insumo.categoria },
     ]);
   }
 
-  protected adicionarTodosOsResultados(): void {
+  protected adicionarResultados(): void {
     const atuais = this.selecionados();
     const jaTem = new Set(atuais.map((item) => item.insumo.id));
-    const novos = this.resultados()
+
+    const novos = this.resultadosOrdenados()
       .filter((insumo) => !jaTem.has(insumo.id))
-      .map((insumo) => ({ insumo, lista: this.listaDestino() || null }));
+      .map((insumo) => ({ insumo, lista: this.listaDestino() || insumo.categoria }));
 
     this.selecionados.set([...atuais, ...novos]);
   }
 
   protected removerSelecionado(insumoId: string): void {
     this.selecionados.update((atuais) => atuais.filter((item) => item.insumo.id !== insumoId));
+  }
+
+  protected removerGrupo(nome: string): void {
+    this.selecionados.update((atuais) =>
+      atuais.filter((item) => (item.lista ?? 'Sem lista') !== nome),
+    );
   }
 
   protected limparSelecao(): void {
@@ -152,22 +231,27 @@ export class SelecaoMateriais {
     });
   }
 
-  protected removerFavorita(id: string): void {
+  protected removerFavorita(id: string, evento: Event): void {
+    evento.stopPropagation();
     this.servico.removerListaFavorita(id).subscribe(() => this.favoritas.executar());
   }
 
   private executarBusca(termos: string[]): void {
+    const obra = this.obraId();
+
+    if (!obra) {
+      return;
+    }
+
     const limpos = termos.map((item) => item.trim()).filter(Boolean);
+    const filtros: FiltroEstoque[] = limpos.length
+      ? limpos.map((termo) => ({ termo, categoria: this.categoria() }))
+      : [{ termo: '', categoria: this.categoria() }];
 
     this.buscando.set(true);
     this.erroBusca.set(null);
-    this.jaBuscou.set(true);
 
-    const consultas = limpos.length
-      ? limpos.map((termo) => this.servico.buscarPorObra(this.obraId(), termo))
-      : [this.servico.buscarPorObra(this.obraId(), '')];
-
-    forkJoin(consultas.length ? consultas : [of<InsumoEstoque[]>([])]).subscribe({
+    forkJoin(filtros.map((filtro) => this.servico.buscarPorObra(obra, filtro))).subscribe({
       next: (respostas) => {
         const unicos = new Map<string, InsumoEstoque>();
 
@@ -177,15 +261,13 @@ export class SelecaoMateriais {
           }
         }
 
-        this.resultados.set(
-          [...unicos.values()].sort((a, b) => a.descricao.localeCompare(b.descricao, 'pt-BR')),
-        );
+        this.resultados.set([...unicos.values()]);
         this.buscando.set(false);
       },
       error: () => {
         this.resultados.set([]);
         this.buscando.set(false);
-        this.erroBusca.set('Não foi possível consultar o estoque da obra.');
+        this.erroBusca.set('Não foi possível consultar o estoque desta obra.');
       },
     });
   }

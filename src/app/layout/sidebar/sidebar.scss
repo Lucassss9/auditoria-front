@@ -14,9 +14,13 @@
 }
 
 .marca {
+  --logo-nome: var(--nav-texto-forte);
+  --logo-assinatura: #7f88a8;
+  --logo-riscos: #8197ff;
+  --logo-corte: #aa96ff;
+
   display: flex;
   align-items: center;
-  gap: var(--esp-3);
   height: var(--topo);
   padding: 0 var(--esp-3);
   color: var(--nav-texto-forte);
@@ -32,7 +36,7 @@
   height: 26px;
   flex: 0 0 auto;
   border-radius: var(--raio-p);
-  background: linear-gradient(0deg, var(--violeta-500), var(--azul-500));
+  background: linear-gradient(0deg, var(--violeta-500), var(--acao));
   color: #fff;
   font-size: var(--t-12);
   font-weight: 600;
@@ -111,7 +115,7 @@
     background: var(--nav-ativo);
     color: var(--nav-texto-forte);
     font-weight: 500;
-    box-shadow: inset 2px 0 0 var(--azul-500);
+    box-shadow: inset 2px 0 0 var(--acao);
   }
 }
 

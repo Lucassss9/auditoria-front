@@ -23,27 +23,13 @@
 }
 
 .apresentacao__marca {
-  display: flex;
-  align-items: center;
-  gap: var(--esp-2);
-  font-size: var(--t-14);
-  font-weight: 600;
-  color: #fff;
-}
+  --logo-nome: #ffffff;
+  --logo-assinatura: #7f88a8;
+  --logo-riscos: #8197ff;
+  --logo-corte: #aa96ff;
 
-.apresentacao__sinal,
-.acesso__sinal {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  flex: 0 0 auto;
-  border-radius: var(--raio-p);
-  background: linear-gradient(0deg, var(--violeta-500), var(--azul-500));
-  color: #fff;
-  font-size: var(--t-12);
-  font-weight: 600;
 }
 
 .apresentacao__texto {

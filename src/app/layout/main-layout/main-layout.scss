@@ -1,6 +1,7 @@
 .moldura {
   display: flex;
   height: 100%;
+  min-height: 100%;
 }
 
 .moldura__corpo {
@@ -13,12 +14,20 @@
 .moldura__conteudo {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--esp-5);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 880px) {
   .moldura__conteudo {
     padding: var(--esp-4) var(--esp-3);
+  }
+}
+
+@media (max-width: 520px) {
+  .moldura__conteudo {
+    padding: var(--esp-3) var(--esp-2);
   }
 }

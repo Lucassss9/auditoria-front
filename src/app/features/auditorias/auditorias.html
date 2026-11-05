@@ -13,8 +13,8 @@
 } @else if (estado().erro) {
   <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
 } @else {
-  <section class="filtros">
-    <div class="filtros__busca">
+  <section class="barra-ferramentas quadro espaco-abaixo">
+    <div class="campo-busca">
       <i-lucide [img]="icones.buscar" [size]="15" aria-hidden="true"></i-lucide>
       <label class="visivel-leitor" for="busca-auditoria">Buscar por obra ou responsável</label>
       <input
@@ -30,7 +30,7 @@
     <label class="visivel-leitor" for="filtro-status">Situação</label>
     <select
       id="filtro-status"
-      class="entrada filtros__select"
+      class="entrada largura-auto"
       [value]="status()"
       (change)="status.set($any($event.target).value)"
     >
@@ -40,7 +40,7 @@
       <option value="CANCELADA">Canceladas</option>
     </select>
 
-    <span class="filtros__contagem">{{ filtradas().length }} de {{ todas().length }}</span>
+    <span class="contagem">{{ filtradas().length }} de {{ todas().length }}</span>
   </section>
 
   <div class="quadro">

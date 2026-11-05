@@ -51,6 +51,7 @@ export class AuditoriasMockService extends AuditoriasService {
           id: novoId('item'),
           codigo: insumo.codigo,
           descricao: insumo.descricao,
+          categoria: insumo.categoria,
           unidade: insumo.unidade,
           quantidadeSistema: insumo.quantidade,
           valorUnitarioReferencia: insumo.valorUnitario,

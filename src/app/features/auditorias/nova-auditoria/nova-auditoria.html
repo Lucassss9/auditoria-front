@@ -4,162 +4,143 @@
   [trilha]="[{ rotulo: 'Auditorias', rota: '/auditorias' }, { rotulo: 'Nova' }]"
 />
 
-<ol class="passos">
-  @for (nome of etapas; track nome; let indice = $index) {
-    <li
-      class="passo"
-      [class.passo--atual]="indice === etapa()"
-      [class.passo--feito]="indice < etapa()"
-      [attr.aria-current]="indice === etapa() ? 'step' : null"
-    >
-      <span class="passo__numero">{{ indice + 1 }}</span>
-      <span class="passo__nome">{{ nome }}</span>
-    </li>
-  }
-</ol>
-
 @if (estado().carregando && !estado().dados) {
   <app-carregando texto="Carregando obras…" />
 } @else if (estado().erro) {
   <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
-} @else if (etapa() === 0) {
-  @if (!obras().length) {
-    <app-estado-vazio
-      titulo="Nenhuma obra ativa"
-      descricao="Sem obra ativa não há estoque para auditar."
-    />
-  } @else {
-    <div class="obras">
-      @for (obra of obras(); track obra.id) {
-        <button
-          type="button"
-          class="obra"
-          [class.obra--escolhida]="obraId() === obra.id"
-          [attr.aria-pressed]="obraId() === obra.id"
-          (click)="escolherObra(obra.id)"
-        >
-          <span class="obra__nome">{{ obra.nome }}</span>
-          <span class="obra__meta">{{ obra.codigo }} · {{ obra.segmento }}</span>
+} @else if (escolhendoObra()) {
+  <section class="quadro">
+    <div class="barra-ferramentas">
+      <div class="campo-busca">
+        <i-lucide [img]="icones.buscar" [size]="15" aria-hidden="true"></i-lucide>
+        <label class="visivel-leitor" for="busca-obra">Buscar obra por nome ou código</label>
+        <input
+          id="busca-obra"
+          class="entrada"
+          type="search"
+          placeholder="Nome ou código da obra"
+          [value]="buscaObra()"
+          (input)="buscaObra.set($any($event.target).value)"
+        />
+      </div>
+      <span class="contagem">{{ obrasFiltradas().length }} obras ativas</span>
+      @if (obra()) {
+        <button type="button" class="botao botao--pequeno" (click)="cancelarTroca()">
+          Cancelar
         </button>
       }
     </div>
-  }
-} @else if (etapa() === 1) {
-  <p class="contexto">
-    Auditando <strong>{{ obraEscolhida()?.nome }}</strong> ({{ obraEscolhida()?.codigo }}).
-    Descrições parecidas podem ser materiais diferentes: confira código e unidade antes de marcar.
-  </p>
-  <app-selecao-materiais [obraId]="obraId()" [(selecionados)]="selecionados" />
-} @else {
-  <section class="resumo">
-    <div class="resumo__bloco">
-      <h2>Resumo da auditoria</h2>
-      <dl class="resumo__dados">
-        <div>
-          <dt>Obra</dt>
-          <dd>{{ obraEscolhida()?.nome }} ({{ obraEscolhida()?.codigo }})</dd>
-        </div>
-        <div>
-          <dt>Materiais selecionados</dt>
-          <dd>{{ selecionados().length }}</dd>
-        </div>
-        <div>
-          <dt>Valor de referência do estoque</dt>
-          <dd>
-            {{ valorDeReferencia() | moeda }}
-            @if (itensSemValor()) {
-              <span class="resumo__aviso">
-                {{ itensSemValor() }} itens sem valor cadastrado ficam fora deste total
-              </span>
+
+    @if (!obrasFiltradas().length) {
+      <app-estado-vazio
+        titulo="Nenhuma obra encontrada"
+        descricao="Busque pelo nome da obra, pelo código ou pela filial. Só obras ativas podem receber auditoria."
+      />
+    } @else {
+      @for (grupo of gruposPorFilial(); track grupo.chave) {
+        <section class="filial">
+          <header class="filial__topo">
+            <h2 class="filial__nome">{{ grupo.filial }}</h2>
+            @if (grupo.regional) {
+              <span class="selo selo--neutro">{{ grupo.regional }}</span>
             }
-          </dd>
-        </div>
-      </dl>
+            <span class="contagem">
+              {{ grupo.obras.length }} {{ grupo.obras.length === 1 ? 'obra' : 'obras' }}
+            </span>
+          </header>
 
-      <h3>Listas</h3>
-      <ul class="resumo__listas">
-        @for (lista of listas(); track lista.nome) {
-          <li><span class="selo selo--neutro">{{ lista.nome }}</span> {{ lista.total }} itens</li>
-        }
-      </ul>
-
-      <div class="campo">
-        <label class="campo__rotulo" for="responsavel">Responsável pela auditoria</label>
-        <input
-          id="responsavel"
-          class="entrada"
-          type="text"
-          placeholder="Quem conduziu a contagem"
-          [value]="responsavel()"
-          (input)="responsavel.set($any($event.target).value)"
-        />
-      </div>
-
-      @if (erroCriacao()) {
-        <app-aviso-erro
-          titulo="Não foi possível iniciar"
-          [detalhe]="erroCriacao() ?? ''"
-          [mostrarTentarNovamente]="false"
-        />
+          <ul class="obras">
+            @for (item of grupo.obras; track item.id) {
+              <li>
+                <button
+                  type="button"
+                  class="obra"
+                  [class.obra--atual]="obra()?.id === item.id"
+                  (click)="escolherObra(item)"
+                >
+                  <span class="obra__nome">{{ item.nome }}</span>
+                  <span class="obra__meta">
+                    <span class="obra__codigo">{{ item.codigo }}</span>
+                    <span class="selo selo--neutro">{{ item.segmento }}</span>
+                  </span>
+                  <span class="obra__escolher">
+                    Selecionar
+                    <i-lucide [img]="icones.proximo" [size]="13" aria-hidden="true"></i-lucide>
+                  </span>
+                </button>
+              </li>
+            }
+          </ul>
+        </section>
       }
-
-      <p class="resumo__nota">
-        Ao iniciar, as quantidades do sistema são copiadas para dentro da auditoria. Alterações
-        posteriores no estoque de origem não mudam esta auditoria.
-      </p>
-    </div>
-
-    <div class="resumo__bloco">
-      <h2>Materiais que entram</h2>
-      <div class="rolagem-x">
-        <table class="tabela">
-          <caption class="visivel-leitor">Materiais selecionados para a auditoria</caption>
-          <thead>
-            <tr>
-              <th scope="col">Código</th>
-              <th scope="col">Descrição</th>
-              <th scope="col">Lista</th>
-              <th scope="col">Qtde. sistema</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of selecionados(); track item.insumo.id) {
-              <tr>
-                <td class="tabela__codigo">{{ item.insumo.codigo }}</td>
-                <td>{{ item.insumo.descricao }}</td>
-                <td>{{ item.lista ?? '—' }}</td>
-                <td class="tabela__num">
-                  {{ item.insumo.quantidade | quantidade }} {{ item.insumo.unidade }}
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
+    }
   </section>
-}
+} @else {
+  <section class="comando">
+    <div class="comando__obra">
+      <span class="rotulo-secao">Auditando</span>
+      <span class="comando__nome">{{ obra()!.nome }}</span>
+      <span class="comando__meta">{{ obra()!.codigo }} · {{ obra()!.segmento }}</span>
+    </div>
 
-<nav class="navegacao" aria-label="Navegação do fluxo">
-  <button type="button" class="botao" [disabled]="etapa() === 0" (click)="voltar()">Voltar</button>
+    <button type="button" class="botao botao--pequeno" (click)="trocarObra()">Trocar obra</button>
 
-  @if (etapa() < 2) {
+    <div class="campo comando__responsavel">
+      <label class="campo__rotulo" for="responsavel">Responsável pela contagem</label>
+      <input
+        id="responsavel"
+        class="entrada"
+        type="text"
+        placeholder="Quem conduz a auditoria"
+        [value]="responsavel()"
+        (input)="responsavel.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="comando__resumo">
+      <span class="comando__numero">{{ selecionados().length }}</span>
+      <span class="comando__legenda">
+        materiais selecionados
+        @if (listas().length) {
+          <span class="comando__listas">
+            @for (lista of listas(); track lista.nome) {
+              <span class="selo selo--neutro">{{ lista.nome }} · {{ lista.total }}</span>
+            }
+          </span>
+        }
+      </span>
+    </div>
+
+    <div class="comando__valor">
+      <span class="campo__rotulo">Referência do estoque</span>
+      <strong>{{ valorDeReferencia() | moeda }}</strong>
+      @if (itensSemValor()) {
+        <span class="campo__ajuda">{{ itensSemValor() }} itens sem valor cadastrado</span>
+      }
+    </div>
+
     <button
       type="button"
-      class="botao botao--primario"
-      [disabled]="!podeAvancar()"
-      (click)="avancar()"
-    >
-      {{ etapa() === 0 ? 'Confirmar obra' : 'Revisar seleção' }}
-    </button>
-  } @else {
-    <button
-      type="button"
-      class="botao botao--primario"
-      [disabled]="criando()"
+      class="botao botao--primario comando__iniciar"
+      [disabled]="criando() || !selecionados().length"
       (click)="iniciar()"
     >
       {{ criando() ? 'Iniciando…' : 'Iniciar auditoria' }}
     </button>
+  </section>
+
+  @if (erroCriacao(); as mensagem) {
+    <p class="aviso-faixa aviso-faixa--critico espaco-abaixo" role="alert">
+      <i-lucide [img]="icones.atencao" [size]="14" aria-hidden="true"></i-lucide>
+      {{ mensagem }}
+    </p>
   }
-</nav>
+
+  <p class="aviso-faixa aviso-faixa--info espaco-abaixo">
+    <i-lucide [img]="icones.atencao" [size]="14" aria-hidden="true"></i-lucide>
+    Ao iniciar, as quantidades e os valores de hoje são copiados para dentro da auditoria.
+    Alterações posteriores no estoque de origem não mudam o que você vai conferir.
+  </p>
+
+  <app-selecao-materiais [obraId]="obra()!.id" [(selecionados)]="selecionados" />
+}

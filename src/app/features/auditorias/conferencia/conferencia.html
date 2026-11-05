@@ -15,9 +15,7 @@
     [descricao]="auditoria()!.filialNome ?? ''"
     [trilha]="[{ rotulo: 'Auditorias', rota: '/auditorias' }, { rotulo: 'Conferência' }]"
   >
-    <a class="botao" [routerLink]="['/auditorias', auditoria()!.id, 'relatorio']">
-      Ver relatório
-    </a>
+    <a class="botao" [routerLink]="['/auditorias', auditoria()!.id, 'relatorio']">Relatório</a>
     @if (!somenteLeitura()) {
       <button
         type="button"
@@ -30,377 +28,509 @@
     }
   </app-cabecalho-pagina>
 
-  <section class="referencia">
-    <div>
-      <span class="referencia__rotulo">Estoque de referência</span>
-      <span class="referencia__valor">
-        {{ auditoria()!.referencia.origem }} ·
+  <section class="painel-estado">
+    <div class="painel-estado__progresso">
+      <div class="progresso">
+        <div class="progresso__trilho">
+          <span class="progresso__barra" [style.width.%]="percentual()"></span>
+        </div>
+        <span class="progresso__numero">{{ percentual() }}%</span>
+      </div>
+      <span class="painel-estado__legenda">
+        {{ resumo()?.conferidos }} de {{ resumo()?.totalItens }} itens tratados · referência de
         {{ auditoria()!.referencia.capturadoEm | date: "dd/MM/yyyy 'às' HH:mm" }}
       </span>
     </div>
-    <div class="referencia__progresso">
-      <div class="barra" role="img" [attr.aria-label]="progresso() + ' por cento tratado'">
-        <span class="barra__preenchida" [style.width.%]="progresso()"></span>
+
+    @if (resumo(); as total) {
+      <dl class="painel-estado__numeros">
+        <div>
+          <dt>Divergências</dt>
+          <dd [class.valor-critico]="total.divergentes > 0">{{ total.divergentes }}</dd>
+        </div>
+        @if (mostrarValores()) {
+          <div>
+            <dt>Falta</dt>
+            <dd class="valor-critico">{{ total.valorFalta | moeda }}</dd>
+          </div>
+          <div>
+            <dt>Sobra</dt>
+            <dd class="valor-atencao">{{ total.valorSobra | moeda }}</dd>
+          </div>
+        }
+        @if (total.itensSemValor) {
+          <div>
+            <dt>Sem valor</dt>
+            <dd>{{ total.itensSemValor }}</dd>
+          </div>
+        }
+      </dl>
+    }
+  </section>
+
+  <div class="area" [class.area--com-painel]="detalhe()">
+    <section class="quadro trabalho">
+      <div class="barra-ferramentas">
+        <div class="campo-busca">
+          <i-lucide [img]="icones.buscar" [size]="15" aria-hidden="true"></i-lucide>
+          <label class="visivel-leitor" for="busca-item">Buscar item por código ou descrição</label>
+          <input
+            id="busca-item"
+            class="entrada"
+            type="search"
+            placeholder="Código ou descrição"
+            [value]="termo()"
+            (input)="termo.set($any($event.target).value)"
+          />
+        </div>
+
+        <label class="visivel-leitor" for="filtro-lista">Lista</label>
+        <select
+          id="filtro-lista"
+          class="entrada largura-auto"
+          [value]="listaSelecionada()"
+          (change)="definirLista($any($event.target).value)"
+        >
+          <option value="">Todas as listas</option>
+          @for (lista of listas(); track lista) {
+            <option [value]="lista">{{ lista }}</option>
+          }
+        </select>
+
+        @if (!somenteLeitura()) {
+          <button type="button" class="botao botao--pequeno" (click)="abrirForaDoEstoque(null)">
+            <i-lucide [img]="icones.novo" [size]="14" aria-hidden="true"></i-lucide>
+            Material fora do estoque
+          </button>
+        }
       </div>
-      <span class="referencia__valor">{{ progresso() }}% tratado</span>
-    </div>
-  </section>
 
-  @if (resumo(); as total) {
-    <section class="indicadores">
-      <span><strong>{{ total.conferidos }}</strong> conferidos</span>
-      <span><strong>{{ total.naoConferidos }}</strong> pendentes</span>
-      <span><strong>{{ total.naoContados }}</strong> não contados</span>
-      <span class="indicadores--erro"><strong>{{ total.divergentes }}</strong> divergências</span>
-      @if (mostrarValores()) {
-        <span class="indicadores--erro">Falta {{ total.valorFalta | moeda }}</span>
-        <span class="indicadores--atencao">Sobra {{ total.valorSobra | moeda }}</span>
-      }
-      @if (total.itensSemValor) {
-        <span class="indisponivel">{{ total.itensSemValor }} sem valor de referência</span>
-      }
-    </section>
-  }
+      <div class="filtros" role="group" aria-label="Filtrar itens da conferência">
+        <button
+          type="button"
+          class="chip"
+          [class.chip--ativo]="filtro() === 'TODOS'"
+          (click)="definirFiltro('TODOS')"
+        >
+          Todos <span class="chip__contagem">{{ contagens().TODOS }}</span>
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.chip--ativo]="filtro() === 'NAO_CONFERIDO'"
+          (click)="definirFiltro('NAO_CONFERIDO')"
+        >
+          Não conferidos <span class="chip__contagem">{{ contagens().NAO_CONFERIDO }}</span>
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.chip--ativo]="filtro() === 'DIVERGENTES'"
+          (click)="definirFiltro('DIVERGENTES')"
+        >
+          Com divergência <span class="chip__contagem">{{ contagens().DIVERGENTES }}</span>
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.chip--ativo]="filtro() === 'CONFERIDO'"
+          (click)="definirFiltro('CONFERIDO')"
+        >
+          Conferidos <span class="chip__contagem">{{ contagens().CONFERIDO }}</span>
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.chip--ativo]="filtro() === 'NAO_CONTADO'"
+          (click)="definirFiltro('NAO_CONTADO')"
+        >
+          Não contados <span class="chip__contagem">{{ contagens().NAO_CONTADO }}</span>
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.chip--ativo]="filtro() === 'FORA'"
+          (click)="definirFiltro('FORA')"
+        >
+          Fora do estoque <span class="chip__contagem">{{ contagens().FORA }}</span>
+        </button>
+      </div>
 
-  <section class="filtros">
-    <div class="filtros__busca">
-      <i-lucide [img]="icones.buscar" [size]="15" aria-hidden="true"></i-lucide>
-      <label class="visivel-leitor" for="busca-item">Buscar item por código ou descrição</label>
-      <input
-        id="busca-item"
-        class="entrada"
-        type="search"
-        placeholder="Código ou descrição"
-        [value]="termo()"
-        (input)="termo.set($any($event.target).value)"
-      />
-    </div>
-
-    <label class="visivel-leitor" for="filtro-lista">Lista</label>
-    <select
-      id="filtro-lista"
-      class="entrada filtros__select"
-      [value]="listaSelecionada()"
-      (change)="listaSelecionada.set($any($event.target).value)"
-    >
-      <option value="">Todas as listas</option>
-      @for (lista of listas(); track lista) {
-        <option [value]="lista">{{ lista }}</option>
-      }
-    </select>
-
-    <div class="chips" role="group" aria-label="Filtrar por situação">
-      <button
-        type="button"
-        class="botao botao--pequeno"
-        [class.botao--primario]="filtro() === 'TODOS'"
-        (click)="filtro.set('TODOS')"
-      >
-        Todos
-      </button>
-      <button
-        type="button"
-        class="botao botao--pequeno"
-        [class.botao--primario]="filtro() === 'NAO_CONFERIDO'"
-        (click)="filtro.set('NAO_CONFERIDO')"
-      >
-        Não conferidos
-      </button>
-      <button
-        type="button"
-        class="botao botao--pequeno"
-        [class.botao--primario]="filtro() === 'DIVERGENTES'"
-        (click)="filtro.set('DIVERGENTES')"
-      >
-        Divergentes
-      </button>
-      <button
-        type="button"
-        class="botao botao--pequeno"
-        [class.botao--primario]="filtro() === 'CONFERIDO'"
-        (click)="filtro.set('CONFERIDO')"
-      >
-        Conferidos
-      </button>
-      <button
-        type="button"
-        class="botao botao--pequeno"
-        [class.botao--primario]="filtro() === 'NAO_CONTADO'"
-        (click)="filtro.set('NAO_CONTADO')"
-      >
-        Não contados
-      </button>
-    </div>
-
-    <span class="filtros__contagem">{{ itensVisiveis().length }} itens</span>
-  </section>
-
-  <div class="quadro">
-    @if (!itensVisiveis().length) {
-      <app-estado-vazio
-        titulo="Nenhum item neste filtro"
-        descricao="Troque o filtro ou a lista para ver os demais materiais da auditoria."
-      />
-    } @else {
-      <div class="rolagem-x">
-        <table class="tabela tabela-conferencia">
-          <caption class="visivel-leitor">Itens da conferência</caption>
-          <thead>
-            <tr>
-              <th scope="col">Código</th>
-              <th scope="col">Descrição</th>
-              <th scope="col">Un.</th>
-              <th scope="col">Sistema</th>
-              <th scope="col">Contado</th>
-              <th scope="col">Dif. qtde.</th>
-              @if (mostrarValores()) {
-                <th scope="col">Valor unit.</th>
-                <th scope="col">Dif. valor</th>
-              }
-              <th scope="col">Situação</th>
-              <th scope="col">Detalhes</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of itensVisiveis(); track item.id) {
-              <tr [class.linha--divergente]="(diferencaDe(item) ?? 0) !== 0">
-                <td class="tabela__codigo">{{ item.codigo }}</td>
-                <td class="celula-descricao">
-                  {{ item.descricao }}
-                  @if (item.lista) {
-                    <span class="etiqueta">{{ item.lista }}</span>
-                  }
-                </td>
-                <td>{{ item.unidade }}</td>
-                <td class="tabela__num">{{ item.quantidadeSistema | quantidade }}</td>
-                <td class="tabela__num">
-                  <label class="visivel-leitor" [attr.for]="'qtd-' + item.id">
-                    Quantidade contada de {{ item.descricao }}
-                  </label>
-                  <input
-                    [id]="'qtd-' + item.id"
-                    class="entrada entrada--numero celula-entrada"
-                    [class.entrada--invalido]="!!erroDe(item.id)"
-                    type="text"
-                    inputmode="decimal"
-                    [disabled]="somenteLeitura()"
-                    [value]="valorDigitado(item)"
-                    (input)="aoDigitar(item, $any($event.target).value)"
-                    (change)="aoConfirmar(item, $any($event.target).value)"
-                  />
-                  @if (erroDe(item.id); as erro) {
-                    <span class="campo__erro">{{ erro }}</span>
-                  }
-                </td>
-                <td class="tabela__num">
-                  @if (diferencaDe(item) === null) {
-                    <span class="indisponivel">—</span>
-                  } @else {
-                    <span
-                      [class.texto-falta]="(diferencaDe(item) ?? 0) < 0"
-                      [class.texto-sobra]="(diferencaDe(item) ?? 0) > 0"
-                    >
-                      {{ diferencaDe(item) | diferenca }}
-                    </span>
-                  }
-                </td>
+      @if (filtro() === 'FORA') {
+        @if (!auditoria()!.foraDoEstoque.length) {
+          <app-estado-vazio
+            titulo="Nenhum material fora do estoque"
+            descricao="Use este registro para o que existe na obra e não aparece no estoque consultado."
+          >
+            @if (!somenteLeitura()) {
+              <button type="button" class="botao" (click)="abrirForaDoEstoque(null)">
+                Registrar material encontrado
+              </button>
+            }
+          </app-estado-vazio>
+        } @else {
+          <div class="rolagem-x">
+            <table class="tabela">
+              <caption class="visivel-leitor">Materiais encontrados fora do estoque</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Descrição</th>
+                  <th scope="col">Código</th>
+                  <th scope="col" class="tabela__num">Quantidade</th>
+                  <th scope="col" class="tabela__num">Valor unit.</th>
+                  <th scope="col">Onde estava</th>
+                  <th scope="col">Fotos</th>
+                  <th scope="col"><span class="visivel-leitor">Ações</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (achado of auditoria()!.foraDoEstoque; track achado.id) {
+                  <tr>
+                    <td>
+                      <span class="descricao">{{ achado.descricao }}</span>
+                      <span class="selo selo--atencao">
+                        <i-lucide [img]="icones.atencao" [size]="11" aria-hidden="true"></i-lucide>
+                        não consta no estoque
+                      </span>
+                      @if (achado.observacao) {
+                        <span class="observacao">{{ achado.observacao }}</span>
+                      }
+                    </td>
+                    <td class="tabela__codigo">{{ achado.codigo ?? 'sem código' }}</td>
+                    <td class="tabela__num">
+                      {{ achado.quantidade | quantidade }} {{ achado.unidade }}
+                    </td>
+                    <td class="tabela__num">
+                      @if (achado.valorUnitario === null) {
+                        <span class="indisponivel">não disponível</span>
+                      } @else {
+                        {{ achado.valorUnitario | moeda }}
+                      }
+                    </td>
+                    <td>{{ achado.local ?? '—' }}</td>
+                    <td class="tabela__num">{{ achado.evidencias.length }}</td>
+                    <td class="acoes">
+                      @if (!somenteLeitura()) {
+                        <button
+                          type="button"
+                          class="botao botao--pequeno"
+                          (click)="abrirForaDoEstoque(achado)"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          class="botao botao--pequeno botao--perigo"
+                          (click)="removerForaDoEstoque(achado.id)"
+                        >
+                          Remover
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      } @else if (!itensVisiveis().length) {
+        <app-estado-vazio
+          titulo="Nenhum item neste filtro"
+          descricao="Troque o filtro, a lista ou o texto buscado para ver os demais materiais."
+        />
+      } @else {
+        <div class="rolagem-tabela">
+          <table class="tabela tabela-conferencia">
+            <caption class="visivel-leitor">Itens da conferência</caption>
+            <thead>
+              <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Un.</th>
+                <th scope="col" class="tabela__num">Sistema</th>
+                <th scope="col" class="tabela__num">Contado</th>
+                <th scope="col" class="tabela__num">Dif.</th>
                 @if (mostrarValores()) {
+                  <th scope="col" class="tabela__num">Valor unit.</th>
+                  <th scope="col" class="tabela__num">Dif. valor</th>
+                }
+                <th scope="col">Evidências</th>
+                <th scope="col">Situação</th>
+                <th scope="col"><span class="visivel-leitor">Detalhes</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of itensVisiveis(); track item.id) {
+                <tr
+                  [class.linha--divergente]="(diferencaDe(item) ?? 0) !== 0"
+                  [class.linha--aberta]="itemAberto() === item.id"
+                >
+                  <td class="tabela__codigo">{{ item.codigo }}</td>
+                  <td class="celula-descricao">
+                    <span class="descricao">{{ item.descricao }}</span>
+                    @if (item.lista) {
+                      <span class="etiqueta">{{ item.lista }}</span>
+                    }
+                  </td>
+                  <td>{{ item.unidade }}</td>
+                  <td class="tabela__num referencia">{{ item.quantidadeSistema | quantidade }}</td>
                   <td class="tabela__num">
-                    @if (item.valorUnitarioReferencia === null) {
-                      <span class="indisponivel">não disponível</span>
-                    } @else {
-                      {{ item.valorUnitarioReferencia | moeda }}
+                    <span class="edicao" [class.edicao--alterada]="alterado(item)">
+                      <label class="visivel-leitor" [attr.for]="'qtd-' + item.id">
+                        Quantidade contada de {{ item.descricao }}
+                      </label>
+                      <input
+                        [id]="'qtd-' + item.id"
+                        class="entrada entrada--numero celula-entrada"
+                        [class.entrada--invalido]="!!erroDe(item.id)"
+                        type="text"
+                        inputmode="decimal"
+                        [disabled]="somenteLeitura()"
+                        [value]="valorDigitado(item)"
+                        (input)="aoDigitar(item, $any($event.target).value)"
+                        (change)="aoConfirmar(item, $any($event.target).value)"
+                      />
+                      @if (estadoSalvamento(item.id) === 'salvando') {
+                        <span class="estado-salvar">salvando…</span>
+                      } @else if (estadoSalvamento(item.id) === 'salvo') {
+                        <span class="estado-salvar estado-salvar--ok">
+                          <i-lucide [img]="icones.marcar" [size]="11" aria-hidden="true"></i-lucide>
+                          salvo
+                        </span>
+                      } @else if (alterado(item)) {
+                        <span class="estado-salvar estado-salvar--pendente">não salvo</span>
+                      }
+                    </span>
+                    @if (erroDe(item.id); as erro) {
+                      <span class="campo__erro">{{ erro }}</span>
                     }
                   </td>
                   <td class="tabela__num">
-                    @if (diferencaEmValor(item) === null) {
-                      <span class="indisponivel">não disponível</span>
+                    @if (diferencaDe(item) === null) {
+                      <span class="indisponivel">—</span>
                     } @else {
                       <span
-                        [class.texto-falta]="(diferencaEmValor(item) ?? 0) < 0"
-                        [class.texto-sobra]="(diferencaEmValor(item) ?? 0) > 0"
+                        [class.texto-falta]="(diferencaDe(item) ?? 0) < 0"
+                        [class.texto-sobra]="(diferencaDe(item) ?? 0) > 0"
                       >
-                        {{ diferencaEmValor(item) | moeda }}
+                        {{ diferencaDe(item) | diferenca }}
                       </span>
                     }
                   </td>
-                }
-                <td>
-                  <app-selo
-                    [tipo]="
-                      item.situacao === 'CONFERIDO'
-                        ? 'ok'
-                        : item.situacao === 'NAO_CONTADO'
-                          ? 'atencao'
-                          : 'neutro'
-                    "
-                  >
-                    {{ rotuloSituacao(item.situacao) }}
-                  </app-selo>
-                </td>
-                <td class="celula-detalhe">
-                  @if (item.evidencias.length) {
-                    <span class="contagem-fotos">{{ item.evidencias.length }} foto(s)</span>
-                  }
-                  <button
-                    type="button"
-                    class="botao botao--pequeno"
-                    [attr.aria-expanded]="expandido() === item.id"
-                    (click)="alternarDetalhe(item.id)"
-                  >
-                    {{ expandido() === item.id ? 'Fechar' : 'Abrir' }}
-                  </button>
-                </td>
-              </tr>
-
-              @if (expandido() === item.id) {
-                <tr class="linha-detalhe">
-                  <td [attr.colspan]="mostrarValores() ? 10 : 8">
-                    <div class="detalhe">
-                      <div class="campo detalhe__campo">
-                        <label class="campo__rotulo" [attr.for]="'local-' + item.id">
-                          Onde estava
-                        </label>
-                        <input
-                          [id]="'local-' + item.id"
-                          class="entrada"
-                          type="text"
-                          [disabled]="somenteLeitura()"
-                          [value]="item.local ?? ''"
-                          (change)="salvarLocal(item, $any($event.target).value)"
-                        />
-                      </div>
-
-                      <div class="campo detalhe__campo">
-                        <label class="campo__rotulo" [attr.for]="'motivo-' + item.id">
-                          Não foi possível contar
-                        </label>
-                        <select
-                          [id]="'motivo-' + item.id"
-                          class="entrada"
-                          [disabled]="somenteLeitura()"
-                          [value]="item.motivoNaoContagem ?? ''"
-                          (change)="marcarNaoContado(item, $any($event.target).value)"
+                  @if (mostrarValores()) {
+                    <td class="tabela__num referencia">
+                      @if (item.valorUnitarioReferencia === null) {
+                        <span class="indisponivel">não disponível</span>
+                      } @else {
+                        {{ item.valorUnitarioReferencia | moeda }}
+                      }
+                    </td>
+                    <td class="tabela__num">
+                      @if (diferencaEmValor(item) === null) {
+                        <span class="indisponivel">não disponível</span>
+                      } @else {
+                        <span
+                          [class.texto-falta]="(diferencaEmValor(item) ?? 0) < 0"
+                          [class.texto-sobra]="(diferencaEmValor(item) ?? 0) > 0"
                         >
-                          <option value="">Contei normalmente</option>
-                          @for (motivo of motivos; track motivo.valor) {
-                            <option [value]="motivo.valor">{{ motivo.rotulo }}</option>
-                          }
-                        </select>
-                      </div>
-
-                      <div class="campo detalhe__campo detalhe__campo--largo">
-                        <label class="campo__rotulo" [attr.for]="'obs-' + item.id">
-                          Observação
-                        </label>
-                        <textarea
-                          [id]="'obs-' + item.id"
-                          class="entrada"
-                          rows="2"
-                          [disabled]="somenteLeitura()"
-                          [value]="item.observacao"
-                          (change)="salvarObservacao(item, $any($event.target).value)"
-                        ></textarea>
-                      </div>
-
-                      <div class="campo detalhe__campo detalhe__campo--largo">
-                        <span class="campo__rotulo">Fotos do item</span>
-                        <app-evidencias
-                          [lista]="item.evidencias"
-                          [somenteLeitura]="somenteLeitura()"
-                          (listaChange)="salvarEvidencias(item, $event)"
-                        />
-                      </div>
-                    </div>
+                          {{ diferencaEmValor(item) | moeda }}
+                        </span>
+                      }
+                    </td>
+                  }
+                  <td>
+                    @if (item.evidencias.length) {
+                      <span class="fotos">
+                        <i-lucide [img]="icones.imagem" [size]="13" aria-hidden="true"></i-lucide>
+                        {{ item.evidencias.length }}
+                      </span>
+                    } @else {
+                      <span class="indisponivel">—</span>
+                    }
+                  </td>
+                  <td>
+                    <app-selo
+                      [tipo]="
+                        item.situacao === 'CONFERIDO'
+                          ? 'ok'
+                          : item.situacao === 'NAO_CONTADO'
+                            ? 'atencao'
+                            : 'neutro'
+                      "
+                    >
+                      @if (item.situacao === 'CONFERIDO') {
+                        <i-lucide [img]="icones.conferido" [size]="11" aria-hidden="true"></i-lucide>
+                      }
+                      {{ rotuloSituacao(item.situacao) }}
+                    </app-selo>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="botao botao--pequeno botao--fantasma"
+                      [attr.aria-label]="'Abrir detalhes de ' + item.descricao"
+                      (click)="abrirDetalhe(item)"
+                    >
+                      Detalhes
+                    </button>
                   </td>
                 </tr>
               }
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </div>
-
-  <section class="quadro fora">
-    <div class="quadro__topo">
-      <h2>Materiais encontrados fora do estoque</h2>
-      @if (!somenteLeitura()) {
-        <button type="button" class="botao botao--pequeno" (click)="abrirForaDoEstoque(null)">
-          <i-lucide [img]="icones.novo" [size]="14" aria-hidden="true"></i-lucide>
-          Adicionar material
-        </button>
+            </tbody>
+          </table>
+        </div>
       }
-    </div>
+    </section>
 
-    @if (!auditoria()!.foraDoEstoque.length) {
-      <app-estado-vazio
-        titulo="Nenhum material fora do estoque"
-        descricao="Use este espaço para o que existe na obra e não aparece no estoque consultado."
-      />
-    } @else {
-      <div class="rolagem-x">
-        <table class="tabela">
-          <caption class="visivel-leitor">Materiais encontrados fora do estoque</caption>
-          <thead>
-            <tr>
-              <th scope="col">Descrição</th>
-              <th scope="col">Código</th>
-              <th scope="col">Quantidade</th>
-              <th scope="col">Valor unit.</th>
-              <th scope="col">Onde estava</th>
-              <th scope="col">Fotos</th>
-              <th scope="col"><span class="visivel-leitor">Ações</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (achado of auditoria()!.foraDoEstoque; track achado.id) {
-              <tr>
-                <td class="celula-descricao">
-                  {{ achado.descricao }}
-                  <span class="selo selo--atencao">não consta no estoque</span>
-                  @if (achado.observacao) {
-                    <span class="observacao">{{ achado.observacao }}</span>
-                  }
-                </td>
-                <td class="tabela__codigo">{{ achado.codigo ?? '—' }}</td>
-                <td class="tabela__num">
-                  {{ achado.quantidade | quantidade }} {{ achado.unidade }}
-                </td>
-                <td class="tabela__num">
-                  @if (achado.valorUnitario === null) {
+    @if (detalhe(); as item) {
+      <div class="detalhe-fundo" (click)="fecharDetalhe()" aria-hidden="true"></div>
+      <aside class="detalhe" aria-label="Detalhes do item">
+        <header class="detalhe__topo">
+          <div>
+            <span class="detalhe__codigo">{{ item.codigo }}</span>
+            <h2>{{ item.descricao }}</h2>
+          </div>
+          <button
+            type="button"
+            class="botao botao--fantasma botao--icone botao--pequeno"
+            aria-label="Fechar detalhes"
+            (click)="fecharDetalhe()"
+          >
+            <i-lucide [img]="icones.fechar" [size]="15" aria-hidden="true"></i-lucide>
+          </button>
+        </header>
+
+        <div class="detalhe__corpo">
+          <section class="bloco">
+            <p class="rotulo-secao">Dados de referência</p>
+            <dl class="dados">
+              <div>
+                <dt>Quantidade no sistema</dt>
+                <dd>{{ item.quantidadeSistema | quantidade }} {{ item.unidade }}</dd>
+              </div>
+              <div>
+                <dt>Valor unitário</dt>
+                <dd>
+                  @if (item.valorUnitarioReferencia === null) {
                     <span class="indisponivel">não disponível</span>
                   } @else {
-                    {{ achado.valorUnitario | moeda }}
+                    {{ item.valorUnitarioReferencia | moeda }}
                   }
-                </td>
-                <td>{{ achado.local ?? '—' }}</td>
-                <td>{{ achado.evidencias.length }}</td>
-                <td class="acoes-linha">
-                  @if (!somenteLeitura()) {
-                    <button
-                      type="button"
-                      class="botao botao--pequeno"
-                      (click)="abrirForaDoEstoque(achado)"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      class="botao botao--pequeno botao--perigo"
-                      (click)="removerForaDoEstoque(achado.id)"
-                    >
-                      Remover
-                    </button>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+                </dd>
+              </div>
+              <div>
+                <dt>Categoria</dt>
+                <dd>{{ item.categoria }}</dd>
+              </div>
+              <div>
+                <dt>Lista</dt>
+                <dd>{{ item.lista ?? 'Sem lista' }}</dd>
+              </div>
+            </dl>
+            <p class="campo__ajuda">
+              Copiado do estoque na abertura da auditoria e não muda mais.
+            </p>
+          </section>
+
+          <section class="bloco">
+            <p class="rotulo-secao">Contagem física</p>
+            <div class="campo">
+              <label class="campo__rotulo" [attr.for]="'detalhe-qtd-' + item.id">
+                Quantidade encontrada
+              </label>
+              <input
+                [id]="'detalhe-qtd-' + item.id"
+                class="entrada entrada--numero"
+                type="text"
+                inputmode="decimal"
+                [disabled]="somenteLeitura()"
+                [value]="valorDigitado(item)"
+                (input)="aoDigitar(item, $any($event.target).value)"
+                (change)="aoConfirmar(item, $any($event.target).value)"
+              />
+            </div>
+
+            <div class="campo">
+              <label class="campo__rotulo" [attr.for]="'detalhe-local-' + item.id">
+                Onde estava
+              </label>
+              <input
+                [id]="'detalhe-local-' + item.id"
+                class="entrada"
+                type="text"
+                [disabled]="somenteLeitura()"
+                [value]="item.local ?? ''"
+                (change)="salvarLocal(item, $any($event.target).value)"
+              />
+            </div>
+
+            <div class="campo">
+              <label class="campo__rotulo" [attr.for]="'detalhe-motivo-' + item.id">
+                Não foi possível contar
+              </label>
+              <select
+                [id]="'detalhe-motivo-' + item.id"
+                class="entrada"
+                [disabled]="somenteLeitura()"
+                [value]="item.motivoNaoContagem ?? ''"
+                (change)="marcarNaoContado(item, $any($event.target).value)"
+              >
+                <option value="">Contei normalmente</option>
+                @for (motivo of motivos; track motivo.valor) {
+                  <option [value]="motivo.valor">{{ motivo.rotulo }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="campo">
+              <label class="campo__rotulo" [attr.for]="'detalhe-obs-' + item.id">Observação</label>
+              <textarea
+                [id]="'detalhe-obs-' + item.id"
+                class="entrada"
+                rows="3"
+                [disabled]="somenteLeitura()"
+                [value]="item.observacao"
+                (change)="salvarObservacao(item, $any($event.target).value)"
+              ></textarea>
+            </div>
+          </section>
+
+          <section class="bloco">
+            <p class="rotulo-secao">Evidências</p>
+            <app-evidencias
+              [lista]="item.evidencias"
+              [somenteLeitura]="somenteLeitura()"
+              (listaChange)="salvarEvidencias(item, $event)"
+            />
+          </section>
+
+          <section class="bloco">
+            <p class="rotulo-secao">Resultado</p>
+            <div class="resultado">
+              <span class="resultado__rotulo">Diferença</span>
+              <span
+                class="resultado__valor"
+                [class.texto-falta]="(diferencaDe(item) ?? 0) < 0"
+                [class.texto-sobra]="(diferencaDe(item) ?? 0) > 0"
+              >
+                {{ diferencaDe(item) | diferenca }} {{ item.unidade }}
+              </span>
+            </div>
+            <div class="resultado">
+              <span class="resultado__rotulo">Em valor</span>
+              <span class="resultado__valor">
+                @if (diferencaEmValor(item) === null) {
+                  <span class="indisponivel">não disponível</span>
+                } @else {
+                  {{ diferencaEmValor(item) | moeda }}
+                }
+              </span>
+            </div>
+          </section>
+        </div>
+      </aside>
     }
-  </section>
+  </div>
 
   @if (foraDoEstoqueAberto()) {
     <app-form-fora-do-estoque

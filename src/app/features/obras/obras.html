@@ -1,6 +1,6 @@
 <app-cabecalho-pagina
   titulo="Obras"
-  descricao="Obras disponíveis para auditoria, agrupadas pela filial responsável."
+  descricao="Cada filial responde por várias obras, e a auditoria é sempre de uma obra."
 />
 
 @if (estado().carregando && !estado().dados) {
@@ -8,15 +8,15 @@
 } @else if (estado().erro) {
   <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
 } @else {
-  <section class="filtros" aria-label="Filtros de obras">
-    <div class="filtros__busca">
+  <section class="barra-ferramentas quadro espaco-abaixo" aria-label="Filtros de obras">
+    <div class="campo-busca">
       <i-lucide [img]="icones.buscar" [size]="15" aria-hidden="true"></i-lucide>
-      <label class="visivel-leitor" for="busca-obra">Buscar obra por nome ou código</label>
+      <label class="visivel-leitor" for="busca-obra">Buscar obra por nome, código ou filial</label>
       <input
         id="busca-obra"
         class="entrada"
         type="search"
-        placeholder="Nome ou código da obra"
+        placeholder="Nome, código ou filial"
         [value]="termo()"
         (input)="definirTermo($any($event.target).value)"
       />
@@ -25,7 +25,7 @@
     <label class="visivel-leitor" for="filtro-filial">Filial</label>
     <select
       id="filtro-filial"
-      class="entrada filtros__select"
+      class="entrada largura-auto"
       [value]="filialSelecionada()"
       (change)="definirFilial($any($event.target).value)"
     >
@@ -38,7 +38,7 @@
     <label class="visivel-leitor" for="filtro-situacao">Situação</label>
     <select
       id="filtro-situacao"
-      class="entrada filtros__select"
+      class="entrada largura-auto"
       [value]="situacaoSelecionada()"
       (change)="definirSituacao($any($event.target).value)"
     >
@@ -47,7 +47,9 @@
       <option value="ENCERRADA">Encerradas</option>
     </select>
 
-    <span class="filtros__contagem">{{ filtradas().length }} de {{ todas().length }}</span>
+    <span class="contagem">
+      {{ filtradas().length }} de {{ todas().length }} obras · {{ grupos().length }} filiais
+    </span>
   </section>
 
   @if (!filtradas().length) {
@@ -58,73 +60,84 @@
       <button type="button" class="botao" (click)="limparFiltros()">Limpar filtros</button>
     </app-estado-vazio>
   } @else {
-    <div class="quadro">
-      <div class="rolagem-x">
-        <table class="tabela">
-          <caption class="visivel-leitor">Lista de obras</caption>
-          <thead>
-            <tr>
-              <th scope="col">Obra</th>
-              <th scope="col">Código</th>
-              <th scope="col">Filial</th>
-              <th scope="col">Segmento</th>
-              <th scope="col">Auditorias</th>
-              <th scope="col">Situação</th>
-              <th scope="col"><span class="visivel-leitor">Ações</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (obra of visiveis(); track obra.id) {
-              <tr>
-                <td class="celula-nome">{{ obra.nome }}</td>
-                <td class="tabela__codigo">{{ obra.codigo }}</td>
-                <td>
-                  @if (obra.filial) {
-                    {{ obra.filial.codigo }} - {{ obra.filial.nome }}
-                    <span class="regional">{{ obra.filial.regional }}</span>
-                  } @else {
-                    <span class="indisponivel">sem filial</span>
-                  }
-                </td>
-                <td>{{ obra.segmento }}</td>
-                <td class="tabela__num">{{ obra.totalAuditorias }}</td>
-                <td>
-                  <app-selo [tipo]="obra.situacao === 'ATIVA' ? 'ok' : 'neutro'">
-                    {{ obra.situacao === 'ATIVA' ? 'Ativa' : 'Encerrada' }}
-                  </app-selo>
-                </td>
-                <td>
-                  <a class="botao botao--pequeno" [routerLink]="['/obras', obra.id]">Detalhes</a>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+    <div class="pilha">
+      @for (grupo of grupos(); track grupo.chave) {
+        <section class="quadro">
+          <header class="filial">
+            <div class="filial__identidade">
+              <i-lucide [img]="icones.obras" [size]="15" aria-hidden="true"></i-lucide>
+              <h2>{{ grupo.nome }}</h2>
+              @if (grupo.regional) {
+                <span class="selo selo--neutro">{{ grupo.regional }}</span>
+              }
+            </div>
+            <span class="contagem">
+              {{ grupo.obras.length }} {{ grupo.obras.length === 1 ? 'obra' : 'obras' }} ·
+              {{ grupo.auditorias }} auditorias
+            </span>
+          </header>
 
-      @if (totalPaginas() > 1) {
-        <nav class="paginacao" aria-label="Paginação das obras">
-          <button
-            type="button"
-            class="botao botao--pequeno botao--icone"
-            aria-label="Página anterior"
-            [disabled]="pagina() === 1"
-            (click)="irPara(pagina() - 1)"
-          >
-            <i-lucide [img]="icones.esquerda" [size]="14" aria-hidden="true"></i-lucide>
-          </button>
-          <span>Página {{ pagina() }} de {{ totalPaginas() }}</span>
-          <button
-            type="button"
-            class="botao botao--pequeno botao--icone"
-            aria-label="Próxima página"
-            [disabled]="pagina() === totalPaginas()"
-            (click)="irPara(pagina() + 1)"
-          >
-            <i-lucide [img]="icones.direita" [size]="14" aria-hidden="true"></i-lucide>
-          </button>
-        </nav>
+          <div class="rolagem-x">
+            <table class="tabela">
+              <caption class="visivel-leitor">Obras da filial {{ grupo.nome }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Obra</th>
+                  <th scope="col">Código</th>
+                  <th scope="col">Segmento</th>
+                  <th scope="col" class="tabela__num">Auditorias</th>
+                  <th scope="col">Situação</th>
+                  <th scope="col"><span class="visivel-leitor">Ações</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (obra of grupo.obras; track obra.id) {
+                  <tr>
+                    <td class="celula-nome">{{ obra.nome }}</td>
+                    <td class="tabela__codigo">{{ obra.codigo }}</td>
+                    <td>{{ obra.segmento }}</td>
+                    <td class="tabela__num">{{ obra.totalAuditorias }}</td>
+                    <td>
+                      <app-selo [tipo]="obra.situacao === 'ATIVA' ? 'ok' : 'neutro'">
+                        {{ obra.situacao === 'ATIVA' ? 'Ativa' : 'Encerrada' }}
+                      </app-selo>
+                    </td>
+                    <td class="acoes">
+                      <a class="botao botao--pequeno" [routerLink]="['/obras', obra.id]">
+                        Detalhes
+                      </a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
       }
     </div>
+
+    @if (totalPaginas() > 1) {
+      <nav class="paginacao quadro espaco-acima" aria-label="Paginação das obras">
+        <button
+          type="button"
+          class="botao botao--pequeno botao--icone"
+          aria-label="Página anterior"
+          [disabled]="pagina() === 1"
+          (click)="irPara(pagina() - 1)"
+        >
+          <i-lucide [img]="icones.esquerda" [size]="14" aria-hidden="true"></i-lucide>
+        </button>
+        <span>Página {{ pagina() }} de {{ totalPaginas() }}</span>
+        <button
+          type="button"
+          class="botao botao--pequeno botao--icone"
+          aria-label="Próxima página"
+          [disabled]="pagina() === totalPaginas()"
+          (click)="irPara(pagina() + 1)"
+        >
+          <i-lucide [img]="icones.direita" [size]="14" aria-hidden="true"></i-lucide>
+        </button>
+      </nav>
+    }
   }
 }

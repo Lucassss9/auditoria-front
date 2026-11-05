@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { InsumoEstoque, ListaFavorita } from '../models/insumo.model';
+import { FiltroEstoque, InsumoEstoque, ListaFavorita } from '../models/insumo.model';
 import { EstoqueService } from '../services/estoque.service';
 
 @Injectable()
@@ -10,8 +10,14 @@ export class EstoqueApiService extends EstoqueService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiBaseUrl}/estoque`;
 
-  buscarPorObra(obraId: string, termo: string): Observable<InsumoEstoque[]> {
-    return this.http.get<InsumoEstoque[]>(this.base, { params: { obra: obraId, termo } });
+  buscarPorObra(obraId: string, filtro: FiltroEstoque): Observable<InsumoEstoque[]> {
+    return this.http.get<InsumoEstoque[]>(this.base, {
+      params: { obra: obraId, termo: filtro.termo, categoria: filtro.categoria ?? '' },
+    });
+  }
+
+  listarCategorias(obraId: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/categorias`, { params: { obra: obraId } });
   }
 
   listarListasFavoritas(): Observable<ListaFavorita[]> {

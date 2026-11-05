@@ -19,6 +19,7 @@ export interface ItemAuditoria {
   id: string;
   codigo: string;
   descricao: string;
+  categoria: string;
   unidade: string;
   quantidadeSistema: number;
   valorUnitarioReferencia: number | null;
