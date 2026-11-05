@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Evidencia, ItemForaDoEstoque } from '../../../../core/models/auditoria.model';
+import { ValidacaoFormulario } from '../../../../core/utils/validacao-formulario';
 import { Evidencias } from '../../../../shared/components/evidencias/evidencias';
 import { Modal } from '../../../../shared/components/modal/modal';
 
@@ -33,6 +34,8 @@ export class FormForaDoEstoque {
     observacao: [''],
   });
 
+  private readonly validacao = new ValidacaoFormulario(this.formulario);
+
   constructor() {
     const atual = this.item();
 
@@ -54,10 +57,10 @@ export class FormForaDoEstoque {
     const quantidade = this.converter(this.formulario.controls.quantidade.value);
 
     if (this.formulario.invalid || quantidade === null || quantidade <= 0) {
-      this.formulario.markAllAsTouched();
       this.formulario.controls.quantidade.setErrors(
         quantidade === null || quantidade <= 0 ? { invalida: true } : null,
       );
+      this.validacao.marcarTentativa();
       return;
     }
 
@@ -78,8 +81,7 @@ export class FormForaDoEstoque {
   }
 
   protected campoInvalido(nome: 'descricao' | 'quantidade'): boolean {
-    const campo = this.formulario.get(nome);
-    return !!campo && campo.invalid && campo.touched;
+    return this.validacao.invalido(nome);
   }
 
   private converter(valor: string): number | null {

@@ -18,9 +18,9 @@
     >
       <a class="botao" [routerLink]="['/auditorias', auditoria()!.id]">Voltar à conferência</a>
       <a class="botao" [routerLink]="['/auditorias', auditoria()!.id, 'email']">Preparar e-mail</a>
-      <button type="button" class="botao botao--primario" (click)="imprimir()">
-        <i-lucide [img]="icones.imprimir" [size]="15" aria-hidden="true"></i-lucide>
-        Imprimir ou salvar em PDF
+      <button type="button" class="botao botao--primario" (click)="salvarPdf()">
+        <i-lucide [img]="icones.pdf" [size]="15" aria-hidden="true"></i-lucide>
+        Salvar em PDF
       </button>
     </app-cabecalho-pagina>
   </div>

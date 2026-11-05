@@ -567,12 +567,45 @@ select.entrada {
 }
 
 @media print {
+  :root,
+  :root[data-tema="escuro"] {
+    color-scheme: light;
+
+    --fundo: #ffffff;
+    --superficie: #ffffff;
+    --superficie-alt: #ffffff;
+    --superficie-topo: #f2f4f8;
+    --superficie-realce: #f2f4f8;
+    --texto: #11131c;
+    --texto-fraco: #3d4257;
+    --texto-apagado: #5c6176;
+    --borda: #c9ceda;
+    --borda-forte: #9aa1b4;
+    --acao: #24409c;
+    --acao-fundo: #eef2fb;
+    --realce: #543bad;
+    --ok: #1a6b4a;
+    --ok-fundo: #eef7f2;
+    --atencao: #8a5300;
+    --atencao-fundo: #fdf4e4;
+    --critico: #9e2a22;
+    --critico-fundo: #fcedec;
+    --sombra-1: none;
+    --sombra-2: none;
+    --sombra-3: none;
+  }
+
   .nao-imprimir {
     display: none !important;
   }
 
   body {
     background: #fff;
-    color: #000;
+    color: var(--texto);
+  }
+
+  .quadro,
+  .rolagem-x {
+    overflow: visible !important;
   }
 }

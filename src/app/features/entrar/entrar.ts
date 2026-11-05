@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { AutenticacaoService } from '../../core/services/autenticacao.service';
 import { SessaoService } from '../../core/services/sessao.service';
 import { Logo } from '../../shared/components/logo/logo';
+import { ValidacaoFormulario } from '../../core/utils/validacao-formulario';
 import { SeletorTema } from '../../shared/components/seletor-tema/seletor-tema';
 import { ICONES } from '../../shared/icones';
 
@@ -34,6 +35,8 @@ export class Entrar {
     senha: ['', [Validators.required, Validators.minLength(6)]],
   });
 
+  private readonly validacao = new ValidacaoFormulario(this.formulario);
+
   protected alternarSenha(): void {
     this.mostrarSenha.update((valor) => !valor);
   }
@@ -45,7 +48,7 @@ export class Entrar {
 
   protected entrar(): void {
     if (this.formulario.invalid) {
-      this.formulario.markAllAsTouched();
+      this.validacao.marcarTentativa();
       return;
     }
 
@@ -69,7 +72,6 @@ export class Entrar {
   }
 
   protected campoInvalido(nome: 'email' | 'senha'): boolean {
-    const campo = this.formulario.get(nome);
-    return !!campo && campo.invalid && campo.touched;
+    return this.validacao.invalido(nome);
   }
 }

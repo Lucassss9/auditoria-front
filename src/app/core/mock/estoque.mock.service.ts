@@ -43,10 +43,18 @@ export class EstoqueMockService extends EstoqueService {
     );
   }
 
-  salvarListaFavorita(lista: Omit<ListaFavorita, 'id'>): Observable<ListaFavorita> {
-    const nova: ListaFavorita = { ...lista, id: novoId('lf') };
-    this.store.listasFavoritas.update((atuais) => [...atuais, nova]);
-    return responder(nova);
+  salvarListaFavorita(
+    lista: Omit<ListaFavorita, 'id'> & { id?: string },
+  ): Observable<ListaFavorita> {
+    const salva: ListaFavorita = { ...lista, id: lista.id ?? novoId('lf') };
+
+    this.store.listasFavoritas.update((atuais) =>
+      atuais.some((item) => item.id === salva.id)
+        ? atuais.map((item) => (item.id === salva.id ? salva : item))
+        : [...atuais, salva],
+    );
+
+    return responder(salva);
   }
 
   removerListaFavorita(id: string): Observable<void> {

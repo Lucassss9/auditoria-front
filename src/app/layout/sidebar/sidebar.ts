@@ -19,6 +19,7 @@ export class Sidebar {
   protected readonly principais = [
     { rota: '/inicio', rotulo: 'Início', icone: ICONES.inicio, exato: true },
     { rota: '/auditorias', rotulo: 'Auditorias', icone: ICONES.auditorias, exato: false },
+    { rota: '/buscas', rotulo: 'Buscas salvas', icone: ICONES.salvo, exato: false },
     { rota: '/obras', rotulo: 'Obras', icone: ICONES.obras, exato: false },
     { rota: '/equipes', rotulo: 'Equipes', icone: ICONES.equipes, exato: false },
     { rota: '/historico', rotulo: 'Histórico', icone: ICONES.historico, exato: false },

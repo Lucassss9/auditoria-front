@@ -131,7 +131,7 @@ export class Relatorio {
     return MOTIVOS.find((item) => item.valor === valor)?.rotulo ?? 'Sem motivo informado';
   }
 
-  protected imprimir(): void {
+  protected salvarPdf(): void {
     window.print();
   }
 }

@@ -5,6 +5,44 @@
 
 <div class="painel">
   <section class="cartao">
+    <h2>Sua conta</h2>
+
+    @if (usuario(); as pessoa) {
+      <div class="conta">
+        <span class="conta__iniciais">{{ pessoa.iniciais }}</span>
+        <div class="conta__dados">
+          <span class="conta__nome">{{ pessoa.nome }}</span>
+          <span class="conta__linha">{{ pessoa.email }}</span>
+          <span class="conta__linha">{{ pessoa.cargo }}</span>
+        </div>
+      </div>
+
+      <p class="campo__ajuda">
+        Nome, e-mail e cargo vêm do cadastro da equipe de auditoria. Trocar senha e criar conta
+        dependem do backend próprio e ainda não existem nesta versão.
+      </p>
+
+      <div class="acoes">
+        <button type="button" class="botao botao--perigo" (click)="sair()">
+          <i-lucide [img]="icones.sair" [size]="14" aria-hidden="true"></i-lucide>
+          Sair da conta
+        </button>
+      </div>
+    }
+  </section>
+
+  <section class="cartao">
+    <h2>Aparência</h2>
+    <div class="linha-tema">
+      <span class="campo__rotulo">Tema da interface</span>
+      <app-seletor-tema />
+    </div>
+    <p class="campo__ajuda">
+      Claro, escuro ou acompanhando o sistema. A escolha fica salva neste navegador.
+    </p>
+  </section>
+
+  <section class="cartao">
     <h2>Preferências da auditoria</h2>
 
     <div class="linha">

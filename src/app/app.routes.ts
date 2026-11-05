@@ -51,6 +51,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auditorias/email/email').then((m) => m.Email),
       },
       {
+        path: 'buscas',
+        title: 'Buscas salvas',
+        loadComponent: () => import('./features/buscas/buscas').then((m) => m.Buscas),
+      },
+      {
         path: 'obras',
         title: 'Obras',
         loadComponent: () => import('./features/obras/obras').then((m) => m.Obras),

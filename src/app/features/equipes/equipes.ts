@@ -10,6 +10,7 @@ import { Obra } from '../../core/models/obra.model';
 import { EquipeService } from '../../core/services/equipe.service';
 import { ObrasService } from '../../core/services/obras.service';
 import { Requisicao } from '../../core/utils/requisicao';
+import { ValidacaoFormulario } from '../../core/utils/validacao-formulario';
 import { AvisoErro } from '../../shared/components/aviso-erro/aviso-erro';
 import { CabecalhoPagina } from '../../shared/components/cabecalho-pagina/cabecalho-pagina';
 import { Carregando } from '../../shared/components/carregando/carregando';
@@ -58,6 +59,7 @@ export class Equipes {
   protected readonly editando = signal<Responsavel | null>(null);
   protected readonly formularioAberto = signal(false);
   protected readonly salvando = signal(false);
+  protected readonly confirmandoRemocao = signal<string | null>(null);
 
   protected readonly formulario = this.fb.nonNullable.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
@@ -67,6 +69,8 @@ export class Equipes {
     ativo: [true],
     receberEmail: [true],
   });
+
+  private readonly validacao = new ValidacaoFormulario(this.formulario);
 
   protected readonly obras = computed(() => this.estado().dados?.obras ?? []);
 
@@ -100,6 +104,7 @@ export class Equipes {
       ativo: true,
       receberEmail: true,
     });
+    this.validacao.reiniciar();
     this.formularioAberto.set(true);
   }
 
@@ -122,7 +127,7 @@ export class Equipes {
 
   protected salvar(): void {
     if (this.formulario.invalid) {
-      this.formulario.markAllAsTouched();
+      this.validacao.marcarTentativa();
       return;
     }
 
@@ -136,7 +141,16 @@ export class Equipes {
     });
   }
 
+  protected pedirRemocao(id: string): void {
+    this.confirmandoRemocao.set(id);
+  }
+
+  protected cancelarRemocao(): void {
+    this.confirmandoRemocao.set(null);
+  }
+
   protected remover(pessoa: Responsavel): void {
+    this.confirmandoRemocao.set(null);
     this.servico.remover(pessoa.id).subscribe(() => this.requisicao.executar());
   }
 
@@ -151,8 +165,7 @@ export class Equipes {
   }
 
   protected campoInvalido(nome: string): boolean {
-    const campo = this.formulario.get(nome);
-    return !!campo && campo.invalid && campo.touched;
+    return this.validacao.invalido(nome);
   }
 
   private recarregar(): void {

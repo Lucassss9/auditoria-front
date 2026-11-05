@@ -171,6 +171,15 @@ export class Email {
 
         this.prazo.set(auditoria.comunicado?.prazo ?? this.prazoPadrao());
 
+        if (auditoria.comunicado?.assunto) {
+          this.assunto.set(auditoria.comunicado.assunto);
+        }
+
+        if (auditoria.comunicado?.mensagem) {
+          this.mensagem.set(auditoria.comunicado.mensagem);
+          this.mensagemEditada.set(true);
+        }
+
         this.equipeServico.listarPorObra(auditoria.obraId).subscribe({
           next: (equipe) => {
             this.equipe.set(equipe);

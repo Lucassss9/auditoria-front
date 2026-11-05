@@ -1,0 +1,239 @@
+.area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--esp-4);
+  align-items: start;
+}
+
+.area--com-editor {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+}
+
+@media (max-width: 1080px) {
+  .area--com-editor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.lista-buscas {
+  min-width: 0;
+}
+
+.cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  min-width: 0;
+  padding: var(--esp-4);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-g);
+  background: var(--superficie);
+  transition: border-color var(--rapido);
+
+  &--editando {
+    border-color: var(--acao);
+    box-shadow: var(--foco-aura);
+  }
+}
+
+.cartao__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2);
+}
+
+.cartao__identidade {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-width: 0;
+
+  i-lucide {
+    display: flex;
+    flex: 0 0 auto;
+    color: var(--realce);
+  }
+
+  h2 {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.termos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.termo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  max-width: 100%;
+  padding: 2px var(--esp-2);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  background: var(--superficie-alt);
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.termos--editaveis .termo {
+  background: var(--acao-fundo);
+  border-color: var(--acao-contorno);
+  color: var(--acao);
+  padding-right: 2px;
+}
+
+.termo__remover {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(128, 128, 128, 0.2);
+  }
+}
+
+.cartao__acoes {
+  display: flex;
+  gap: var(--esp-2);
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.editor {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - var(--topo) - var(--esp-6));
+  min-width: 0;
+}
+
+.editor__corpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  padding: var(--esp-4);
+}
+
+.editor__rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  flex-wrap: wrap;
+  padding: var(--esp-3) var(--esp-4);
+  border-top: 1px solid var(--borda);
+  background: var(--superficie-alt);
+}
+
+.entrada-termo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-width: 0;
+}
+
+.teste {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  padding-top: var(--esp-3);
+  border-top: 1px solid var(--borda);
+}
+
+.teste__controles {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-width: 0;
+
+  .entrada {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.teste__resumo {
+  font-size: var(--t-13);
+  color: var(--texto-fraco);
+
+  strong {
+    font-family: var(--fonte-num);
+    color: var(--texto);
+  }
+}
+
+.amostra {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: var(--esp-2);
+    min-width: 0;
+    padding: var(--esp-1) 0;
+    border-bottom: 1px solid var(--borda);
+    font-size: var(--t-12);
+  }
+
+  li:last-child {
+    border-bottom: none;
+  }
+}
+
+.amostra__codigo {
+  flex: 0 0 auto;
+  font-family: var(--fonte-num);
+  font-size: var(--t-11);
+  color: var(--texto-apagado);
+}
+
+.amostra__descricao {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1080px) {
+  .editor {
+    position: static;
+    max-height: none;
+  }
+}

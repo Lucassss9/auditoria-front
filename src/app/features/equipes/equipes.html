@@ -78,16 +78,34 @@
                     </button>
                   </td>
                   <td class="acoes-linha">
-                    <button type="button" class="botao botao--pequeno" (click)="abrirEdicao(pessoa)">
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      class="botao botao--pequeno botao--perigo"
-                      (click)="remover(pessoa)"
-                    >
-                      Remover
-                    </button>
+                    @if (confirmandoRemocao() === pessoa.id) {
+                      <span class="confirmacao">Remover {{ pessoa.nome }}?</span>
+                      <button type="button" class="botao botao--pequeno" (click)="cancelarRemocao()">
+                        Manter
+                      </button>
+                      <button
+                        type="button"
+                        class="botao botao--pequeno botao--perigo"
+                        (click)="remover(pessoa)"
+                      >
+                        Remover
+                      </button>
+                    } @else {
+                      <button
+                        type="button"
+                        class="botao botao--pequeno"
+                        (click)="abrirEdicao(pessoa)"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        class="botao botao--pequeno botao--perigo"
+                        (click)="pedirRemocao(pessoa.id)"
+                      >
+                        Remover
+                      </button>
+                    }
                   </td>
                 </tr>
               }

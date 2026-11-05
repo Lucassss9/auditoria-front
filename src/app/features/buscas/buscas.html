@@ -1,0 +1,242 @@
+<app-cabecalho-pagina
+  titulo="Buscas salvas"
+  descricao="Regras de pesquisa suas, reaproveitadas em qualquer obra. Elas guardam termos, não códigos."
+>
+  <button type="button" class="botao botao--primario" (click)="novaBusca()">
+    <i-lucide [img]="icones.novo" [size]="15" aria-hidden="true"></i-lucide>
+    Nova busca
+  </button>
+</app-cabecalho-pagina>
+
+@if (estado().carregando && !estado().dados) {
+  <app-carregando texto="Carregando buscas salvas…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
+} @else {
+  <div class="area" [class.area--com-editor]="editorAberto()">
+    <section class="lista-buscas">
+      @if (!listas().length) {
+        <div class="quadro">
+          <app-estado-vazio
+            titulo="Nenhuma busca salva ainda"
+            descricao="Monte uma regra como Louças, com os termos que você usa na planilha, e reaproveite em toda obra."
+          >
+            <button type="button" class="botao botao--primario" (click)="novaBusca()">
+              Criar a primeira busca
+            </button>
+          </app-estado-vazio>
+        </div>
+      } @else {
+        <ul class="cartoes">
+          @for (lista of listas(); track lista.id) {
+            <li class="cartao" [class.cartao--editando]="editando() === lista.id">
+              <header class="cartao__topo">
+                <div class="cartao__identidade">
+                  <i-lucide [img]="icones.salvo" [size]="15" aria-hidden="true"></i-lucide>
+                  <h2>{{ lista.nome }}</h2>
+                </div>
+                <span class="contagem">
+                  {{ lista.termos.length }}
+                  {{ lista.termos.length === 1 ? 'termo' : 'termos' }}
+                </span>
+              </header>
+
+              <ul class="termos">
+                @for (termo of lista.termos; track termo) {
+                  <li class="termo">{{ termo }}</li>
+                }
+              </ul>
+
+              @if (confirmandoRemocao() === lista.id) {
+                <div class="aviso-faixa aviso-faixa--critico">
+                  <i-lucide [img]="icones.atencao" [size]="14" aria-hidden="true"></i-lucide>
+                  <span>
+                    Apagar <strong>{{ lista.nome }}</strong>? Some só o atalho — material
+                    selecionado e auditoria já feita não mudam.
+                  </span>
+                </div>
+                <div class="cartao__acoes">
+                  <button type="button" class="botao botao--pequeno" (click)="cancelarRemocao()">
+                    Manter
+                  </button>
+                  <button
+                    type="button"
+                    class="botao botao--pequeno botao--perigo"
+                    (click)="remover(lista.id)"
+                  >
+                    Apagar mesmo assim
+                  </button>
+                </div>
+              } @else {
+                <div class="cartao__acoes">
+                  <button type="button" class="botao botao--pequeno" (click)="editar(lista)">
+                    <i-lucide [img]="icones.editar" [size]="13" aria-hidden="true"></i-lucide>
+                    Editar
+                  </button>
+                  <button type="button" class="botao botao--pequeno" (click)="duplicar(lista)">
+                    Duplicar
+                  </button>
+                  <button
+                    type="button"
+                    class="botao botao--pequeno botao--perigo"
+                    (click)="pedirRemocao(lista.id)"
+                  >
+                    Apagar
+                  </button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    @if (editorAberto()) {
+      <aside class="editor quadro" aria-label="Editor da busca salva">
+        <header class="quadro__topo">
+          <h2>{{ tituloEditor() }}</h2>
+          <button
+            type="button"
+            class="botao botao--fantasma botao--icone botao--pequeno"
+            aria-label="Fechar editor"
+            (click)="fecharEditor()"
+          >
+            <i-lucide [img]="icones.fechar" [size]="15" aria-hidden="true"></i-lucide>
+          </button>
+        </header>
+
+        <div class="editor__corpo">
+          <div class="campo">
+            <label class="campo__rotulo" for="nome-busca">Nome</label>
+            <input
+              id="nome-busca"
+              class="entrada"
+              type="text"
+              placeholder="Louças, Blocos, Aço…"
+              [value]="nome()"
+              (input)="nome.set($any($event.target).value)"
+            />
+          </div>
+
+          <div class="campo">
+            <label class="campo__rotulo" for="termo-novo">Termos de busca</label>
+            <div class="entrada-termo">
+              <input
+                id="termo-novo"
+                class="entrada"
+                type="text"
+                placeholder="vaso, lavatório, cuba…"
+                [value]="termoNovo()"
+                (input)="termoNovo.set($any($event.target).value)"
+                (keydown.enter)="adicionarTermo()"
+              />
+              <button
+                type="button"
+                class="botao botao--pequeno"
+                [disabled]="!termoNovo().trim()"
+                (click)="adicionarTermo()"
+              >
+                Incluir
+              </button>
+            </div>
+            <span class="campo__ajuda">
+              Um termo por vez, ou vários separados por vírgula. A busca ignora acentos e
+              maiúsculas, e encontra o termo em qualquer parte da descrição.
+            </span>
+          </div>
+
+          @if (termos().length) {
+            <ul class="termos termos--editaveis">
+              @for (termo of termos(); track termo) {
+                <li class="termo">
+                  {{ termo }}
+                  <button
+                    type="button"
+                    class="termo__remover"
+                    [attr.aria-label]="'Remover o termo ' + termo"
+                    (click)="removerTermo(termo)"
+                  >
+                    <i-lucide [img]="icones.fechar" [size]="11" aria-hidden="true"></i-lucide>
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="campo__ajuda">Nenhum termo ainda.</p>
+          }
+
+          @if (erro(); as mensagem) {
+            <p class="aviso-faixa aviso-faixa--critico" role="alert">
+              <i-lucide [img]="icones.atencao" [size]="14" aria-hidden="true"></i-lucide>
+              {{ mensagem }}
+            </p>
+          }
+
+          <section class="teste">
+            <p class="rotulo-secao">Testar numa obra</p>
+            <div class="teste__controles">
+              <label class="visivel-leitor" for="obra-teste">Obra para testar</label>
+              <select
+                id="obra-teste"
+                class="entrada"
+                [value]="obraTeste()"
+                (change)="obraTeste.set($any($event.target).value)"
+              >
+                <option value="">Escolher obra…</option>
+                @for (obra of obras(); track obra.id) {
+                  <option [value]="obra.id">{{ obra.nome }}</option>
+                }
+              </select>
+              <button
+                type="button"
+                class="botao botao--pequeno"
+                [disabled]="testando() || !termos().length"
+                (click)="testar()"
+              >
+                {{ testando() ? 'Testando…' : 'Testar' }}
+              </button>
+            </div>
+
+            @if (resultadoTeste(); as encontrados) {
+              <p class="teste__resumo">
+                <strong>{{ encontrados.length }}</strong> materiais encontrados em
+                {{ nomeDaObraTeste() }}.
+              </p>
+
+              @if (encontrados.length) {
+                <ul class="amostra">
+                  @for (insumo of encontrados.slice(0, 8); track insumo.id) {
+                    <li>
+                      <span class="amostra__codigo">{{ insumo.codigo }}</span>
+                      <span class="amostra__descricao">{{ insumo.descricao }}</span>
+                    </li>
+                  }
+                </ul>
+                @if (encontrados.length > 8) {
+                  <p class="campo__ajuda">e mais {{ encontrados.length - 8 }} itens.</p>
+                }
+              } @else {
+                <p class="campo__ajuda">
+                  Nenhum material casou com esses termos nesta obra. Pode ser que ela descreva o
+                  material de outro jeito.
+                </p>
+              }
+            }
+          </section>
+        </div>
+
+        <footer class="editor__rodape">
+          <button type="button" class="botao" (click)="fecharEditor()">Cancelar</button>
+          <button
+            type="button"
+            class="botao botao--primario"
+            [disabled]="salvando()"
+            (click)="salvar()"
+          >
+            {{ salvando() ? 'Salvando…' : 'Salvar busca' }}
+          </button>
+        </footer>
+      </aside>
+    }
+  </div>
+}

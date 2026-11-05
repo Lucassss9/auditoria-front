@@ -24,8 +24,14 @@ export class EstoqueApiService extends EstoqueService {
     return this.http.get<ListaFavorita[]>(`${environment.apiBaseUrl}/listas-favoritas`);
   }
 
-  salvarListaFavorita(lista: Omit<ListaFavorita, 'id'>): Observable<ListaFavorita> {
-    return this.http.post<ListaFavorita>(`${environment.apiBaseUrl}/listas-favoritas`, lista);
+  salvarListaFavorita(
+    lista: Omit<ListaFavorita, 'id'> & { id?: string },
+  ): Observable<ListaFavorita> {
+    const base = `${environment.apiBaseUrl}/listas-favoritas`;
+
+    return lista.id
+      ? this.http.put<ListaFavorita>(`${base}/${lista.id}`, lista)
+      : this.http.post<ListaFavorita>(base, lista);
   }
 
   removerListaFavorita(id: string): Observable<void> {
