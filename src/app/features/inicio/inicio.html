@@ -89,18 +89,20 @@
                 <span class="pendencia__obra">{{ pendencia.auditoria.obraNome }}</span>
                 <span class="pendencia__detalhe">{{ pendencia.detalhe }}</span>
               </div>
-              @if (pendencia.valor) {
-                <span class="pendencia__valor">{{ pendencia.valor | moeda }}</span>
-              }
-              <app-selo [tipo]="pendencia.vencido ? 'erro' : 'atencao'">
-                {{ pendencia.rotulo }}
-              </app-selo>
-              <a
-                class="botao botao--pequeno"
-                [routerLink]="['/auditorias', pendencia.auditoria.id, 'relatorio']"
-              >
-                Abrir
-              </a>
+              <span class="pendencia__rodape">
+                @if (pendencia.valor) {
+                  <span class="pendencia__valor">{{ pendencia.valor | moeda }}</span>
+                }
+                <app-selo [tipo]="pendencia.vencido ? 'erro' : 'atencao'">
+                  {{ pendencia.rotulo }}
+                </app-selo>
+                <a
+                  class="botao botao--pequeno"
+                  [routerLink]="['/auditorias', pendencia.auditoria.id, 'relatorio']"
+                >
+                  Abrir
+                </a>
+              </span>
             </li>
           }
         </ul>

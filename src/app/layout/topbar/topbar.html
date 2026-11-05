@@ -1,16 +1,18 @@
 <header class="topo">
-  <button
-    type="button"
-    class="botao botao--fantasma botao--icone botao--pequeno"
-    [attr.aria-label]="recolhida() ? 'Expandir menu' : 'Recolher menu'"
-    (click)="alternar.emit()"
-  >
-    <i-lucide
-      [img]="recolhida() ? icones.abrir : icones.recolher"
-      [size]="16"
-      aria-hidden="true"
-    ></i-lucide>
-  </button>
+  @if (podeAlternar()) {
+    <button
+      type="button"
+      class="botao botao--fantasma botao--icone botao--pequeno"
+      [attr.aria-label]="recolhida() ? 'Expandir menu' : 'Recolher menu'"
+      (click)="alternar.emit()"
+    >
+      <i-lucide
+        [img]="recolhida() ? icones.abrir : icones.recolher"
+        [size]="16"
+        aria-hidden="true"
+      ></i-lucide>
+    </button>
+  }
 
   @if (obra(); as atual) {
     <span class="contexto">

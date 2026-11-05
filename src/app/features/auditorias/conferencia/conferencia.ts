@@ -1,5 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -77,7 +84,17 @@ export class Conferencia {
   private readonly contexto = inject(ContextoService);
   private readonly router = inject(Router);
 
+  private readonly destruir = inject(DestroyRef);
   private readonly id = this.rota.snapshot.paramMap.get('id') ?? '';
+  private readonly consultaEstreita = window.matchMedia('(max-width: 760px)');
+
+  protected readonly telaEstreita = signal(this.consultaEstreita.matches);
+
+  constructor() {
+    const aoMudar = (evento: MediaQueryListEvent) => this.telaEstreita.set(evento.matches);
+    this.consultaEstreita.addEventListener('change', aoMudar);
+    this.destruir.onDestroy(() => this.consultaEstreita.removeEventListener('change', aoMudar));
+  }
 
   protected readonly icones = ICONES;
   protected readonly motivos = MOTIVOS;

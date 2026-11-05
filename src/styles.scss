@@ -570,12 +570,6 @@ select.entrada {
   gap: var(--esp-4);
 }
 
-@media (max-width: 880px) {
-  .lateral .logo__texto {
-    display: none;
-  }
-}
-
 @media print {
   :root,
   :root[data-tema="escuro"] {

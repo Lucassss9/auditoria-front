@@ -30,6 +30,7 @@ export class Topbar {
   private readonly router = inject(Router);
 
   readonly recolhida = input(false);
+  readonly podeAlternar = input(true);
   readonly alternar = output<void>();
 
   protected readonly icones = ICONES;

@@ -1,7 +1,11 @@
 <div class="moldura">
   <app-sidebar [recolhida]="recolhida()" />
   <div class="moldura__corpo">
-    <app-topbar [recolhida]="recolhida()" (alternar)="alternarMenu()" />
+    <app-topbar
+      [recolhida]="recolhida()"
+      [podeAlternar]="podeAlternar()"
+      (alternar)="alternarMenu()"
+    />
     <main class="moldura__conteudo">
       <router-outlet />
     </main>

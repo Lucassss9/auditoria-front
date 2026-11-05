@@ -211,6 +211,13 @@
   color: var(--texto-fraco);
 }
 
+.pendencia__rodape {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  flex-wrap: wrap;
+}
+
 .pendencia__valor {
   font-family: var(--fonte-num);
   font-size: var(--t-13);
@@ -292,4 +299,26 @@
   font-size: var(--t-11);
   color: var(--texto-apagado);
   white-space: nowrap;
+}
+
+@media (max-width: 620px) {
+  .pendencia {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--esp-2);
+    border-left: 3px solid var(--atencao);
+    padding-left: var(--esp-3);
+  }
+
+  .pendencia--vencida {
+    border-left-color: var(--critico);
+  }
+
+  .pendencia__marca {
+    display: none;
+  }
+
+  .pendencia__rodape .botao {
+    margin-left: auto;
+  }
 }

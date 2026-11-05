@@ -238,6 +238,97 @@
           titulo="Nenhum item neste filtro"
           descricao="Troque o filtro, a lista ou o texto buscado para ver os demais materiais."
         />
+      } @else if (telaEstreita()) {
+        <ul class="cartoes">
+          @for (item of itensVisiveis(); track item.id) {
+            <li class="cartao" [class.cartao--divergente]="(diferencaDe(item) ?? 0) !== 0">
+              <div class="cartao__topo">
+                <span class="cartao__codigo">{{ item.codigo }}</span>
+                <app-selo
+                  [tipo]="
+                    item.situacao === 'CONFERIDO'
+                      ? 'ok'
+                      : item.situacao === 'NAO_CONTADO'
+                        ? 'atencao'
+                        : 'neutro'
+                  "
+                >
+                  {{ rotuloSituacao(item.situacao) }}
+                </app-selo>
+              </div>
+
+              <p class="cartao__descricao">{{ item.descricao }}</p>
+              @if (item.lista) {
+                <span class="etiqueta">{{ item.lista }}</span>
+              }
+
+              <div class="cartao__contagem">
+                <span class="cartao__sistema">
+                  <span class="cartao__rotulo">No sistema</span>
+                  <strong>{{ item.quantidadeSistema | quantidade }} {{ item.unidade }}</strong>
+                </span>
+
+                <span class="cartao__campo">
+                  <label class="cartao__rotulo" [attr.for]="'mqtd-' + item.id">Contei</label>
+                  <input
+                    [id]="'mqtd-' + item.id"
+                    class="entrada entrada--numero"
+                    [class.entrada--invalido]="!!erroDe(item.id)"
+                    type="text"
+                    inputmode="decimal"
+                    [disabled]="somenteLeitura()"
+                    [value]="valorDigitado(item)"
+                    (input)="aoDigitar(item, $any($event.target).value)"
+                    (change)="aoConfirmar(item, $any($event.target).value)"
+                  />
+                </span>
+              </div>
+
+              @if (erroDe(item.id); as erro) {
+                <span class="campo__erro">{{ erro }}</span>
+              }
+
+              <div class="cartao__rodape">
+                @if (diferencaDe(item) !== null) {
+                  <span
+                    class="cartao__diferenca"
+                    [class.texto-falta]="(diferencaDe(item) ?? 0) < 0"
+                    [class.texto-sobra]="(diferencaDe(item) ?? 0) > 0"
+                  >
+                    {{ diferencaDe(item) | diferenca }} {{ item.unidade }}
+                    @if (mostrarValores() && diferencaEmValor(item) !== null) {
+                      · {{ diferencaEmValor(item) | moeda }}
+                    }
+                  </span>
+                }
+
+                @if (item.evidencias.length) {
+                  <span class="fotos">
+                    <i-lucide [img]="icones.imagem" [size]="13" aria-hidden="true"></i-lucide>
+                    {{ item.evidencias.length }}
+                  </span>
+                }
+
+                @if (estadoSalvamento(item.id) === 'salvando') {
+                  <span class="estado-salvar">salvando…</span>
+                } @else if (estadoSalvamento(item.id) === 'salvo') {
+                  <span class="estado-salvar estado-salvar--ok">salvo</span>
+                } @else if (alterado(item)) {
+                  <span class="estado-salvar estado-salvar--pendente">não salvo</span>
+                }
+
+                <button
+                  type="button"
+                  class="botao botao--pequeno"
+                  [attr.aria-label]="'Abrir detalhes de ' + item.descricao"
+                  (click)="abrirDetalhe(item)"
+                >
+                  Detalhes
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
       } @else {
         <div class="rolagem-tabela">
           <table class="tabela tabela-conferencia">
