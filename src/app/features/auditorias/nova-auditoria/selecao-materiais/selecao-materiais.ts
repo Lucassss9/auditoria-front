@@ -7,6 +7,7 @@ import {
   input,
   model,
   signal,
+  untracked,
 } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
@@ -71,8 +72,10 @@ export class SelecaoMateriais {
         return;
       }
 
-      this.servico.listarCategorias(obra).subscribe((lista) => this.categorias.set(lista));
-      this.executarBusca([this.termo()]);
+      untracked(() => {
+        this.servico.listarCategorias(obra).subscribe((lista) => this.categorias.set(lista));
+        this.executarBusca([this.termo()]);
+      });
     });
   }
 
@@ -237,7 +240,8 @@ export class SelecaoMateriais {
   }
 
   private executarBusca(termos: string[]): void {
-    const obra = this.obraId();
+    const obra = untracked(() => this.obraId());
+    const categoria = untracked(() => this.categoria());
 
     if (!obra) {
       return;
@@ -245,8 +249,8 @@ export class SelecaoMateriais {
 
     const limpos = termos.map((item) => item.trim()).filter(Boolean);
     const filtros: FiltroEstoque[] = limpos.length
-      ? limpos.map((termo) => ({ termo, categoria: this.categoria() }))
-      : [{ termo: '', categoria: this.categoria() }];
+      ? limpos.map((termo) => ({ termo, categoria }))
+      : [{ termo: '', categoria }];
 
     this.buscando.set(true);
     this.erroBusca.set(null);
