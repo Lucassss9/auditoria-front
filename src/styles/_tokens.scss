@@ -1,0 +1,66 @@
+:root {
+  --azul-900: #0b2a38;
+  --azul-800: #0f3a4c;
+  --azul-700: #134b61;
+  --azul-600: #185d77;
+  --azul-500: #2a7a97;
+  --azul-100: #e2edf2;
+  --azul-50: #f0f6f9;
+
+  --verde-700: #1b6b45;
+  --verde-100: #e4f2ea;
+  --ambar-700: #8a5d08;
+  --ambar-100: #fbf0d9;
+  --vermelho-700: #a62a21;
+  --vermelho-100: #fae9e7;
+
+  --cinza-0: #ffffff;
+  --cinza-25: #fafbfc;
+  --cinza-50: #f4f7f8;
+  --cinza-100: #ebeff2;
+  --cinza-200: #dde4e8;
+  --cinza-300: #c6d0d6;
+  --cinza-400: #94a4ad;
+  --cinza-500: #6d7f89;
+  --cinza-600: #51636d;
+  --cinza-800: #27383f;
+  --cinza-900: #16242b;
+
+  --texto: var(--cinza-900);
+  --texto-fraco: var(--cinza-600);
+  --texto-apagado: var(--cinza-400);
+  --borda: var(--cinza-200);
+  --borda-forte: var(--cinza-300);
+  --fundo: var(--cinza-50);
+  --superficie: var(--cinza-0);
+
+  --esp-1: 4px;
+  --esp-2: 8px;
+  --esp-3: 12px;
+  --esp-4: 16px;
+  --esp-5: 24px;
+  --esp-6: 32px;
+  --esp-7: 48px;
+
+  --raio: 4px;
+  --raio-g: 6px;
+
+  --sombra-1: 0 1px 2px rgba(11, 42, 56, 0.06);
+  --sombra-2: 0 2px 8px rgba(11, 42, 56, 0.10);
+  --sombra-3: 0 8px 24px rgba(11, 42, 56, 0.14);
+
+  --fonte: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fonte-num: "Segoe UI", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  --t-11: 11px;
+  --t-12: 12px;
+  --t-13: 13px;
+  --t-14: 14px;
+  --t-16: 16px;
+  --t-18: 18px;
+  --t-22: 22px;
+
+  --topo: 52px;
+  --lateral: 228px;
+  --lateral-min: 56px;
+}

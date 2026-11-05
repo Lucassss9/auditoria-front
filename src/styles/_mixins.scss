@@ -1,0 +1,24 @@
+@mixin foco {
+  outline: 2px solid var(--azul-500);
+  outline-offset: 1px;
+}
+
+@mixin cartao {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-g);
+}
+
+@mixin truncar {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin rotulo {
+  font-size: var(--t-11);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texto-apagado);
+}
