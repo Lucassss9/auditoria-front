@@ -51,7 +51,7 @@ No template o padrão é sempre o mesmo:
 | Botões, tabelas, campos, selos | `src/styles.scss` |
 | Um novo tipo de dado | `src/app/core/models/` |
 | Uma regra de cálculo | `src/app/core/domain/auditoria-calculos.ts` |
-| O que o backend precisa expor | `src/app/core/services/` e `docs/guia-backend.md` |
+| O que o backend precisa expor | `src/app/core/services/` e `docs/como-funciona.md` |
 | Dados falsos para desenvolver | `src/app/core/mock/mock-catalogo.ts` e `mock-auditorias.ts` |
 | Uma tela nova | `src/app/features/<area>/` + uma entrada em `app.routes.ts` |
 | Um componente usado em várias telas | `src/app/shared/components/` |
