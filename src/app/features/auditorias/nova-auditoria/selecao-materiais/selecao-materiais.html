@@ -35,27 +35,49 @@
     </div>
 
     <div class="listas-salvas">
-      <span class="rotulo-secao">Listas salvas</span>
+      <span class="rotulo-secao" title="Guardam termos de busca, não códigos. Valem para qualquer obra.">Buscas salvas</span>
       @for (favorita of favoritas.estado().dados ?? []; track favorita.id) {
-        <button
-          type="button"
-          class="chip"
-          [class.chip--ativo]="favoritaAplicada() === favorita.id"
-          (click)="aplicarFavorita(favorita)"
-        >
-          <i-lucide [img]="icones.salvo" [size]="12" aria-hidden="true"></i-lucide>
-          {{ favorita.nome }}
-          <span
-            class="chip__fechar"
-            role="button"
-            tabindex="0"
-            [attr.aria-label]="'Remover lista ' + favorita.nome"
-            (click)="removerFavorita(favorita.id, $event)"
-            (keydown.enter)="removerFavorita(favorita.id, $event)"
-          >
-            <i-lucide [img]="icones.fechar" [size]="11" aria-hidden="true"></i-lucide>
+        @if (confirmandoRemocao() === favorita.id) {
+          <span class="chip chip--confirmando">
+            Apagar a busca "{{ favorita.nome }}"?
+            <button
+              type="button"
+              class="botao botao--pequeno botao--perigo"
+              (click)="removerFavorita(favorita.id, $event)"
+            >
+              Apagar
+            </button>
+            <button
+              type="button"
+              class="botao botao--pequeno botao--fantasma"
+              (click)="cancelarRemocao($event)"
+            >
+              Manter
+            </button>
           </span>
-        </button>
+        } @else {
+          <button
+            type="button"
+            class="chip"
+            [class.chip--ativo]="favoritaAplicada() === favorita.id"
+            [attr.title]="'Busca por: ' + favorita.termos.join(', ')"
+            (click)="aplicarFavorita(favorita)"
+          >
+            <i-lucide [img]="icones.salvo" [size]="12" aria-hidden="true"></i-lucide>
+            {{ favorita.nome }}
+            <span class="chip__termos">{{ favorita.termos.length }}</span>
+            <span
+              class="chip__fechar"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="'Apagar a busca salva ' + favorita.nome"
+              (click)="pedirRemocao(favorita.id, $event)"
+              (keydown.enter)="pedirRemocao(favorita.id, $event)"
+            >
+              <i-lucide [img]="icones.fechar" [size]="11" aria-hidden="true"></i-lucide>
+            </span>
+          </button>
+        }
       }
 
       <span class="salvar-busca">
@@ -64,7 +86,7 @@
           id="nome-lista"
           class="entrada"
           type="text"
-          placeholder="Salvar busca como…"
+          placeholder="Nome da busca salva"
           [value]="nomeNovaLista()"
           (input)="nomeNovaLista.set($any($event.target).value)"
         />
@@ -209,7 +231,7 @@
     </div>
 
     <div class="destino">
-      <label class="campo__rotulo" for="lista-destino">Adicionar à lista</label>
+      <label class="campo__rotulo" for="lista-destino">Agrupar como</label>
       <input
         id="lista-destino"
         class="entrada"
@@ -241,10 +263,10 @@
               <button
                 type="button"
                 class="botao botao--pequeno botao--fantasma"
-                [attr.aria-label]="'Remover a lista ' + grupo.nome"
+                [attr.aria-label]="'Tirar da seleção os itens de ' + grupo.nome"
                 (click)="removerGrupo(grupo.nome)"
               >
-                Remover lista
+                Tirar da seleção
               </button>
             </header>
 

@@ -54,6 +54,7 @@ export class SelecaoMateriais {
   protected readonly listaDestino = signal('');
   protected readonly nomeNovaLista = signal('');
   protected readonly favoritaAplicada = signal<string | null>(null);
+  protected readonly confirmandoRemocao = signal<string | null>(null);
   protected readonly painelSelecao = signal(true);
 
   protected readonly favoritas = new Requisicao<ListaFavorita[]>(() =>
@@ -234,9 +235,26 @@ export class SelecaoMateriais {
     });
   }
 
+  protected pedirRemocao(id: string, evento: Event): void {
+    evento.stopPropagation();
+    this.confirmandoRemocao.set(id);
+  }
+
+  protected cancelarRemocao(evento: Event): void {
+    evento.stopPropagation();
+    this.confirmandoRemocao.set(null);
+  }
+
   protected removerFavorita(id: string, evento: Event): void {
     evento.stopPropagation();
-    this.servico.removerListaFavorita(id).subscribe(() => this.favoritas.executar());
+    this.confirmandoRemocao.set(null);
+
+    this.servico.removerListaFavorita(id).subscribe(() => {
+      if (this.favoritaAplicada() === id) {
+        this.favoritaAplicada.set(null);
+      }
+      this.favoritas.executar();
+    });
   }
 
   private executarBusca(termos: string[]): void {

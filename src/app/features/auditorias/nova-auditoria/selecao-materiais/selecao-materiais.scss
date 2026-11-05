@@ -237,3 +237,20 @@
     width: 72px;
   }
 }
+
+.chip__termos {
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(128, 128, 128, 0.18);
+  font-family: var(--fonte-num);
+  font-size: var(--t-11);
+}
+
+.chip--confirmando {
+  background: var(--critico-fundo);
+  border-color: var(--critico-contorno);
+  color: var(--critico);
+  cursor: default;
+  gap: var(--esp-1);
+  padding-right: var(--esp-1);
+}
