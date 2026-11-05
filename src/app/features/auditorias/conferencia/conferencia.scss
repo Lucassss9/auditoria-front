@@ -114,6 +114,7 @@
 }
 
 .rolagem-tabela {
+  position: relative;
   max-height: 58vh;
   overflow: auto;
 }
@@ -350,6 +351,7 @@
   }
 
   .rolagem-tabela {
+  position: relative;
     max-height: none;
   }
 }

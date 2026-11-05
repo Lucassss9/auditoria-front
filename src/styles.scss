@@ -365,6 +365,7 @@ select.entrada {
 }
 
 .rolagem-x {
+  position: relative;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -432,6 +433,8 @@ select.entrada {
 
 .visivel-leitor {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   padding: 0;
@@ -443,6 +446,7 @@ select.entrada {
 }
 
 .quadro {
+  position: relative;
   background: var(--superficie);
   border: 1px solid var(--borda);
   border-radius: var(--raio-g);
