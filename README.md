@@ -46,6 +46,9 @@ abstratas em `core/services`.
 
 O contrato que o backend precisa expor está em [`docs/contrato-backend.md`](docs/contrato-backend.md).
 
+Para construir o backend, siga o [`docs/guia-backend.md`](docs/guia-backend.md) passo a passo.
+As decisões tomadas ficam em [`docs/decisoes/`](docs/decisoes/LEIA-ME.md).
+
 ## O que o sistema faz
 
 | Tela | O que resolve |
