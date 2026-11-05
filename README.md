@@ -1,59 +1,90 @@
-# AuditoriaEstoque
+# Auditoria de Estoque
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.29.
+Frontend do sistema de auditoria e conferência de estoque de obras. O auditor seleciona os
+materiais a conferir, registra a quantidade física encontrada, anexa evidências, acompanha as
+divergências e prepara o e-mail que cobra a regularização da obra.
 
-## Development server
+Angular 21 · TypeScript · SCSS · Reactive Forms · lucide-angular.
 
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Como rodar
 
 ```bash
-ng generate component component-name
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+A aplicação sobe em <http://localhost:4200> com dados de demonstração.
 
 ```bash
-ng generate --help
+npm run build    # compila para produção
+npm test         # roda os testes com Vitest
 ```
 
-## Building
+**Node:** o projeto usa Angular 21, que exige Node 20.19+, 22.12+ ou 24+. Angular 22 exige
+Node 24.15+; para atualizar depois, suba o Node primeiro.
 
-To build the project run:
+## Dados de demonstração e API
 
-```bash
-ng build
+O frontend nunca fala com o CF Obras. Ele conversa apenas com o backend próprio, que é quem
+guarda credenciais e faz a leitura do estoque de origem.
+
+Enquanto esse backend não existe, a aplicação usa serviços mock. A troca é uma linha:
+
+```ts
+// src/environments/environment.ts
+export const environment = {
+  producao: false,
+  usarDadosMock: true,   // false passa a usar HttpClient contra apiBaseUrl
+  apiBaseUrl: '/api',
+};
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+`src/app/core/dados.providers.ts` decide, a partir dessa flag, se injeta a implementação mock ou
+a implementação HTTP de cada serviço. Os componentes não sabem a diferença: dependem das classes
+abstratas em `core/services`.
 
-## Running unit tests
+O contrato que o backend precisa expor está em [`docs/contrato-backend.md`](docs/contrato-backend.md).
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## O que o sistema faz
 
-```bash
-ng test
+| Tela | O que resolve |
+|---|---|
+| Visão geral | Auditorias em andamento, pendências e prazos vencidos |
+| Auditorias | Lista das contagens, com busca e filtro por situação |
+| Nova auditoria | Escolha da obra, seleção explícita dos materiais e congelamento do estoque |
+| Conferência | Quantidade real item a item, divergência automática, fotos e observações |
+| Relatório | Resultado em seções, com versão imprimível e exportável em PDF |
+| E-mail | Destinatários, prazo, assunto e corpo prontos para copiar |
+| Obras | Consulta das obras e da equipe responsável |
+| Equipes | Cadastro de responsáveis e de quem recebe o e-mail |
+| Histórico | Consulta das auditorias passadas, sem alterar o original |
+| Configurações | Prazo padrão, responsável padrão e origem dos dados |
+
+## Regras que o código garante
+
+- **O estoque de referência é congelado.** Ao iniciar a auditoria, as quantidades e os valores
+  dos itens selecionados são copiados para dentro dela. Nada que mude no estoque de origem
+  depois altera uma auditoria já iniciada.
+- **A seleção de materiais é explícita.** Pesquisar uma categoria não inclui nada
+  automaticamente; o auditor revisa a lista antes de começar.
+- **Saldo zero não é ausência de cadastro.** Item contado como zero gera divergência; material
+  encontrado que não existe no estoque entra como achado próprio, marcado como tal.
+- **Sem valor de referência, não há divergência financeira.** O sistema mostra
+  *não disponível* em vez de somar zero e fazer o total mentir para baixo.
+- **O e-mail não é enviado pelo sistema.** O texto é montado e copiado; o envio é feito pela
+  pessoa, no cliente de e-mail dela.
+- **Prazo vencido é sinalizado, não resolvido.** O procedimento após o vencimento ainda não foi
+  definido pela empresa, então o sistema não inventa um.
+
+## Estrutura
+
+```
+src/app/
+├── core/          modelos, regras de cálculo, serviços (contrato, mock e HTTP)
+├── shared/        componentes, pipes e ícones reutilizáveis
+├── layout/        moldura da aplicação: menu lateral, cabeçalho
+└── features/      uma pasta por área: painel, auditorias, obras, equipes, histórico…
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Para entender o código e saber o que estudar em seguida, comece pelo
+[`GUIA.md`](GUIA.md).

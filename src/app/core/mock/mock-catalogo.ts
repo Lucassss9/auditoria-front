@@ -70,7 +70,7 @@ export function gerarEstoqueMock(): InsumoEstoque[] {
     const deslocamento = Number(obraId.slice(1));
 
     CATALOGO.forEach((item, indice) => {
-      if ((indice + deslocamento) % 11 === 0) {
+      if (obraId !== 'o1' && (indice + deslocamento) % 11 === 0) {
         return;
       }
 
