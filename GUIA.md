@@ -116,7 +116,7 @@ Cada tópico aponta para um arquivo deste projeto que já usa a ideia.
 
 **Do lado do backend, que é seu**
 
-10. **Spring Boot + JPA**, migrations com Flyway, e o desenho de quem guarda o quê: o seu banco
+10. **Spring Boot + JPA**, o schema em `schema.sql`, e o desenho de quem guarda o quê: o seu banco
     guarda auditorias, itens conferidos, evidências e comunicados; o estoque de origem continua
     sendo do CF e é lido sob demanda.
 11. **Chamada autenticada a uma API de terceiro** a partir do backend, com credenciais em
