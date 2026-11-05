@@ -1,0 +1,115 @@
+.aviso-envio {
+  padding: var(--esp-2) var(--esp-3);
+  margin-bottom: var(--esp-3);
+  border-left: 2px solid var(--ambar-700);
+  background: var(--ambar-100);
+  font-size: var(--t-12);
+  color: var(--ambar-700);
+}
+
+.confirmacao {
+  padding: var(--esp-2) var(--esp-3);
+  margin-bottom: var(--esp-3);
+  border-left: 2px solid var(--verde-700);
+  background: var(--verde-100);
+  font-size: var(--t-12);
+  color: var(--verde-700);
+}
+
+.colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: var(--esp-4);
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .colunas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  padding: var(--esp-4);
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-g);
+}
+
+.pessoas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pessoa {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) 0;
+  border-bottom: 1px solid var(--cinza-100);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.pessoa__linha {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.pessoa__nome {
+  display: block;
+  font-size: var(--t-13);
+}
+
+.pessoa__meta {
+  display: block;
+  font-size: var(--t-11);
+  color: var(--texto-fraco);
+}
+
+.copiar {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.copiar__texto {
+  flex: 1;
+  min-width: 0;
+  padding: var(--esp-2);
+  background: var(--cinza-50);
+  border-radius: var(--raio);
+  font-family: var(--fonte-num);
+  font-size: var(--t-12);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.rotulo-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2);
+}
+
+.mensagem {
+  font-family: var(--fonte-num);
+  font-size: var(--t-12);
+  line-height: 1.6;
+}
+
+.acoes-mensagem {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  flex-wrap: wrap;
+}

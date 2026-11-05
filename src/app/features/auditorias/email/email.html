@@ -1,0 +1,147 @@
+@if (estado().carregando) {
+  <app-carregando texto="Preparando o e-mail…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" [mostrarTentarNovamente]="false" />
+} @else if (!auditoria()) {
+  <app-estado-vazio
+    titulo="Auditoria não encontrada"
+    descricao="O registro pode ter sido removido ou o endereço está incorreto."
+  >
+    <a class="botao" routerLink="/auditorias">Voltar para a lista</a>
+  </app-estado-vazio>
+} @else {
+  <app-cabecalho-pagina
+    titulo="Preparar e-mail da auditoria"
+    [descricao]="auditoria()!.obraNome"
+    [trilha]="[{ rotulo: 'Auditorias', rota: '/auditorias' }, { rotulo: 'E-mail' }]"
+  >
+    <a class="botao" [routerLink]="['/auditorias', auditoria()!.id, 'relatorio']">Ver relatório</a>
+    <button
+      type="button"
+      class="botao botao--primario"
+      [disabled]="salvando() || !selecionados().length || !prazo()"
+      (click)="salvarComunicado()"
+    >
+      {{ salvando() ? 'Registrando…' : 'Registrar envio e prazo' }}
+    </button>
+  </app-cabecalho-pagina>
+
+  <p class="aviso-envio">
+    O sistema não envia e-mail. Revise o texto, copie e envie pelo seu próprio cliente de e-mail.
+  </p>
+
+  @if (salvo()) {
+    <p class="confirmacao">Prazo e destinatários registrados nesta auditoria.</p>
+  }
+
+  <div class="colunas">
+    <section class="cartao">
+      <h2>Destinatários</h2>
+
+      @if (!equipe().length) {
+        <app-estado-vazio
+          titulo="Nenhum responsável cadastrado nesta obra"
+          descricao="Cadastre a equipe para escolher quem recebe o resultado."
+        >
+          <a class="botao" routerLink="/equipes">Ir para equipes</a>
+        </app-estado-vazio>
+      } @else {
+        <ul class="pessoas">
+          @for (pessoa of equipe(); track pessoa.id) {
+            <li class="pessoa">
+              <label class="pessoa__linha">
+                <input
+                  type="checkbox"
+                  [checked]="selecionados().includes(pessoa.id)"
+                  (change)="alternarDestinatario(pessoa.id)"
+                />
+                <span>
+                  <span class="pessoa__nome">{{ pessoa.nome }}</span>
+                  <span class="pessoa__meta">{{ pessoa.email }}</span>
+                </span>
+              </label>
+              @if (!pessoa.ativo) {
+                <span class="selo selo--neutro">inativo</span>
+              }
+            </li>
+          }
+        </ul>
+
+        <div class="copiar">
+          <code class="copiar__texto">{{ textoDestinatarios() || 'nenhum selecionado' }}</code>
+          <button
+            type="button"
+            class="botao botao--pequeno"
+            [disabled]="!destinatarios().length"
+            (click)="copiar('destinatarios')"
+          >
+            <i-lucide [img]="icones.copiar" [size]="14" aria-hidden="true"></i-lucide>
+            {{ copiado() === 'destinatarios' ? 'Copiado' : 'Copiar' }}
+          </button>
+        </div>
+      }
+
+      <div class="campo">
+        <label class="campo__rotulo" for="prazo-email">Prazo para regularização</label>
+        <input
+          id="prazo-email"
+          class="entrada"
+          type="date"
+          [value]="prazo()"
+          (change)="definirPrazo($any($event.target).value)"
+        />
+        <span class="campo__ajuda">
+          O prazo entra no texto do e-mail e fica registrado na auditoria.
+        </span>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <div class="campo">
+        <label class="campo__rotulo" for="assunto">Assunto</label>
+        <div class="copiar">
+          <input
+            id="assunto"
+            class="entrada"
+            type="text"
+            [value]="assunto()"
+            (input)="assunto.set($any($event.target).value)"
+          />
+          <button type="button" class="botao botao--pequeno" (click)="copiar('assunto')">
+            <i-lucide [img]="icones.copiar" [size]="14" aria-hidden="true"></i-lucide>
+            {{ copiado() === 'assunto' ? 'Copiado' : 'Copiar' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="campo">
+        <div class="rotulo-linha">
+          <label class="campo__rotulo" for="mensagem">Mensagem</label>
+          @if (mensagemEditada()) {
+            <button type="button" class="botao botao--pequeno" (click)="restaurarMensagem()">
+              Gerar novamente
+            </button>
+          }
+        </div>
+        <textarea
+          id="mensagem"
+          class="entrada mensagem"
+          rows="22"
+          [value]="mensagem()"
+          (input)="editarMensagem($any($event.target).value)"
+        ></textarea>
+        <div class="acoes-mensagem">
+          <button type="button" class="botao" (click)="copiar('mensagem')">
+            <i-lucide [img]="icones.copiar" [size]="14" aria-hidden="true"></i-lucide>
+            {{ copiado() === 'mensagem' ? 'Corpo copiado' : 'Copiar corpo do e-mail' }}
+          </button>
+          @if (copiado() === 'falhou') {
+            <span class="campo__erro">
+              O navegador bloqueou a cópia. Selecione o texto e copie manualmente.
+            </span>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+}

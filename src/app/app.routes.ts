@@ -33,6 +33,22 @@ export const routes: Routes = [
           import('./features/auditorias/conferencia/conferencia').then((m) => m.Conferencia),
       },
       {
+        path: 'auditorias/:id/relatorio',
+        title: 'Relatório da auditoria',
+        loadComponent: () =>
+          import('./features/auditorias/relatorio/relatorio').then((m) => m.Relatorio),
+      },
+      {
+        path: 'auditorias/:id/email',
+        title: 'E-mail da auditoria',
+        loadComponent: () => import('./features/auditorias/email/email').then((m) => m.Email),
+      },
+      {
+        path: 'historico',
+        title: 'Histórico',
+        loadComponent: () => import('./features/historico/historico').then((m) => m.Historico),
+      },
+      {
         path: 'obras',
         title: 'Obras',
         loadComponent: () => import('./features/obras/obras').then((m) => m.Obras),

@@ -1,0 +1,282 @@
+@if (estado().carregando && !estado().dados) {
+  <app-carregando texto="Carregando relatório…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
+} @else if (!auditoria()) {
+  <app-estado-vazio
+    titulo="Auditoria não encontrada"
+    descricao="O registro pode ter sido removido ou o endereço está incorreto."
+  >
+    <a class="botao" routerLink="/auditorias">Voltar para a lista</a>
+  </app-estado-vazio>
+} @else {
+  <div class="nao-imprimir">
+    <app-cabecalho-pagina
+      titulo="Relatório da auditoria"
+      [descricao]="auditoria()!.obraNome + ' · ' + (auditoria()!.filialNome ?? 'sem filial')"
+      [trilha]="[{ rotulo: 'Auditorias', rota: '/auditorias' }, { rotulo: 'Relatório' }]"
+    >
+      <a class="botao" [routerLink]="['/auditorias', auditoria()!.id]">Voltar à conferência</a>
+      <a class="botao" [routerLink]="['/auditorias', auditoria()!.id, 'email']">Preparar e-mail</a>
+      <button type="button" class="botao botao--primario" (click)="imprimir()">
+        <i-lucide [img]="icones.imprimir" [size]="15" aria-hidden="true"></i-lucide>
+        Imprimir ou salvar em PDF
+      </button>
+    </app-cabecalho-pagina>
+  </div>
+
+  <article class="relatorio">
+    <header class="relatorio__topo">
+      <div>
+        <h1>Auditoria de estoque</h1>
+        <p class="relatorio__obra">
+          {{ auditoria()!.obraNome }}
+          @if (auditoria()!.filialNome) {
+            · {{ auditoria()!.filialNome }}
+          }
+        </p>
+      </div>
+      <dl class="relatorio__datas">
+        <div>
+          <dt>Início</dt>
+          <dd>{{ auditoria()!.iniciadaEm | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        </div>
+        <div>
+          <dt>Conclusão</dt>
+          <dd>
+            @if (auditoria()!.concluidaEm) {
+              {{ auditoria()!.concluidaEm | date: 'dd/MM/yyyy HH:mm' }}
+            } @else {
+              <span class="indisponivel">em andamento</span>
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Responsável</dt>
+          <dd>{{ auditoria()!.responsavel }}</dd>
+        </div>
+        <div>
+          <dt>Estoque de referência</dt>
+          <dd>{{ auditoria()!.referencia.capturadoEm | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        </div>
+      </dl>
+    </header>
+
+    @if (resumo(); as total) {
+      <section class="secao">
+        <h2>1. Resumo da auditoria</h2>
+        <div class="resumo-grade">
+          <div><span>Itens selecionados</span><strong>{{ total.totalItens }}</strong></div>
+          <div><span>Conferidos</span><strong>{{ total.conferidos }}</strong></div>
+          <div><span>Não contados</span><strong>{{ total.naoContados }}</strong></div>
+          <div><span>Não conferidos</span><strong>{{ total.naoConferidos }}</strong></div>
+          <div><span>Divergências</span><strong>{{ total.divergentes }}</strong></div>
+          <div><span>Fora do estoque</span><strong>{{ total.foraDoEstoque }}</strong></div>
+          <div>
+            <span>Divergência de falta</span>
+            <strong class="texto-falta">{{ total.valorFalta | moeda }}</strong>
+          </div>
+          <div>
+            <span>Divergência de sobra</span>
+            <strong class="texto-sobra">{{ total.valorSobra | moeda }}</strong>
+          </div>
+        </div>
+        @if (total.itensSemValor) {
+          <p class="nota">
+            {{ total.itensSemValor }} divergências não entram nos totais financeiros porque o
+            material não tem valor de referência cadastrado.
+          </p>
+        }
+      </section>
+    }
+
+    <section class="secao">
+      <h2>2. Divergências de quantidade</h2>
+      @if (!divergenciasQuantidade().length) {
+        <p class="nota">Nenhuma divergência de quantidade registrada.</p>
+      } @else {
+        <div class="rolagem-x">
+          <table class="tabela">
+            <caption class="visivel-leitor">Divergências de quantidade</caption>
+            <thead>
+              <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Sistema</th>
+                <th scope="col">Contado</th>
+                <th scope="col">Diferença</th>
+                <th scope="col">Onde estava</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (linha of divergenciasQuantidade(); track linha.item.id) {
+                <tr>
+                  <td class="tabela__codigo">{{ linha.item.codigo }}</td>
+                  <td>{{ linha.item.descricao }}</td>
+                  <td class="tabela__num">
+                    {{ linha.item.quantidadeSistema | quantidade }} {{ linha.item.unidade }}
+                  </td>
+                  <td class="tabela__num">
+                    {{ linha.item.quantidadeReal | quantidade }} {{ linha.item.unidade }}
+                  </td>
+                  <td class="tabela__num">
+                    <span [class.texto-falta]="linha.diferenca < 0" [class.texto-sobra]="linha.diferenca > 0">
+                      {{ linha.diferenca | diferenca }} {{ linha.item.unidade }}
+                    </span>
+                  </td>
+                  <td>{{ linha.item.local ?? '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="secao">
+      <h2>3. Divergências de valor</h2>
+      @if (!divergenciasValor().length) {
+        <p class="nota">Nenhuma divergência com valor de referência calculável.</p>
+      } @else {
+        <div class="rolagem-x">
+          <table class="tabela">
+            <caption class="visivel-leitor">Divergências de valor</caption>
+            <thead>
+              <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Diferença</th>
+                <th scope="col">Valor unitário</th>
+                <th scope="col">Diferença em valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (linha of divergenciasValor(); track linha.item.id) {
+                <tr>
+                  <td class="tabela__codigo">{{ linha.item.codigo }}</td>
+                  <td>{{ linha.item.descricao }}</td>
+                  <td class="tabela__num">{{ linha.diferenca | diferenca }}</td>
+                  <td class="tabela__num">{{ linha.item.valorUnitarioReferencia | moeda }}</td>
+                  <td class="tabela__num">
+                    <span [class.texto-falta]="(linha.valor ?? 0) < 0" [class.texto-sobra]="(linha.valor ?? 0) > 0">
+                      {{ linha.valor | moeda }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (semValorCalculavel().length) {
+        <p class="nota">
+          Sem valor de referência, e por isso fora do cálculo financeiro:
+          @for (linha of semValorCalculavel(); track linha.item.id) {
+            <span class="selo selo--neutro">{{ linha.item.codigo }}</span>
+          }
+        </p>
+      }
+    </section>
+
+    <section class="secao">
+      <h2>4. Materiais encontrados fora do estoque</h2>
+      @if (!auditoria()!.foraDoEstoque.length) {
+        <p class="nota">Nenhum material fora do estoque foi registrado nesta auditoria.</p>
+      } @else {
+        <div class="rolagem-x">
+          <table class="tabela">
+            <caption class="visivel-leitor">Materiais fora do estoque</caption>
+            <thead>
+              <tr>
+                <th scope="col">Descrição</th>
+                <th scope="col">Código</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Valor unitário</th>
+                <th scope="col">Onde estava</th>
+                <th scope="col">Observação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (achado of auditoria()!.foraDoEstoque; track achado.id) {
+                <tr>
+                  <td>{{ achado.descricao }}</td>
+                  <td class="tabela__codigo">{{ achado.codigo ?? 'sem código' }}</td>
+                  <td class="tabela__num">
+                    {{ achado.quantidade | quantidade }} {{ achado.unidade }}
+                  </td>
+                  <td class="tabela__num">
+                    @if (achado.valorUnitario === null) {
+                      <span class="indisponivel">não disponível</span>
+                    } @else {
+                      {{ achado.valorUnitario | moeda }}
+                    }
+                  </td>
+                  <td>{{ achado.local ?? '—' }}</td>
+                  <td>{{ achado.observacao || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="secao">
+      <h2>5. Itens não conferidos</h2>
+      @if (!naoContados().length && !naoConferidos().length) {
+        <p class="nota">Todos os itens selecionados foram conferidos.</p>
+      } @else {
+        <ul class="lista-simples">
+          @for (item of naoContados(); track item.id) {
+            <li>
+              <span class="tabela__codigo">{{ item.codigo }}</span>
+              {{ item.descricao }}
+              <span class="selo selo--atencao">{{ rotuloMotivo(item.motivoNaoContagem) }}</span>
+            </li>
+          }
+          @for (item of naoConferidos(); track item.id) {
+            <li>
+              <span class="tabela__codigo">{{ item.codigo }}</span>
+              {{ item.descricao }}
+              <span class="selo selo--neutro">sem contagem registrada</span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="secao">
+      <h2>6. Evidências e observações</h2>
+      @if (observacoes().length) {
+        <ul class="lista-simples">
+          @for (item of observacoes(); track item.id) {
+            <li>
+              <span class="tabela__codigo">{{ item.codigo }}</span>
+              {{ item.descricao }} — {{ item.observacao }}
+            </li>
+          }
+        </ul>
+      }
+
+      @if (!gruposDeEvidencias().length) {
+        <p class="nota">Nenhuma foto anexada aos itens desta auditoria.</p>
+      } @else {
+        @for (grupo of gruposDeEvidencias(); track grupo.titulo) {
+          <div class="evidencia-grupo">
+            <h3>{{ grupo.titulo }}</h3>
+            <div class="evidencia-fotos">
+              @for (evidencia of grupo.evidencias; track evidencia.id) {
+                @if (evidencia.conteudo) {
+                  <img [src]="evidencia.conteudo" [alt]="evidencia.nome" />
+                } @else {
+                  <span class="evidencia-vazia">{{ evidencia.nome }}</span>
+                }
+              }
+            </div>
+          </div>
+        }
+      }
+    </section>
+  </article>
+}

@@ -1,0 +1,76 @@
+<app-cabecalho-pagina
+  titulo="Histórico"
+  descricao="Consulta das auditorias já realizadas, sem alterar o resultado original."
+/>
+
+@if (estado().carregando && !estado().dados) {
+  <app-carregando texto="Carregando histórico…" />
+} @else if (estado().erro) {
+  <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
+} @else {
+  <section class="filtros">
+    <label class="visivel-leitor" for="hist-obra">Obra</label>
+    <select
+      id="hist-obra"
+      class="entrada filtros__select"
+      [value]="obraSelecionada()"
+      (change)="obraSelecionada.set($any($event.target).value)"
+    >
+      <option value="">Todas as obras</option>
+      @for (obra of obras(); track obra.id) {
+        <option [value]="obra.id">{{ obra.nome }}</option>
+      }
+    </select>
+
+    <label class="visivel-leitor" for="hist-situacao">Situação</label>
+    <select
+      id="hist-situacao"
+      class="entrada filtros__select"
+      [value]="situacao()"
+      (change)="situacao.set($any($event.target).value)"
+    >
+      <option value="">Todas as situações</option>
+      <option value="EM_ANDAMENTO">Em andamento</option>
+      <option value="CONCLUIDA">Concluídas</option>
+      <option value="PRAZO_VENCIDO">Prazo vencido</option>
+      <option value="CANCELADA">Canceladas</option>
+    </select>
+
+    <div class="periodo">
+      <label class="campo__rotulo" for="hist-de">De</label>
+      <input
+        id="hist-de"
+        class="entrada"
+        type="date"
+        [value]="de()"
+        (change)="de.set($any($event.target).value)"
+      />
+      <label class="campo__rotulo" for="hist-ate">até</label>
+      <input
+        id="hist-ate"
+        class="entrada"
+        type="date"
+        [value]="ate()"
+        (change)="ate.set($any($event.target).value)"
+      />
+    </div>
+
+    <button type="button" class="botao botao--pequeno" (click)="limpar()">Limpar</button>
+    <span class="filtros__contagem">{{ filtradas().length }} auditorias</span>
+  </section>
+
+  @if (vencidas()) {
+    <p class="alerta-prazo">
+      {{ vencidas() }} auditorias com prazo vencido. O sistema apenas sinaliza: o procedimento
+      após o vencimento ainda não foi definido.
+    </p>
+  }
+
+  <div class="quadro">
+    <app-tabela-auditorias
+      [auditorias]="filtradas()"
+      tituloVazio="Nenhuma auditoria no período"
+      descricaoVazio="Ajuste a obra, a situação ou as datas para ver outros registros."
+    />
+  </div>
+}

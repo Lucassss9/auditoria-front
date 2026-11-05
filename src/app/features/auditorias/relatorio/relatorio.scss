@@ -1,0 +1,146 @@
+.relatorio {
+  padding: var(--esp-5);
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-g);
+}
+
+.relatorio__topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--esp-5);
+  flex-wrap: wrap;
+  padding-bottom: var(--esp-4);
+  border-bottom: 2px solid var(--azul-900);
+}
+
+.relatorio__obra {
+  margin-top: 2px;
+  font-size: var(--t-13);
+  color: var(--texto-fraco);
+}
+
+.relatorio__datas {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: var(--esp-2) var(--esp-5);
+  margin: 0;
+
+  dt {
+    font-size: var(--t-11);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--texto-apagado);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--t-13);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.secao {
+  padding-top: var(--esp-5);
+
+  h2 {
+    margin-bottom: var(--esp-3);
+    padding-bottom: var(--esp-1);
+    border-bottom: 1px solid var(--borda);
+  }
+
+  h3 {
+    margin-bottom: var(--esp-2);
+    font-size: var(--t-13);
+  }
+}
+
+.resumo-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--esp-3);
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--esp-2) var(--esp-3);
+    background: var(--cinza-25);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+  }
+
+  span {
+    font-size: var(--t-12);
+    color: var(--texto-fraco);
+  }
+
+  strong {
+    font-size: var(--t-16);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.nota {
+  margin-top: var(--esp-2);
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+}
+
+.texto-falta {
+  color: var(--vermelho-700);
+}
+
+.texto-sobra {
+  color: var(--ambar-700);
+}
+
+.lista-simples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-13);
+}
+
+.evidencia-grupo {
+  margin-top: var(--esp-3);
+}
+
+.evidencia-fotos {
+  display: flex;
+  gap: var(--esp-2);
+  flex-wrap: wrap;
+
+  img {
+    width: 140px;
+    height: 110px;
+    object-fit: cover;
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+  }
+}
+
+.evidencia-vazia {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--esp-2) var(--esp-3);
+  border: 1px dashed var(--borda-forte);
+  border-radius: var(--raio);
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+}
+
+@media print {
+  .relatorio {
+    padding: 0;
+    border: none;
+  }
+
+  .secao {
+    break-inside: avoid;
+  }
+}
