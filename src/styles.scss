@@ -572,6 +572,7 @@ select.entrada {
 
 @media print {
   :root,
+  :root:not([data-tema="claro"]),
   :root[data-tema="escuro"] {
     color-scheme: light;
 
@@ -599,17 +600,65 @@ select.entrada {
     --sombra-3: none;
   }
 
-  .nao-imprimir {
+  @page {
+    margin: 14mm 12mm;
+  }
+
+  .nao-imprimir,
+  app-sidebar,
+  app-topbar {
     display: none !important;
+  }
+
+  html,
+  body,
+  app-root,
+  app-main-layout,
+  .moldura,
+  .moldura__corpo,
+  .moldura__conteudo {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   body {
     background: #fff;
     color: var(--texto);
+    font-size: 11px;
   }
 
   .quadro,
-  .rolagem-x {
+  .rolagem-x,
+  .rolagem-tabela {
     overflow: visible !important;
+    max-height: none !important;
+    border: none !important;
+  }
+
+  .secao,
+  .cartao,
+  .grafico {
+    break-inside: avoid;
+  }
+
+  table {
+    break-inside: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+
+  a[href]::after {
+    content: none !important;
   }
 }

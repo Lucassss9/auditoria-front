@@ -65,26 +65,102 @@
     @if (resumo(); as total) {
       <section class="secao">
         <h2>1. Resumo da auditoria</h2>
-        <div class="resumo-grade">
-          <div><span>Itens selecionados</span><strong>{{ total.totalItens }}</strong></div>
-          <div><span>Conferidos</span><strong>{{ total.conferidos }}</strong></div>
-          <div><span>Não contados</span><strong>{{ total.naoContados }}</strong></div>
-          <div><span>Não conferidos</span><strong>{{ total.naoConferidos }}</strong></div>
-          <div><span>Divergências</span><strong>{{ total.divergentes }}</strong></div>
-          <div><span>Fora do estoque</span><strong>{{ total.foraDoEstoque }}</strong></div>
-          <div>
-            <span>Divergência de falta</span>
-            <strong class="texto-falta">{{ total.valorFalta | moeda }}</strong>
+
+        <div class="destaques">
+          <div class="destaque">
+            <span class="destaque__rotulo">Falta na obra</span>
+            <strong class="destaque__valor texto-falta">{{ total.valorFalta | moeda }}</strong>
+            <span class="destaque__nota">material no sistema que não foi encontrado</span>
           </div>
-          <div>
-            <span>Divergência de sobra</span>
-            <strong class="texto-sobra">{{ total.valorSobra | moeda }}</strong>
+          <div class="destaque">
+            <span class="destaque__rotulo">Sobra na obra</span>
+            <strong class="destaque__valor texto-sobra">{{ total.valorSobra | moeda }}</strong>
+            <span class="destaque__nota">material encontrado acima do saldo</span>
+          </div>
+          <div class="destaque">
+            <span class="destaque__rotulo">Itens com divergência</span>
+            <strong class="destaque__valor">{{ total.divergentes }}</strong>
+            <span class="destaque__nota">de {{ total.conferidos }} itens conferidos</span>
           </div>
         </div>
+
+        @if (composicao().length) {
+          <div class="grafico">
+            <p class="grafico__titulo">Como terminou a contagem</p>
+            <div
+              class="composicao"
+              role="img"
+              [attr.aria-label]="
+                'Composição da contagem: ' + total.divergentes + ' divergências de ' +
+                total.totalItens + ' itens'
+              "
+            >
+              @for (fatia of composicao(); track fatia.rotulo) {
+                <span
+                  class="composicao__fatia composicao__fatia--{{ fatia.classe }}"
+                  [style.width.%]="fatia.percentual"
+                  [attr.title]="fatia.rotulo + ': ' + fatia.total"
+                ></span>
+              }
+            </div>
+            <ul class="legenda">
+              @for (fatia of composicao(); track fatia.rotulo) {
+                <li>
+                  <span class="legenda__marca legenda__marca--{{ fatia.classe }}"></span>
+                  {{ fatia.rotulo }}
+                  <strong>{{ fatia.total }}</strong>
+                  <span class="legenda__pct">{{ fatia.percentual }}%</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (barrasDeValor().length) {
+          <div class="grafico">
+            <p class="grafico__titulo">Onde está o dinheiro</p>
+            <p class="grafico__nota">
+              As maiores divergências em valor, da maior para a menor. É por aqui que a obra
+              começa.
+            </p>
+            <ul class="barras">
+              @for (barra of barrasDeValor(); track barra.codigo) {
+                <li class="barra">
+                  <span class="barra__codigo">{{ barra.codigo }}</span>
+                  <span class="barra__descricao">{{ barra.descricao }}</span>
+                  <span class="barra__trilho">
+                    <span
+                      class="barra__preenchida"
+                      [class.barra__preenchida--falta]="barra.falta"
+                      [style.width.%]="barra.largura"
+                    ></span>
+                  </span>
+                  <span
+                    class="barra__valor"
+                    [class.texto-falta]="barra.falta"
+                    [class.texto-sobra]="!barra.falta"
+                  >
+                    {{ barra.valor | moeda }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        <dl class="contagens">
+          <div><dt>Itens selecionados</dt><dd>{{ total.totalItens }}</dd></div>
+          <div><dt>Conferidos</dt><dd>{{ total.conferidos }}</dd></div>
+          <div><dt>Não contados</dt><dd>{{ total.naoContados }}</dd></div>
+          <div><dt>Não conferidos</dt><dd>{{ total.naoConferidos }}</dd></div>
+          <div><dt>Fora do estoque</dt><dd>{{ total.foraDoEstoque }}</dd></div>
+        </dl>
+
         @if (total.itensSemValor) {
           <p class="nota">
             {{ total.itensSemValor }} divergências não entram nos totais financeiros porque o
-            material não tem valor de referência cadastrado.
+            material não tem valor de referência cadastrado. Elas estão na seção 2, com a
+            diferença em quantidade.
           </p>
         }
       </section>

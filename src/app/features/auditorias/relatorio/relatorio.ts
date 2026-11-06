@@ -32,6 +32,21 @@ interface GrupoEvidencias {
   evidencias: Evidencia[];
 }
 
+interface FatiaComposicao {
+  rotulo: string;
+  total: number;
+  percentual: number;
+  classe: string;
+}
+
+interface BarraValor {
+  codigo: string;
+  descricao: string;
+  valor: number;
+  largura: number;
+  falta: boolean;
+}
+
 @Component({
   selector: 'app-relatorio',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -86,6 +101,46 @@ export class Relatorio {
       .filter((linha) => linha.valor !== null)
       .sort((a, b) => Math.abs(b.valor ?? 0) - Math.abs(a.valor ?? 0)),
   );
+
+  protected readonly composicao = computed<FatiaComposicao[]>(() => {
+    const total = this.resumo();
+
+    if (!total || !total.totalItens) {
+      return [];
+    }
+
+    const fatias = [
+      { rotulo: 'Conferidos', total: total.conferidos - total.divergentes, classe: 'ok' },
+      { rotulo: 'Com divergência', total: total.divergentes, classe: 'critico' },
+      { rotulo: 'Não contados', total: total.naoContados, classe: 'atencao' },
+      { rotulo: 'Não conferidos', total: total.naoConferidos, classe: 'neutro' },
+    ];
+
+    return fatias
+      .filter((fatia) => fatia.total > 0)
+      .map((fatia) => ({
+        ...fatia,
+        percentual: Math.round((fatia.total / total.totalItens) * 1000) / 10,
+      }));
+  });
+
+  protected readonly barrasDeValor = computed<BarraValor[]>(() => {
+    const comValor = this.divergenciasValor().slice(0, 8);
+
+    if (!comValor.length) {
+      return [];
+    }
+
+    const maior = Math.max(...comValor.map((linha) => Math.abs(linha.valor ?? 0)));
+
+    return comValor.map((linha) => ({
+      codigo: linha.item.codigo,
+      descricao: linha.item.descricao,
+      valor: linha.valor ?? 0,
+      largura: maior ? Math.round((Math.abs(linha.valor ?? 0) / maior) * 100) : 0,
+      falta: (linha.valor ?? 0) < 0,
+    }));
+  });
 
   protected readonly semValorCalculavel = computed(() =>
     this.divergenciasQuantidade().filter((linha) => linha.valor === null),

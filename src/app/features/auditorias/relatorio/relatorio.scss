@@ -56,31 +56,6 @@
   }
 }
 
-.resumo-grade {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--esp-3);
-
-  div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: var(--esp-2) var(--esp-3);
-    background: var(--superficie-alt);
-    border: 1px solid var(--borda);
-    border-radius: var(--raio);
-  }
-
-  span {
-    font-size: var(--t-12);
-    color: var(--texto-fraco);
-  }
-
-  strong {
-    font-size: var(--t-16);
-    font-variant-numeric: tabular-nums;
-  }
-}
 
 .nota {
   margin-top: var(--esp-2);
@@ -142,5 +117,228 @@
 
   .secao {
     break-inside: avoid;
+  }
+}
+
+.destaques {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-5);
+}
+
+.destaque {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--esp-3);
+  border-left: 3px solid var(--borda-forte);
+  background: var(--superficie-alt);
+}
+
+.destaque__rotulo {
+  font-size: var(--t-11);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--texto-apagado);
+}
+
+.destaque__valor {
+  font-family: var(--fonte-num);
+  font-size: var(--t-20);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.destaque__nota {
+  font-size: var(--t-11);
+  color: var(--texto-fraco);
+}
+
+.grafico {
+  margin-bottom: var(--esp-5);
+}
+
+.grafico__titulo {
+  font-size: var(--t-13);
+  font-weight: 600;
+  margin-bottom: var(--esp-1);
+}
+
+.grafico__nota {
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+  margin-bottom: var(--esp-3);
+}
+
+.composicao {
+  display: flex;
+  width: 100%;
+  height: 14px;
+  margin: var(--esp-2) 0 var(--esp-3);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--superficie-realce);
+}
+
+.composicao__fatia {
+  display: block;
+  height: 100%;
+
+  &--ok {
+    background: var(--ok);
+  }
+
+  &--critico {
+    background: var(--critico);
+  }
+
+  &--atencao {
+    background: var(--atencao);
+  }
+
+  &--neutro {
+    background: var(--borda-forte);
+  }
+}
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2) var(--esp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-12);
+  color: var(--texto-fraco);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--esp-1);
+  }
+
+  strong {
+    font-family: var(--fonte-num);
+    color: var(--texto);
+  }
+}
+
+.legenda__pct {
+  font-family: var(--fonte-num);
+  font-size: var(--t-11);
+  color: var(--texto-apagado);
+}
+
+.legenda__marca {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+
+  &--ok {
+    background: var(--ok);
+  }
+
+  &--critico {
+    background: var(--critico);
+  }
+
+  &--atencao {
+    background: var(--atencao);
+  }
+
+  &--neutro {
+    background: var(--borda-forte);
+  }
+}
+
+.barras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barra {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1.4fr) minmax(90px, 1fr) 92px;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: 3px 0;
+  font-size: var(--t-12);
+}
+
+.barra__codigo {
+  font-family: var(--fonte-num);
+  font-size: var(--t-11);
+  color: var(--texto-apagado);
+}
+
+.barra__descricao {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra__trilho {
+  height: 10px;
+  border-radius: 2px;
+  background: var(--superficie-realce);
+  overflow: hidden;
+}
+
+.barra__preenchida {
+  display: block;
+  height: 100%;
+  background: var(--atencao);
+
+  &--falta {
+    background: var(--critico);
+  }
+}
+
+.barra__valor {
+  text-align: right;
+  font-family: var(--fonte-num);
+  font-variant-numeric: tabular-nums;
+}
+
+.contagens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-4);
+  margin: 0;
+  padding: var(--esp-3) 0 0;
+  border-top: 1px solid var(--borda);
+
+  div {
+    display: flex;
+    align-items: baseline;
+    gap: var(--esp-1);
+  }
+
+  dt {
+    font-size: var(--t-12);
+    color: var(--texto-fraco);
+  }
+
+  dd {
+    margin: 0;
+    font-family: var(--fonte-num);
+    font-size: var(--t-13);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 620px) {
+  .barra {
+    grid-template-columns: 50px minmax(0, 1fr) 84px;
+  }
+
+  .barra__trilho {
+    grid-column: 1 / -1;
   }
 }
