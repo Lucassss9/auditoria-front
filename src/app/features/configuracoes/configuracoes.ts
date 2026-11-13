@@ -8,12 +8,13 @@ import { PreferenciasService } from '../../core/services/preferencias.service';
 import { SessaoService } from '../../core/services/sessao.service';
 import { CabecalhoPagina } from '../../shared/components/cabecalho-pagina/cabecalho-pagina';
 import { SeletorTema } from '../../shared/components/seletor-tema/seletor-tema';
+import { IniciaisPipe } from '../../shared/pipes/iniciais.pipe';
 import { ICONES } from '../../shared/icones';
 
 @Component({
   selector: 'app-configuracoes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, LucideAngularModule, CabecalhoPagina, SeletorTema],
+  imports: [FormsModule, LucideAngularModule, CabecalhoPagina, SeletorTema, IniciaisPipe],
   templateUrl: './configuracoes.html',
   styleUrl: './configuracoes.scss',
 })

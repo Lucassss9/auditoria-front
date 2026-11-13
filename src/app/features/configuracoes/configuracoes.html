@@ -9,7 +9,7 @@
 
     @if (usuario(); as pessoa) {
       <div class="conta">
-        <span class="conta__iniciais">{{ pessoa.iniciais }}</span>
+        <span class="conta__iniciais">{{ pessoa.nome | iniciais }}</span>
         <div class="conta__dados">
           <span class="conta__nome">{{ pessoa.nome }}</span>
           <span class="conta__linha">{{ pessoa.email }}</span>

@@ -17,4 +17,8 @@ export class AutenticacaoApiService extends AutenticacaoService {
   sair(): Observable<void> {
     return this.http.post<void>(`${this.base}/logout`, {});
   }
+
+  sessao(): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.base}/sessao`);
+  }
 }

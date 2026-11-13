@@ -14,7 +14,6 @@ export const CONTAS_DEMONSTRACAO: ContaDemonstracao[] = [
     nome: 'Davi Ferreira',
     email: 'auditor@exemplo.com.br',
     cargo: 'Auditor de estoque',
-    iniciais: 'DF',
     senha: 'demo1234',
   },
   {
@@ -22,7 +21,6 @@ export const CONTAS_DEMONSTRACAO: ContaDemonstracao[] = [
     nome: 'Regina Paes',
     email: 'coordenacao@exemplo.com.br',
     cargo: 'Coordenação de suprimentos',
-    iniciais: 'RP',
     senha: 'demo1234',
   },
 ];
@@ -43,5 +41,11 @@ export class AutenticacaoMockService extends AutenticacaoService {
 
   sair(): Observable<void> {
     return responder(undefined);
+  }
+
+  sessao(): Observable<Usuario> {
+    const usuario = CONTAS_DEMONSTRACAO[0];
+    const { senha: _senha, ...usuarioSemSenha } = usuario;
+    return responder(usuarioSemSenha);
   }
 }

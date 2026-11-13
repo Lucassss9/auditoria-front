@@ -14,12 +14,13 @@ import { AutenticacaoService } from '../../core/services/autenticacao.service';
 import { ContextoService } from '../../core/services/contexto.service';
 import { SessaoService } from '../../core/services/sessao.service';
 import { SeletorTema } from '../../shared/components/seletor-tema/seletor-tema';
+import { IniciaisPipe } from '../../shared/pipes/iniciais.pipe';
 import { ICONES } from '../../shared/icones';
 
 @Component({
   selector: 'app-topbar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, LucideAngularModule, SeletorTema],
+  imports: [RouterLink, LucideAngularModule, SeletorTema, IniciaisPipe],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
 })

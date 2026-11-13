@@ -3,7 +3,6 @@ export interface Usuario {
   nome: string;
   email: string;
   cargo: string;
-  iniciais: string;
 }
 
 export interface Credenciais {

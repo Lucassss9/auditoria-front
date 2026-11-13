@@ -49,7 +49,7 @@
       aria-haspopup="menu"
       (click)="alternarMenu()"
     >
-      <span class="conta__iniciais">{{ usuario()?.iniciais ?? '--' }}</span>
+      <span class="conta__iniciais">{{ usuario()?.nome | iniciais }}</span>
       <span class="conta__nome">{{ usuario()?.nome }}</span>
     </button>
 
