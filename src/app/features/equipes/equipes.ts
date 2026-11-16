@@ -6,9 +6,10 @@ import {
 } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { FUNCOES, FuncaoObra, Responsavel } from '../../core/models/equipe.model';
-import { Obra } from '../../core/models/obra.model';
+import { Filial, Obra } from '../../core/models/obra.model';
 import { EquipeService } from '../../core/services/equipe.service';
 import { ObrasService } from '../../core/services/obras.service';
+import { SEM_FILIAL, obrasDaFilial, opcoesDeFilial } from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { ValidacaoFormulario } from '../../core/utils/validacao-formulario';
 import { AvisoErro } from '../../shared/components/aviso-erro/aviso-erro';
@@ -22,6 +23,7 @@ import { ICONES } from '../../shared/icones';
 interface DadosEquipe {
   responsaveis: Responsavel[];
   obras: Obra[];
+  filiais: Filial[];
 }
 
 @Component({
@@ -51,11 +53,14 @@ export class Equipes {
     forkJoin({
       responsaveis: this.servico.listar(),
       obras: this.obrasServico.listarAtivas(),
+      filiais: this.obrasServico.listarFiliais(),
     }),
   );
 
   protected readonly estado = this.requisicao.estado;
+  protected readonly filialSelecionada = signal('');
   protected readonly obraSelecionada = signal('');
+  protected readonly filialFormulario = signal('');
   protected readonly editando = signal<Responsavel | null>(null);
   protected readonly formularioAberto = signal(false);
   protected readonly salvando = signal(false);
@@ -74,11 +79,44 @@ export class Equipes {
 
   protected readonly obras = computed(() => this.estado().dados?.obras ?? []);
 
+  protected readonly filiais = computed(() => {
+    const nomes = new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f.nome]));
+    return opcoesDeFilial(this.obras(), (obra) => nomes.get(obra.filialId ?? ''));
+  });
+
+  protected readonly obrasDaFilial = computed(() =>
+    obrasDaFilial(this.obras(), this.filialSelecionada()),
+  );
+
+  protected readonly obrasDoFormulario = computed(() =>
+    obrasDaFilial(this.obras(), this.filialFormulario()),
+  );
+
   protected readonly responsaveis = computed(() => {
     const obraId = this.obraSelecionada();
     const lista = this.estado().dados?.responsaveis ?? [];
-    return obraId ? lista.filter((item) => item.obraId === obraId) : lista;
+
+    if (obraId) {
+      return lista.filter((item) => item.obraId === obraId);
+    }
+
+    if (this.filialSelecionada()) {
+      const daFilial = new Set(this.obrasDaFilial().map((obra) => obra.id));
+      return lista.filter((item) => daFilial.has(item.obraId));
+    }
+
+    return lista;
   });
+
+  protected trocarFilial(valor: string): void {
+    this.filialSelecionada.set(valor);
+    this.obraSelecionada.set('');
+  }
+
+  protected trocarFilialFormulario(valor: string): void {
+    this.filialFormulario.set(valor);
+    this.formulario.patchValue({ obraId: '' });
+  }
 
   protected readonly agrupados = computed(() => {
     const grupos = new Map<string, { obra: string; pessoas: Responsavel[] }>();
@@ -96,11 +134,12 @@ export class Equipes {
 
   protected abrirNovo(): void {
     this.editando.set(null);
+    this.filialFormulario.set(this.filialSelecionada());
     this.formulario.reset({
       nome: '',
       funcao: 'RESIDENTE',
       email: '',
-      obraId: this.obraSelecionada() || (this.obras()[0]?.id ?? ''),
+      obraId: this.obraSelecionada(),
       ativo: true,
       receberEmail: true,
     });
@@ -110,6 +149,10 @@ export class Equipes {
 
   protected abrirEdicao(pessoa: Responsavel): void {
     this.editando.set(pessoa);
+
+    const obra = this.obras().find((item) => item.id === pessoa.obraId);
+    this.filialFormulario.set(obra ? (obra.filialId ?? SEM_FILIAL) : '');
+
     this.formulario.setValue({
       nome: pessoa.nome,
       funcao: pessoa.funcao,

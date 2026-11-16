@@ -13,18 +13,37 @@
   <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
 } @else {
   <section class="barra-ferramentas quadro espaco-abaixo">
+    <label class="visivel-leitor" for="filtro-filial">Filial</label>
+    <select
+      id="filtro-filial"
+      class="entrada largura-auto"
+      [value]="filialSelecionada()"
+      (change)="trocarFilial($any($event.target).value)"
+    >
+      <option value="">Todas as filiais</option>
+      @for (filial of filiais(); track filial.id) {
+        <option [value]="filial.id">{{ filial.nome }}</option>
+      }
+    </select>
+
     <label class="visivel-leitor" for="filtro-obra">Obra</label>
     <select
       id="filtro-obra"
       class="entrada largura-auto"
       [value]="obraSelecionada()"
+      [disabled]="!filialSelecionada()"
       (change)="obraSelecionada.set($any($event.target).value)"
     >
-      <option value="">Todas as obras</option>
-      @for (obra of obras(); track obra.id) {
-        <option [value]="obra.id">{{ obra.nome }}</option>
+      @if (filialSelecionada()) {
+        <option value="">Todas as obras da filial</option>
+        @for (obra of obrasDaFilial(); track obra.id) {
+          <option [value]="obra.id">{{ obra.nome }}</option>
+        }
+      } @else {
+        <option value="">Escolha a filial primeiro</option>
       }
     </select>
+
     <span class="contagem">{{ responsaveis().length }} responsáveis</span>
   </section>
 
@@ -148,6 +167,21 @@
         </div>
 
         <div class="campo">
+          <label class="campo__rotulo" for="filial-formulario">Filial</label>
+          <select
+            id="filial-formulario"
+            class="entrada"
+            [value]="filialFormulario()"
+            (change)="trocarFilialFormulario($any($event.target).value)"
+          >
+            <option value="">Selecione…</option>
+            @for (filial of filiais(); track filial.id) {
+              <option [value]="filial.id">{{ filial.nome }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="campo">
           <label class="campo__rotulo" for="obraId">Obra</label>
           <select
             id="obraId"
@@ -155,9 +189,13 @@
             [class.entrada--invalido]="campoInvalido('obraId')"
             formControlName="obraId"
           >
-            <option value="">Selecione…</option>
-            @for (obra of obras(); track obra.id) {
-              <option [value]="obra.id">{{ obra.nome }}</option>
+            @if (filialFormulario()) {
+              <option value="">Selecione…</option>
+              @for (obra of obrasDoFormulario(); track obra.id) {
+                <option [value]="obra.id">{{ obra.nome }}</option>
+              }
+            } @else {
+              <option value="">Escolha a filial primeiro</option>
             }
           </select>
           @if (campoInvalido('obraId')) {

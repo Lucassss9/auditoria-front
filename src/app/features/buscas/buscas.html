@@ -175,22 +175,40 @@
           <section class="teste">
             <p class="rotulo-secao">Testar numa obra</p>
             <div class="teste__controles">
+              <label class="visivel-leitor" for="filial-teste">Filial</label>
+              <select
+                id="filial-teste"
+                class="entrada"
+                [value]="filialTeste()"
+                (change)="trocarFilialTeste($any($event.target).value)"
+              >
+                <option value="">Escolher filial…</option>
+                @for (filial of filiais(); track filial.id) {
+                  <option [value]="filial.id">{{ filial.nome }}</option>
+                }
+              </select>
+
               <label class="visivel-leitor" for="obra-teste">Obra para testar</label>
               <select
                 id="obra-teste"
                 class="entrada"
                 [value]="obraTeste()"
+                [disabled]="!filialTeste()"
                 (change)="obraTeste.set($any($event.target).value)"
               >
-                <option value="">Escolher obra…</option>
-                @for (obra of obras(); track obra.id) {
-                  <option [value]="obra.id">{{ obra.nome }}</option>
+                @if (filialTeste()) {
+                  <option value="">Escolher obra…</option>
+                  @for (obra of obrasDaFilial(); track obra.id) {
+                    <option [value]="obra.id">{{ obra.nome }}</option>
+                  }
+                } @else {
+                  <option value="">Escolha a filial primeiro</option>
                 }
               </select>
               <button
                 type="button"
                 class="botao botao--pequeno"
-                [disabled]="testando() || !termos().length"
+                [disabled]="testando() || !termos().length || !obraTeste()"
                 (click)="testar()"
               >
                 {{ testando() ? 'Testando…' : 'Testar' }}

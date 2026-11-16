@@ -2,9 +2,10 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { forkJoin } from 'rxjs';
 import { prazoVencido } from '../../core/domain/auditoria-calculos';
 import { Auditoria } from '../../core/models/auditoria.model';
-import { Obra } from '../../core/models/obra.model';
+import { ObraResumo } from '../../core/models/obra.model';
 import { AuditoriasService } from '../../core/services/auditorias.service';
 import { ObrasService } from '../../core/services/obras.service';
+import { obrasDaFilial, opcoesDeFilial } from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { AvisoErro } from '../../shared/components/aviso-erro/aviso-erro';
 import { CabecalhoPagina } from '../../shared/components/cabecalho-pagina/cabecalho-pagina';
@@ -15,7 +16,7 @@ type FiltroSituacao = '' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA' | 'PRAZO_V
 
 interface DadosHistorico {
   auditorias: Auditoria[];
-  obras: Obra[];
+  obras: ObraResumo[];
 }
 
 @Component({
@@ -38,12 +39,26 @@ export class Historico {
 
   protected readonly estado = this.requisicao.estado;
 
+  protected readonly filialSelecionada = signal('');
   protected readonly obraSelecionada = signal('');
   protected readonly situacao = signal<FiltroSituacao>('');
   protected readonly de = signal('');
   protected readonly ate = signal('');
 
   protected readonly obras = computed(() => this.estado().dados?.obras ?? []);
+
+  protected readonly filiais = computed(() =>
+    opcoesDeFilial(this.obras(), (obra) => obra.filial?.nome),
+  );
+
+  protected readonly obrasDaFilial = computed(() =>
+    obrasDaFilial(this.obras(), this.filialSelecionada()),
+  );
+
+  protected trocarFilial(valor: string): void {
+    this.filialSelecionada.set(valor);
+    this.obraSelecionada.set('');
+  }
 
   protected readonly filtradas = computed(() => {
     const todas = this.estado().dados?.auditorias ?? [];
@@ -52,8 +67,18 @@ export class Historico {
     const de = this.de() ? new Date(this.de() + 'T00:00:00').getTime() : null;
     const ate = this.ate() ? new Date(this.ate() + 'T23:59:59').getTime() : null;
 
+    // Filial escolhida sem obra: vale o histórico de todas as obras dela.
+    const daFilial =
+      !obraId && this.filialSelecionada()
+        ? new Set(this.obrasDaFilial().map((obra) => obra.id))
+        : null;
+
     return todas.filter((auditoria) => {
       if (obraId && auditoria.obraId !== obraId) {
+        return false;
+      }
+
+      if (daFilial && !daFilial.has(auditoria.obraId)) {
         return false;
       }
 
@@ -84,6 +109,7 @@ export class Historico {
   );
 
   protected limpar(): void {
+    this.filialSelecionada.set('');
     this.obraSelecionada.set('');
     this.situacao.set('');
     this.de.set('');

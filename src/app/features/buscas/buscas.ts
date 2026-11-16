@@ -2,9 +2,10 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { LucideAngularModule } from 'lucide-angular';
 import { forkJoin, of } from 'rxjs';
 import { InsumoEstoque, ListaFavorita } from '../../core/models/insumo.model';
-import { Obra } from '../../core/models/obra.model';
+import { Filial, Obra } from '../../core/models/obra.model';
 import { EstoqueService } from '../../core/services/estoque.service';
 import { ObrasService } from '../../core/services/obras.service';
+import { obrasDaFilial, opcoesDeFilial } from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { normalizar } from '../../core/utils/texto';
 import { AvisoErro } from '../../shared/components/aviso-erro/aviso-erro';
@@ -16,6 +17,7 @@ import { ICONES } from '../../shared/icones';
 interface DadosBuscas {
   listas: ListaFavorita[];
   obras: Obra[];
+  filiais: Filial[];
 }
 
 @Component({
@@ -35,6 +37,7 @@ export class Buscas {
     forkJoin({
       listas: this.servico.listarListasFavoritas(),
       obras: this.obrasServico.listarAtivas(),
+      filiais: this.obrasServico.listarFiliais(),
     }),
   );
 
@@ -42,6 +45,23 @@ export class Buscas {
 
   protected readonly listas = computed(() => this.estado().dados?.listas ?? []);
   protected readonly obras = computed(() => this.estado().dados?.obras ?? []);
+
+  protected readonly filialTeste = signal('');
+
+  protected readonly filiais = computed(() => {
+    const nomes = new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f.nome]));
+    return opcoesDeFilial(this.obras(), (obra) => nomes.get(obra.filialId ?? ''));
+  });
+
+  protected readonly obrasDaFilial = computed(() =>
+    obrasDaFilial(this.obras(), this.filialTeste()),
+  );
+
+  protected trocarFilialTeste(valor: string): void {
+    this.filialTeste.set(valor);
+    this.obraTeste.set('');
+    this.resultadoTeste.set(null);
+  }
 
   protected readonly editando = signal<string | null>(null);
   protected readonly nome = signal('');
@@ -179,13 +199,14 @@ export class Buscas {
   }
 
   protected testar(): void {
-    const obraId = this.obraTeste() || this.obras()[0]?.id;
+    // Sem obra escolhida não há em que testar. Antes isto caía na primeira obra
+    // da lista, e com a filial no meio seria uma obra que ninguém escolheu.
+    const obraId = this.obraTeste();
 
     if (!obraId || !this.termos().length) {
       return;
     }
 
-    this.obraTeste.set(obraId);
     this.testando.set(true);
 
     const consultas = this.termos().map((termo) =>

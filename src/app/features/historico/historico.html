@@ -9,16 +9,34 @@
   <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
 } @else {
   <section class="barra-ferramentas quadro espaco-abaixo">
+    <label class="visivel-leitor" for="hist-filial">Filial</label>
+    <select
+      id="hist-filial"
+      class="entrada largura-auto"
+      [value]="filialSelecionada()"
+      (change)="trocarFilial($any($event.target).value)"
+    >
+      <option value="">Todas as filiais</option>
+      @for (filial of filiais(); track filial.id) {
+        <option [value]="filial.id">{{ filial.nome }}</option>
+      }
+    </select>
+
     <label class="visivel-leitor" for="hist-obra">Obra</label>
     <select
       id="hist-obra"
       class="entrada largura-auto"
       [value]="obraSelecionada()"
+      [disabled]="!filialSelecionada()"
       (change)="obraSelecionada.set($any($event.target).value)"
     >
-      <option value="">Todas as obras</option>
-      @for (obra of obras(); track obra.id) {
-        <option [value]="obra.id">{{ obra.nome }}</option>
+      @if (filialSelecionada()) {
+        <option value="">Todas as obras da filial</option>
+        @for (obra of obrasDaFilial(); track obra.id) {
+          <option [value]="obra.id">{{ obra.nome }}</option>
+        }
+      } @else {
+        <option value="">Escolha a filial primeiro</option>
       }
     </select>
 
