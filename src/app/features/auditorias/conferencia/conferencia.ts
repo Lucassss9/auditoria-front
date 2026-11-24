@@ -39,6 +39,7 @@ import { MoedaPipe } from '../../../shared/pipes/moeda.pipe';
 import { QuantidadePipe } from '../../../shared/pipes/quantidade.pipe';
 import { ICONES } from '../../../shared/icones';
 import { FormForaDoEstoque } from './form-fora-do-estoque/form-fora-do-estoque';
+import { rotuloDaObra } from '../../../core/utils/filtro-filial';
 
 export type FiltroConferencia =
   | 'TODOS'
@@ -141,6 +142,8 @@ export const MOTIVOS: ReadonlyArray<{ valor: MotivoNaoContagem; rotulo: string }
   styleUrl: './conferencia.scss',
 })
 export class Conferencia {
+  protected readonly rotuloDaObra = rotuloDaObra;
+
   private readonly rota = inject(ActivatedRoute);
   private readonly servico = inject(AuditoriasService);
   private readonly preferencias = inject(PreferenciasService);

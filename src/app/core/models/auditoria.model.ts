@@ -1,3 +1,5 @@
+import { Segmento } from './obra.model';
+
 export type StatusAuditoria = 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA';
 
 export type SituacaoItem = 'NAO_CONFERIDO' | 'CONFERIDO' | 'NAO_CONTADO';
@@ -60,6 +62,7 @@ export interface Auditoria {
   id: string;
   obraId: string;
   obraNome: string;
+  segmento: Segmento;
   filialNome: string | null;
   responsavel: string;
   status: StatusAuditoria;

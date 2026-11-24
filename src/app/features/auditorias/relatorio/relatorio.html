@@ -13,7 +13,11 @@
   <div class="nao-imprimir">
     <app-cabecalho-pagina
       titulo="Relatório da auditoria"
-      [descricao]="auditoria()!.obraNome + ' · ' + (auditoria()!.filialNome ?? 'sem filial')"
+      [descricao]="
+        rotuloDaObra({ nome: auditoria()!.obraNome, segmento: auditoria()!.segmento }) +
+        ' · ' +
+        (auditoria()!.filialNome ?? 'sem filial')
+      "
       [trilha]="[{ rotulo: 'Auditorias', rota: '/auditorias' }, { rotulo: 'Relatório' }]"
     >
       <a class="botao" [routerLink]="['/auditorias', auditoria()!.id]">Voltar à conferência</a>
@@ -30,7 +34,7 @@
       <div>
         <h1>Auditoria de estoque</h1>
         <p class="relatorio__obra">
-          {{ auditoria()!.obraNome }}
+          {{ rotuloDaObra({ nome: auditoria()!.obraNome, segmento: auditoria()!.segmento }) }}
           @if (auditoria()!.filialNome) {
             · {{ auditoria()!.filialNome }}
           }

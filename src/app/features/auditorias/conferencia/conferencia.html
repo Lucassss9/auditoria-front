@@ -11,7 +11,7 @@
   </app-estado-vazio>
 } @else {
   <app-cabecalho-pagina
-    [titulo]="auditoria()!.obraNome"
+    [titulo]="rotuloDaObra({ nome: auditoria()!.obraNome, segmento: auditoria()!.segmento })"
     [descricao]="auditoria()!.filialNome ?? ''"
     [trilha]="[{ rotulo: 'Auditorias', rota: '/auditorias' }, { rotulo: 'Conferência' }]"
   >

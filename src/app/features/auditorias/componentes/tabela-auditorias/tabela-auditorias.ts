@@ -5,6 +5,7 @@ import { prazoVencido, resumirAuditoria } from '../../../../core/domain/auditori
 import { Auditoria } from '../../../../core/models/auditoria.model';
 import { EstadoVazio } from '../../../../shared/components/estado-vazio/estado-vazio';
 import { Selo, TipoSelo } from '../../../../shared/components/selo/selo';
+import { rotuloDaObra } from '../../../../core/utils/filtro-filial';
 
 @Component({
   selector: 'app-tabela-auditorias',
@@ -14,6 +15,8 @@ import { Selo, TipoSelo } from '../../../../shared/components/selo/selo';
   styleUrl: './tabela-auditorias.scss',
 })
 export class TabelaAuditorias {
+  protected readonly rotuloDaObra = rotuloDaObra;
+
   readonly auditorias = input.required<Auditoria[]>();
   readonly tituloVazio = input('Nenhuma auditoria encontrada');
   readonly descricaoVazio = input('Ajuste os filtros para ver outros registros.');

@@ -160,6 +160,7 @@ export function gerarAuditoriasMock(estoque: InsumoEstoque[]): Auditoria[] {
       id: semente.id,
       obraId: obra.id,
       obraNome: obra.nome,
+      segmento: obra.segmento,
       filialNome: filial ? filial.codigo + ' - ' + filial.nome : null,
       responsavel: semente.responsavel,
       status: semente.status,

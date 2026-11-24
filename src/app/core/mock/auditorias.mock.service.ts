@@ -71,6 +71,7 @@ export class AuditoriasMockService extends AuditoriasService {
       id: novoId('a'),
       obraId: obra.id,
       obraNome: obra.nome,
+      segmento: obra.segmento,
       filialNome: filial ? `${filial.codigo} - ${filial.nome}` : null,
       responsavel: dados.responsavel,
       status: 'EM_ANDAMENTO',

@@ -23,7 +23,12 @@
         @for (linha of linhas(); track linha.auditoria.id) {
           <tr>
             <td class="celula-obra">
-              <span class="celula-obra__nome">{{ linha.auditoria.obraNome }}</span>
+              <span class="celula-obra__nome">{{
+                rotuloDaObra({
+                  nome: linha.auditoria.obraNome,
+                  segmento: linha.auditoria.segmento,
+                })
+              }}</span>
               @if (linha.auditoria.filialNome) {
                 <span class="celula-obra__filial">{{ linha.auditoria.filialNome }}</span>
               }

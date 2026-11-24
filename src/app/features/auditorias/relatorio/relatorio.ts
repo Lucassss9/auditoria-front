@@ -20,6 +20,7 @@ import { MoedaPipe } from '../../../shared/pipes/moeda.pipe';
 import { QuantidadePipe } from '../../../shared/pipes/quantidade.pipe';
 import { ICONES } from '../../../shared/icones';
 import { MOTIVOS } from '../conferencia/conferencia';
+import { rotuloDaObra } from '../../../core/utils/filtro-filial';
 
 interface LinhaDivergencia {
   item: ItemAuditoria;
@@ -61,6 +62,8 @@ interface BarraValor {
   styleUrl: './relatorio.scss',
 })
 export class Relatorio {
+  protected readonly rotuloDaObra = rotuloDaObra;
+
   private readonly rota = inject(ActivatedRoute);
   private readonly servico = inject(AuditoriasService);
 
