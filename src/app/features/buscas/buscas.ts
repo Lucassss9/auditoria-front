@@ -210,7 +210,7 @@ export class Buscas {
     this.testando.set(true);
 
     const consultas = this.termos().map((termo) =>
-      this.servico.buscarPorObra(obraId, { termo, categoria: null }),
+      this.servico.buscarPorObra(obraId, { termo }),
     );
 
     forkJoin(consultas.length ? consultas : [of<InsumoEstoque[]>([])]).subscribe({

@@ -12,12 +12,8 @@ export class EstoqueApiService extends EstoqueService {
 
   buscarPorObra(obraId: string, filtro: FiltroEstoque): Observable<InsumoEstoque[]> {
     return this.http.get<InsumoEstoque[]>(this.base, {
-      params: { obra: obraId, termo: filtro.termo, categoria: filtro.categoria ?? '' },
+      params: { obra: obraId, termo: filtro.termo },
     });
-  }
-
-  listarCategorias(obraId: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.base}/categorias`, { params: { obra: obraId } });
   }
 
   listarListasFavoritas(): Observable<ListaFavorita[]> {

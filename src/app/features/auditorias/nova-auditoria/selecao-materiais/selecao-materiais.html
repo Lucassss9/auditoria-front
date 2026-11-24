@@ -16,19 +16,6 @@
         />
       </div>
 
-      <label class="visivel-leitor" for="categoria-insumo">Categoria</label>
-      <select
-        id="categoria-insumo"
-        class="entrada largura-auto"
-        [value]="categoria() ?? ''"
-        (change)="definirCategoria($any($event.target).value || null)"
-      >
-        <option value="">Todas as categorias</option>
-        @for (nome of categorias(); track nome) {
-          <option [value]="nome">{{ nome }}</option>
-        }
-      </select>
-
       <span class="contagem">
         {{ resultados().length }} encontrados · {{ selecionados().length }} selecionados
       </span>
@@ -112,7 +99,7 @@
     } @else if (!resultados().length) {
       <app-estado-vazio
         titulo="Nenhum material encontrado"
-        descricao="Troque o termo ou a categoria. Nenhum item entra na auditoria sem você marcar."
+        descricao="Troque o termo. Nenhum item entra na auditoria sem você marcar."
       />
     } @else {
       <div class="rolagem-tabela">
@@ -191,7 +178,6 @@
                 <td class="tabela__codigo">{{ insumo.codigo }}</td>
                 <td>
                   <span class="descricao">{{ insumo.descricao }}</span>
-                  <span class="categoria">{{ insumo.categoria }}</span>
                 </td>
                 <td>{{ insumo.unidade }}</td>
                 <td class="tabela__num">{{ insumo.quantidade | quantidade }}</td>
@@ -237,7 +223,7 @@
         class="entrada"
         type="text"
         list="listas-existentes"
-        placeholder="Usa a categoria do item"
+        placeholder="Opcional — agrupa os itens na conferência"
         [value]="listaDestino()"
         (input)="listaDestino.set($any($event.target).value)"
       />

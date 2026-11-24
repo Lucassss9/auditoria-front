@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   Auditoria,
   Comunicado,
-  ItemAuditoria,
+  ContagemItem,
   ItemForaDoEstoque,
   NovaAuditoria,
 } from '../models/auditoria.model';
@@ -31,9 +31,9 @@ export class AuditoriasApiService extends AuditoriasService {
   atualizarItem(
     auditoriaId: string,
     itemId: string,
-    mudancas: Partial<ItemAuditoria>,
+    contagem: ContagemItem,
   ): Observable<Auditoria> {
-    return this.http.patch<Auditoria>(`${this.base}/${auditoriaId}/itens/${itemId}`, mudancas);
+    return this.http.patch<Auditoria>(`${this.base}/${auditoriaId}/itens/${itemId}`, contagem);
   }
 
   salvarItemForaDoEstoque(

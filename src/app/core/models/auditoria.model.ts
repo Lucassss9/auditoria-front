@@ -8,18 +8,10 @@ export type MotivoNaoContagem =
   | 'MATERIAL_EM_USO'
   | 'SEM_ACESSO_SEGURO';
 
-export interface Evidencia {
-  id: string;
-  nome: string;
-  conteudo: string;
-  criadoEm: string;
-}
-
 export interface ItemAuditoria {
   id: string;
   codigo: string;
   descricao: string;
-  categoria: string;
   unidade: string;
   quantidadeSistema: number;
   valorUnitarioReferencia: number | null;
@@ -29,7 +21,14 @@ export interface ItemAuditoria {
   motivoNaoContagem: MotivoNaoContagem | null;
   local: string | null;
   observacao: string;
-  evidencias: Evidencia[];
+}
+
+export interface ContagemItem {
+  quantidadeReal: number | null;
+  situacao: SituacaoItem;
+  motivoNaoContagem: MotivoNaoContagem | null;
+  local: string | null;
+  observacao: string;
 }
 
 export interface ItemForaDoEstoque {
@@ -41,7 +40,6 @@ export interface ItemForaDoEstoque {
   valorUnitario: number | null;
   local: string | null;
   observacao: string;
-  evidencias: Evidencia[];
 }
 
 export interface ReferenciaEstoque {

@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import {
   Auditoria,
   Comunicado,
+  ContagemItem,
   ItemAuditoria,
   ItemForaDoEstoque,
   NovaAuditoria,
@@ -51,7 +52,6 @@ export class AuditoriasMockService extends AuditoriasService {
           id: novoId('item'),
           codigo: insumo.codigo,
           descricao: insumo.descricao,
-          categoria: insumo.categoria,
           unidade: insumo.unidade,
           quantidadeSistema: insumo.quantidade,
           valorUnitarioReferencia: insumo.valorUnitario,
@@ -61,7 +61,6 @@ export class AuditoriasMockService extends AuditoriasService {
           motivoNaoContagem: null,
           local: null,
           observacao: '',
-          evidencias: [],
         };
 
         return item;
@@ -95,13 +94,13 @@ export class AuditoriasMockService extends AuditoriasService {
   atualizarItem(
     auditoriaId: string,
     itemId: string,
-    mudancas: Partial<ItemAuditoria>,
+    contagem: ContagemItem,
   ): Observable<Auditoria> {
     const auditoria = this.store.exigirAuditoria(auditoriaId);
 
     const atualizada: Auditoria = {
       ...auditoria,
-      itens: auditoria.itens.map((item) => (item.id === itemId ? { ...item, ...mudancas } : item)),
+      itens: auditoria.itens.map((item) => (item.id === itemId ? { ...item, ...contagem } : item)),
     };
 
     return responder(this.store.substituirAuditoria(atualizada));

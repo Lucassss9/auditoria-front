@@ -18,7 +18,7 @@ import {
 } from '../../../core/domain/auditoria-calculos';
 import {
   Auditoria,
-  Evidencia,
+  ContagemItem,
   ItemAuditoria,
   ItemForaDoEstoque,
   MotivoNaoContagem,
@@ -33,7 +33,6 @@ import { AvisoErro } from '../../../shared/components/aviso-erro/aviso-erro';
 import { CabecalhoPagina } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina';
 import { Carregando } from '../../../shared/components/carregando/carregando';
 import { EstadoVazio } from '../../../shared/components/estado-vazio/estado-vazio';
-import { Evidencias } from '../../../shared/components/evidencias/evidencias';
 import { Selo } from '../../../shared/components/selo/selo';
 import { DiferencaPipe } from '../../../shared/pipes/diferenca.pipe';
 import { MoedaPipe } from '../../../shared/pipes/moeda.pipe';
@@ -67,7 +66,6 @@ export const MOTIVOS: ReadonlyArray<{ valor: MotivoNaoContagem; rotulo: string }
     CabecalhoPagina,
     Carregando,
     EstadoVazio,
-    Evidencias,
     Selo,
     DiferencaPipe,
     MoedaPipe,
@@ -252,7 +250,7 @@ export class Conferencia {
 
     if (!limpo) {
       this.descartarRascunho(item.id);
-      this.salvarItem(item.id, {
+      this.salvarItem(item, {
         quantidadeReal: null,
         situacao: 'NAO_CONFERIDO',
         motivoNaoContagem: null,
@@ -274,7 +272,7 @@ export class Conferencia {
 
     this.limparErro(item.id);
     this.descartarRascunho(item.id);
-    this.salvarItem(item.id, {
+    this.salvarItem(item, {
       quantidadeReal: numero,
       situacao: 'CONFERIDO',
       motivoNaoContagem: null,
@@ -283,12 +281,12 @@ export class Conferencia {
 
   protected marcarNaoContado(item: ItemAuditoria, motivo: string): void {
     if (!motivo) {
-      this.salvarItem(item.id, { situacao: 'NAO_CONFERIDO', motivoNaoContagem: null });
+      this.salvarItem(item, { situacao: 'NAO_CONFERIDO', motivoNaoContagem: null });
       return;
     }
 
     this.descartarRascunho(item.id);
-    this.salvarItem(item.id, {
+    this.salvarItem(item, {
       situacao: 'NAO_CONTADO',
       motivoNaoContagem: motivo as MotivoNaoContagem,
       quantidadeReal: null,
@@ -296,15 +294,11 @@ export class Conferencia {
   }
 
   protected salvarObservacao(item: ItemAuditoria, texto: string): void {
-    this.salvarItem(item.id, { observacao: texto });
+    this.salvarItem(item, { observacao: texto });
   }
 
   protected salvarLocal(item: ItemAuditoria, texto: string): void {
-    this.salvarItem(item.id, { local: texto || null });
-  }
-
-  protected salvarEvidencias(item: ItemAuditoria, evidencias: Evidencia[]): void {
-    this.salvarItem(item.id, { evidencias });
+    this.salvarItem(item, { local: texto || null });
   }
 
   protected abrirDetalhe(item: ItemAuditoria): void {
@@ -371,10 +365,21 @@ export class Conferencia {
     return this.salvando()[itemId] ?? null;
   }
 
-  private salvarItem(itemId: string, mudancas: Partial<ItemAuditoria>): void {
+  private salvarItem(item: ItemAuditoria, mudancas: Partial<ContagemItem>): void {
+    const itemId = item.id;
+
+    const contagem: ContagemItem = {
+      quantidadeReal: item.quantidadeReal,
+      situacao: item.situacao,
+      motivoNaoContagem: item.motivoNaoContagem,
+      local: item.local,
+      observacao: item.observacao,
+      ...mudancas,
+    };
+
     this.salvando.update((atuais) => ({ ...atuais, [itemId]: 'salvando' }));
 
-    this.servico.atualizarItem(this.id, itemId, mudancas).subscribe({
+    this.servico.atualizarItem(this.id, itemId, contagem).subscribe({
       next: (auditoria) => {
         this.requisicao.definir(auditoria);
         this.salvando.update((atuais) => ({ ...atuais, [itemId]: 'salvo' }));

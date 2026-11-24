@@ -323,7 +323,7 @@
     </section>
 
     <section class="secao">
-      <h2>6. Evidências e observações</h2>
+      <h2>6. Observações</h2>
       @if (observacoes().length) {
         <ul class="lista-simples">
           @for (item of observacoes(); track item.id) {
@@ -335,23 +335,8 @@
         </ul>
       }
 
-      @if (!gruposDeEvidencias().length) {
-        <p class="nota">Nenhuma foto anexada aos itens desta auditoria.</p>
-      } @else {
-        @for (grupo of gruposDeEvidencias(); track grupo.titulo) {
-          <div class="evidencia-grupo">
-            <h3>{{ grupo.titulo }}</h3>
-            <div class="evidencia-fotos">
-              @for (evidencia of grupo.evidencias; track evidencia.id) {
-                @if (evidencia.conteudo) {
-                  <img [src]="evidencia.conteudo" [alt]="evidencia.nome" />
-                } @else {
-                  <span class="evidencia-vazia">{{ evidencia.nome }}</span>
-                }
-              }
-            </div>
-          </div>
-        }
+      @if (!observacoes().length) {
+        <p class="nota">Nenhuma observação registrada nesta auditoria.</p>
       }
     </section>
   </article>

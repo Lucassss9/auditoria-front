@@ -179,7 +179,6 @@
                   <th scope="col" class="tabela__num">Quantidade</th>
                   <th scope="col" class="tabela__num">Valor unit.</th>
                   <th scope="col">Onde estava</th>
-                  <th scope="col">Fotos</th>
                   <th scope="col"><span class="visivel-leitor">Ações</span></th>
                 </tr>
               </thead>
@@ -208,7 +207,6 @@
                       }
                     </td>
                     <td>{{ achado.local ?? '—' }}</td>
-                    <td class="tabela__num">{{ achado.evidencias.length }}</td>
                     <td class="acoes">
                       @if (!somenteLeitura()) {
                         <button
@@ -302,13 +300,6 @@
                   </span>
                 }
 
-                @if (item.evidencias.length) {
-                  <span class="fotos">
-                    <i-lucide [img]="icones.imagem" [size]="13" aria-hidden="true"></i-lucide>
-                    {{ item.evidencias.length }}
-                  </span>
-                }
-
                 @if (estadoSalvamento(item.id) === 'salvando') {
                   <span class="estado-salvar">salvando…</span>
                 } @else if (estadoSalvamento(item.id) === 'salvo') {
@@ -345,7 +336,6 @@
                   <th scope="col" class="tabela__num">Valor unit.</th>
                   <th scope="col" class="tabela__num">Dif. valor</th>
                 }
-                <th scope="col">Evidências</th>
                 <th scope="col">Situação</th>
                 <th scope="col"><span class="visivel-leitor">Detalhes</span></th>
               </tr>
@@ -430,16 +420,6 @@
                     </td>
                   }
                   <td>
-                    @if (item.evidencias.length) {
-                      <span class="fotos">
-                        <i-lucide [img]="icones.imagem" [size]="13" aria-hidden="true"></i-lucide>
-                        {{ item.evidencias.length }}
-                      </span>
-                    } @else {
-                      <span class="indisponivel">—</span>
-                    }
-                  </td>
-                  <td>
                     <app-selo
                       [tipo]="
                         item.situacao === 'CONFERIDO'
@@ -508,10 +488,6 @@
                     {{ item.valorUnitarioReferencia | moeda }}
                   }
                 </dd>
-              </div>
-              <div>
-                <dt>Categoria</dt>
-                <dd>{{ item.categoria }}</dd>
               </div>
               <div>
                 <dt>Lista</dt>
@@ -584,15 +560,6 @@
                 (change)="salvarObservacao(item, $any($event.target).value)"
               ></textarea>
             </div>
-          </section>
-
-          <section class="bloco">
-            <p class="rotulo-secao">Evidências</p>
-            <app-evidencias
-              [lista]="item.evidencias"
-              [somenteLeitura]="somenteLeitura()"
-              (listaChange)="salvarEvidencias(item, $event)"
-            />
           </section>
 
           <section class="bloco">

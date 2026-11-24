@@ -1,6 +1,6 @@
 export type Regional = 'RJ' | 'SP';
 
-export type Segmento = 'CIVIL' | 'INSTALL' | 'EPI';
+export type Segmento = 'CIVIL' | 'INSTALL';
 
 export type SituacaoObra = 'ATIVA' | 'ENCERRADA';
 

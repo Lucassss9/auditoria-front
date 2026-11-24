@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Evidencia, ItemForaDoEstoque } from '../../../../core/models/auditoria.model';
+import { ItemForaDoEstoque } from '../../../../core/models/auditoria.model';
 import { ValidacaoFormulario } from '../../../../core/utils/validacao-formulario';
-import { Evidencias } from '../../../../shared/components/evidencias/evidencias';
 import { Modal } from '../../../../shared/components/modal/modal';
 
 const UNIDADES = ['un', 'pç', 'kg', 'm', 'm²', 'm³', 'sc', 'rl', 'cj', 'pr', 'vg'];
@@ -10,7 +9,7 @@ const UNIDADES = ['un', 'pç', 'kg', 'm', 'm²', 'm³', 'sc', 'rl', 'cj', 'pr', 
 @Component({
   selector: 'app-form-fora-do-estoque',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Evidencias, Modal],
+  imports: [ReactiveFormsModule, Modal],
   templateUrl: './form-fora-do-estoque.html',
   styleUrl: './form-fora-do-estoque.scss',
 })
@@ -22,7 +21,6 @@ export class FormForaDoEstoque {
   readonly cancelar = output<void>();
 
   protected readonly unidades = UNIDADES;
-  protected readonly evidencias = signal<Evidencia[]>([]);
 
   protected readonly formulario = this.fb.nonNullable.group({
     descricao: ['', [Validators.required, Validators.minLength(3)]],
@@ -49,7 +47,6 @@ export class FormForaDoEstoque {
         local: atual.local ?? '',
         observacao: atual.observacao,
       });
-      this.evidencias.set([...atual.evidencias]);
     }
   }
 
@@ -76,7 +73,6 @@ export class FormForaDoEstoque {
       valorUnitario: valores.valorUnitario.trim() ? valorUnitario : null,
       local: valores.local.trim() || null,
       observacao: valores.observacao.trim(),
-      evidencias: this.evidencias(),
     });
   }
 

@@ -8,7 +8,7 @@ import {
   divergente,
   resumirAuditoria,
 } from '../../../core/domain/auditoria-calculos';
-import { Auditoria, Evidencia, ItemAuditoria } from '../../../core/models/auditoria.model';
+import { Auditoria, ItemAuditoria } from '../../../core/models/auditoria.model';
 import { AuditoriasService } from '../../../core/services/auditorias.service';
 import { Requisicao } from '../../../core/utils/requisicao';
 import { AvisoErro } from '../../../shared/components/aviso-erro/aviso-erro';
@@ -25,11 +25,6 @@ interface LinhaDivergencia {
   item: ItemAuditoria;
   diferenca: number;
   valor: number | null;
-}
-
-interface GrupoEvidencias {
-  titulo: string;
-  evidencias: Evidencia[];
 }
 
 interface FatiaComposicao {
@@ -153,30 +148,6 @@ export class Relatorio {
   protected readonly naoConferidos = computed(() =>
     (this.auditoria()?.itens ?? []).filter((item) => item.situacao === 'NAO_CONFERIDO'),
   );
-
-  protected readonly gruposDeEvidencias = computed<GrupoEvidencias[]>(() => {
-    const atual = this.auditoria();
-
-    if (!atual) {
-      return [];
-    }
-
-    const grupos: GrupoEvidencias[] = [];
-
-    for (const item of atual.itens) {
-      if (item.evidencias.length) {
-        grupos.push({ titulo: item.codigo + ' · ' + item.descricao, evidencias: item.evidencias });
-      }
-    }
-
-    for (const achado of atual.foraDoEstoque) {
-      if (achado.evidencias.length) {
-        grupos.push({ titulo: achado.descricao, evidencias: achado.evidencias });
-      }
-    }
-
-    return grupos;
-  });
 
   protected readonly observacoes = computed(() =>
     (this.auditoria()?.itens ?? []).filter((item) => item.observacao.trim().length > 0),

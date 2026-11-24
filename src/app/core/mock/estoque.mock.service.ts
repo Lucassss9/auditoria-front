@@ -14,27 +14,13 @@ export class EstoqueMockService extends EstoqueService {
     const daObra = this.store.estoque().filter((item) => item.obraId === obraId);
     const termo = filtro.termo.trim();
 
-    const encontrados = daObra.filter((item) => {
-      const casaCategoria = !filtro.categoria || item.categoria === filtro.categoria;
-      const casaTermo =
-        !termo || contemTermo(item.descricao, termo) || item.codigo.includes(termo);
-      return casaCategoria && casaTermo;
-    });
+    const encontrados = daObra.filter(
+      (item) => !termo || contemTermo(item.descricao, termo) || item.codigo.includes(termo),
+    );
 
     return responder(
       [...encontrados].sort((a, b) => a.descricao.localeCompare(b.descricao, 'pt-BR')),
     );
-  }
-
-  listarCategorias(obraId: string): Observable<string[]> {
-    const categorias = new Set(
-      this.store
-        .estoque()
-        .filter((item) => item.obraId === obraId)
-        .map((item) => item.categoria),
-    );
-
-    return responder([...categorias].sort((a, b) => a.localeCompare(b, 'pt-BR')));
   }
 
   listarListasFavoritas(): Observable<ListaFavorita[]> {

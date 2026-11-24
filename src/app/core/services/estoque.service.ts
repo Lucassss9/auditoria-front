@@ -3,7 +3,6 @@ import { FiltroEstoque, InsumoEstoque, ListaFavorita } from '../models/insumo.mo
 
 export abstract class EstoqueService {
   abstract buscarPorObra(obraId: string, filtro: FiltroEstoque): Observable<InsumoEstoque[]>;
-  abstract listarCategorias(obraId: string): Observable<string[]>;
   abstract listarListasFavoritas(): Observable<ListaFavorita[]>;
   abstract salvarListaFavorita(
     lista: Omit<ListaFavorita, 'id'> & { id?: string },

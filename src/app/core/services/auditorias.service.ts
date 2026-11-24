@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import {
   Auditoria,
   Comunicado,
-  ItemAuditoria,
+  ContagemItem,
   ItemForaDoEstoque,
   NovaAuditoria,
 } from '../models/auditoria.model';
@@ -14,7 +14,7 @@ export abstract class AuditoriasService {
   abstract atualizarItem(
     auditoriaId: string,
     itemId: string,
-    mudancas: Partial<ItemAuditoria>,
+    contagem: ContagemItem,
   ): Observable<Auditoria>;
   abstract salvarItemForaDoEstoque(
     auditoriaId: string,

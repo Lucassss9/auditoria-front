@@ -14,8 +14,7 @@ interface SementeAuditoria {
   status: Auditoria['status'];
   iniciadaEm: string;
   concluidaEm: string | null;
-  categorias: string[];
-  porCategoria: number;
+  totalItens: number;
   deixarPendentes: boolean;
   foraDoEstoque: Auditoria['foraDoEstoque'];
   comunicado: Auditoria['comunicado'];
@@ -28,6 +27,8 @@ const MOTIVOS_CICLO: MotivoNaoContagem[] = [
   'SEM_ACESSO_SEGURO',
 ];
 
+const LISTAS = ['Alvenaria', 'Hidráulica', 'Elétrica', 'Acabamento'];
+
 const LOCAIS = ['Pátio dos fundos', 'Almoxarifado', 'Contêiner 2', 'Subsolo', 'Lateral do bloco B'];
 
 const SEMENTES: SementeAuditoria[] = [
@@ -38,8 +39,7 @@ const SEMENTES: SementeAuditoria[] = [
     status: 'EM_ANDAMENTO',
     iniciadaEm: '2026-11-05T08:40:00',
     concluidaEm: null,
-    categorias: ['Alvenaria', 'Aço e armação', 'Louças e metais', 'Elétrica'],
-    porCategoria: 9,
+    totalItens: 36,
     deixarPendentes: true,
     foraDoEstoque: [
       {
@@ -51,9 +51,6 @@ const SEMENTES: SementeAuditoria[] = [
         valorUnitario: null,
         local: 'Lateral do bloco B',
         observacao: 'Amarrado junto com sobra de forma. Ninguém soube informar a origem.',
-        evidencias: [
-          { id: 'ev-fe1-1', nome: 'perfil-lateral-b.jpg', conteudo: '', criadoEm: '2026-11-05T10:12:00' },
-        ],
       },
     ],
     comunicado: null,
@@ -65,8 +62,7 @@ const SEMENTES: SementeAuditoria[] = [
     status: 'CONCLUIDA',
     iniciadaEm: '2026-10-09T08:10:00',
     concluidaEm: '2026-10-12T17:25:00',
-    categorias: ['Alvenaria', 'Hidráulica', 'Consumíveis'],
-    porCategoria: 7,
+    totalItens: 21,
     deixarPendentes: false,
     foraDoEstoque: [],
     comunicado: {
@@ -84,8 +80,7 @@ const SEMENTES: SementeAuditoria[] = [
     status: 'CONCLUIDA',
     iniciadaEm: '2026-10-27T09:00:00',
     concluidaEm: '2026-10-28T16:05:00',
-    categorias: ['Louças e metais', 'Revestimentos'],
-    porCategoria: 8,
+    totalItens: 16,
     deixarPendentes: false,
     foraDoEstoque: [
       {
@@ -97,7 +92,6 @@ const SEMENTES: SementeAuditoria[] = [
         valorUnitario: null,
         local: 'Subsolo',
         observacao: 'Em uso no esgotamento da caixa.',
-        evidencias: [],
       },
     ],
     comunicado: {
@@ -114,7 +108,6 @@ function montarItem(
   insumo: InsumoEstoque,
   indice: number,
   deixarPendentes: boolean,
-  iniciadaEm: string,
 ): ItemAuditoria {
   let situacao: SituacaoItem = 'CONFERIDO';
   let quantidadeReal: number | null = insumo.quantidade;
@@ -133,29 +126,20 @@ function montarItem(
     quantidadeReal = insumo.quantidade + 1 + (indice % 4);
   }
 
-  const fotos = indice % 6 === 0 ? 2 : indice % 3 === 0 ? 1 : 0;
-
   return {
     id: 'item-' + insumo.obraId + '-' + insumo.codigo,
     codigo: insumo.codigo,
     descricao: insumo.descricao,
-    categoria: insumo.categoria,
     unidade: insumo.unidade,
     quantidadeSistema: insumo.quantidade,
     valorUnitarioReferencia: insumo.valorUnitario,
-    lista: insumo.categoria,
+    lista: LISTAS[indice % LISTAS.length],
     quantidadeReal,
     situacao,
     motivoNaoContagem: motivo,
     local: situacao === 'CONFERIDO' ? LOCAIS[indice % LOCAIS.length] : null,
     observacao:
       situacao === 'NAO_CONTADO' ? 'Registrado em campo para verificação na próxima visita.' : '',
-    evidencias: Array.from({ length: fotos }, (_, posicao) => ({
-      id: 'ev-' + insumo.obraId + '-' + insumo.codigo + '-' + posicao,
-      nome: insumo.codigo + '-' + (posicao + 1) + '.jpg',
-      conteudo: '',
-      criadoEm: iniciadaEm,
-    })),
   };
 }
 
@@ -164,17 +148,12 @@ export function gerarAuditoriasMock(estoque: InsumoEstoque[]): Auditoria[] {
     const obra = OBRAS_MOCK.find((item) => item.id === semente.obraId)!;
     const filial = FILIAIS_MOCK.find((item) => item.id === obra.filialId) ?? null;
 
-    const selecionados: InsumoEstoque[] = [];
-
-    for (const categoria of semente.categorias) {
-      const daCategoria = estoque.filter(
-        (item) => item.obraId === semente.obraId && item.categoria === categoria,
-      );
-      selecionados.push(...daCategoria.slice(0, semente.porCategoria));
-    }
+    const selecionados = estoque
+      .filter((item) => item.obraId === semente.obraId)
+      .slice(0, semente.totalItens);
 
     const itens = selecionados.map((insumo, indice) =>
-      montarItem(insumo, indice, semente.deixarPendentes, semente.iniciadaEm),
+      montarItem(insumo, indice, semente.deixarPendentes),
     );
 
     return {

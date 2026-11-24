@@ -45,7 +45,6 @@ export class SelecaoMateriais {
 
   protected readonly icones = ICONES;
   protected readonly termo = signal('');
-  protected readonly categoria = signal<string | null>(null);
   protected readonly buscando = signal(false);
   protected readonly erroBusca = signal<string | null>(null);
   protected readonly resultados = signal<InsumoEstoque[]>([]);
@@ -61,8 +60,6 @@ export class SelecaoMateriais {
     this.servico.listarListasFavoritas(),
   );
 
-  protected readonly categorias = signal<string[]>([]);
-
   private temporizador: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
@@ -73,10 +70,7 @@ export class SelecaoMateriais {
         return;
       }
 
-      untracked(() => {
-        this.servico.listarCategorias(obra).subscribe((lista) => this.categorias.set(lista));
-        this.executarBusca([this.termo()]);
-      });
+      untracked(() => this.executarBusca([this.termo()]));
     });
   }
 
@@ -124,7 +118,7 @@ export class SelecaoMateriais {
   });
 
   protected readonly nomesDeListas = computed(() => {
-    const nomes = new Set<string>(this.categorias());
+    const nomes = new Set<string>();
 
     for (const item of this.selecionados()) {
       if (item.lista) {
@@ -150,11 +144,6 @@ export class SelecaoMateriais {
     this.temporizador = setTimeout(() => this.executarBusca([valor]), ESPERA_BUSCA);
   }
 
-  protected definirCategoria(valor: string | null): void {
-    this.categoria.set(valor);
-    this.executarBusca([this.termo()]);
-  }
-
   protected ordenarPor(campo: CampoOrdem): void {
     if (this.campoOrdem() === campo) {
       this.ordemCrescente.update((valor) => !valor);
@@ -168,7 +157,6 @@ export class SelecaoMateriais {
   protected aplicarFavorita(favorita: ListaFavorita): void {
     this.termo.set(favorita.termos.join(', '));
     this.listaDestino.set(favorita.nome);
-    this.categoria.set(null);
     this.favoritaAplicada.set(favorita.id);
     this.executarBusca(favorita.termos);
   }
@@ -181,7 +169,7 @@ export class SelecaoMateriais {
 
     this.selecionados.update((atuais) => [
       ...atuais,
-      { insumo, lista: this.listaDestino() || insumo.categoria },
+      { insumo, lista: this.listaDestino() || null },
     ]);
   }
 
@@ -191,7 +179,7 @@ export class SelecaoMateriais {
 
     const novos = this.resultadosOrdenados()
       .filter((insumo) => !jaTem.has(insumo.id))
-      .map((insumo) => ({ insumo, lista: this.listaDestino() || insumo.categoria }));
+      .map((insumo) => ({ insumo, lista: this.listaDestino() || null }));
 
     this.selecionados.set([...atuais, ...novos]);
   }
@@ -259,7 +247,6 @@ export class SelecaoMateriais {
 
   private executarBusca(termos: string[]): void {
     const obra = untracked(() => this.obraId());
-    const categoria = untracked(() => this.categoria());
 
     if (!obra) {
       return;
@@ -267,8 +254,8 @@ export class SelecaoMateriais {
 
     const limpos = termos.map((item) => item.trim()).filter(Boolean);
     const filtros: FiltroEstoque[] = limpos.length
-      ? limpos.map((termo) => ({ termo, categoria }))
-      : [{ termo: '', categoria }];
+      ? limpos.map((termo) => ({ termo }))
+      : [{ termo: '' }];
 
     this.buscando.set(true);
     this.erroBusca.set(null);

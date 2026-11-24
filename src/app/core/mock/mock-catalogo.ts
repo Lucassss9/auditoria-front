@@ -506,11 +506,9 @@ export function gerarEstoqueMock(): InsumoEstoque[] {
         obraId,
         codigo: item.codigo,
         descricao: item.descricao,
-        categoria: item.categoria,
         unidade: item.unidade,
         quantidade,
         valorUnitario: SEM_VALOR.has(item.codigo) ? null : item.valorUnitario,
-        estoqueMinimo: quantidade ? Math.round(quantidade * 0.1) : null,
       });
     });
   }
