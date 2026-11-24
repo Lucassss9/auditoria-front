@@ -48,6 +48,71 @@ export type FiltroConferencia =
   | 'NAO_CONTADO'
   | 'FORA';
 
+type CampoOrdem =
+  | 'codigo'
+  | 'descricao'
+  | 'unidade'
+  | 'sistema'
+  | 'contado'
+  | 'diferenca'
+  | 'valor'
+  | 'difValor'
+  | 'situacao';
+
+/**
+ * A ordem em que as situacoes fazem sentido numa conferencia: o que falta
+ * fazer primeiro, o que ja foi tratado depois.
+ */
+const ORDEM_SITUACAO: Record<SituacaoItem, number> = {
+  NAO_CONFERIDO: 0,
+  CONFERIDO: 1,
+  NAO_CONTADO: 2,
+};
+
+/**
+ * Nulo sempre por ultimo, independente da direcao. Item sem contagem ou sem
+ * preco nao e "o menor de todos": e ausencia de informacao, e ficar no topo
+ * ao ordenar por quantidade so atrapalha quem esta contando.
+ */
+function compararNumeros(a: number | null, b: number | null): number {
+  if (a === null && b === null) {
+    return 0;
+  }
+
+  if (a === null) {
+    return 1;
+  }
+
+  if (b === null) {
+    return -1;
+  }
+
+  return a - b;
+}
+
+function comparar(a: ItemAuditoria, b: ItemAuditoria, campo: CampoOrdem): number {
+  switch (campo) {
+    case 'codigo':
+      return a.codigo.localeCompare(b.codigo, 'pt-BR', { numeric: true });
+    case 'unidade':
+      return a.unidade.localeCompare(b.unidade, 'pt-BR');
+    case 'sistema':
+      return compararNumeros(a.quantidadeSistema, b.quantidadeSistema);
+    case 'contado':
+      return compararNumeros(a.quantidadeReal, b.quantidadeReal);
+    case 'diferenca':
+      return compararNumeros(diferencaQuantidade(a), diferencaQuantidade(b));
+    case 'valor':
+      return compararNumeros(a.valorUnitarioReferencia, b.valorUnitarioReferencia);
+    case 'difValor':
+      return compararNumeros(diferencaValor(a), diferencaValor(b));
+    case 'situacao':
+      return ORDEM_SITUACAO[a.situacao] - ORDEM_SITUACAO[b.situacao];
+    default:
+      return a.descricao.localeCompare(b.descricao, 'pt-BR');
+  }
+}
+
 export const MOTIVOS: ReadonlyArray<{ valor: MotivoNaoContagem; rotulo: string }> = [
   { valor: 'LOCAL_TRANCADO', rotulo: 'Local trancado' },
   { valor: 'OBRA_NAO_LOCALIZOU', rotulo: 'Obra não localizou' },
@@ -185,6 +250,26 @@ export class Conferencia {
 
     return base.filter((item) => item.situacao === filtro);
   });
+
+  protected readonly campoOrdem = signal<CampoOrdem>('descricao');
+  protected readonly ordemCrescente = signal(true);
+
+  protected readonly itensOrdenados = computed(() => {
+    const campo = this.campoOrdem();
+    const sinal = this.ordemCrescente() ? 1 : -1;
+
+    return [...this.itensVisiveis()].sort((a, b) => comparar(a, b, campo) * sinal);
+  });
+
+  protected ordenarPor(campo: CampoOrdem): void {
+    if (this.campoOrdem() === campo) {
+      this.ordemCrescente.update((valor) => !valor);
+      return;
+    }
+
+    this.campoOrdem.set(campo);
+    this.ordemCrescente.set(true);
+  }
 
   protected readonly detalhe = computed(() => {
     const id = this.itemAberto();

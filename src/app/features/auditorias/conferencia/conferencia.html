@@ -238,7 +238,7 @@
         />
       } @else if (telaEstreita()) {
         <ul class="cartoes">
-          @for (item of itensVisiveis(); track item.id) {
+          @for (item of itensOrdenados(); track item.id) {
             <li class="cartao" [class.cartao--divergente]="(diferencaDe(item) ?? 0) !== 0">
               <div class="cartao__topo">
                 <span class="cartao__codigo">{{ item.codigo }}</span>
@@ -326,22 +326,121 @@
             <caption class="visivel-leitor">Itens da conferência</caption>
             <thead>
               <tr>
-                <th scope="col">Código</th>
-                <th scope="col">Descrição</th>
-                <th scope="col">Un.</th>
-                <th scope="col" class="tabela__num">Sistema</th>
-                <th scope="col" class="tabela__num">Contado</th>
-                <th scope="col" class="tabela__num">Dif.</th>
+                <th scope="col">
+                  <button type="button" class="ordenar" (click)="ordenarPor('codigo')">
+                    Código
+                    @if (campoOrdem() === 'codigo') {
+                      <i-lucide
+                        [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                        [size]="12"
+                        aria-hidden="true"
+                      ></i-lucide>
+                    }
+                  </button>
+                </th>
+                <th scope="col">
+                  <button type="button" class="ordenar" (click)="ordenarPor('descricao')">
+                    Descrição
+                    @if (campoOrdem() === 'descricao') {
+                      <i-lucide
+                        [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                        [size]="12"
+                        aria-hidden="true"
+                      ></i-lucide>
+                    }
+                  </button>
+                </th>
+                <th scope="col">
+                  <button type="button" class="ordenar" (click)="ordenarPor('unidade')">
+                    Un.
+                    @if (campoOrdem() === 'unidade') {
+                      <i-lucide
+                        [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                        [size]="12"
+                        aria-hidden="true"
+                      ></i-lucide>
+                    }
+                  </button>
+                </th>
+                <th scope="col" class="tabela__num">
+                  <button type="button" class="ordenar" (click)="ordenarPor('sistema')">
+                    Sistema
+                    @if (campoOrdem() === 'sistema') {
+                      <i-lucide
+                        [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                        [size]="12"
+                        aria-hidden="true"
+                      ></i-lucide>
+                    }
+                  </button>
+                </th>
+                <th scope="col" class="tabela__num">
+                  <button type="button" class="ordenar" (click)="ordenarPor('contado')">
+                    Contado
+                    @if (campoOrdem() === 'contado') {
+                      <i-lucide
+                        [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                        [size]="12"
+                        aria-hidden="true"
+                      ></i-lucide>
+                    }
+                  </button>
+                </th>
+                <th scope="col" class="tabela__num">
+                  <button type="button" class="ordenar" (click)="ordenarPor('diferenca')">
+                    Dif.
+                    @if (campoOrdem() === 'diferenca') {
+                      <i-lucide
+                        [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                        [size]="12"
+                        aria-hidden="true"
+                      ></i-lucide>
+                    }
+                  </button>
+                </th>
                 @if (mostrarValores()) {
-                  <th scope="col" class="tabela__num">Valor unit.</th>
-                  <th scope="col" class="tabela__num">Dif. valor</th>
+                  <th scope="col" class="tabela__num">
+                    <button type="button" class="ordenar" (click)="ordenarPor('valor')">
+                      Valor unit.
+                      @if (campoOrdem() === 'valor') {
+                        <i-lucide
+                          [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                          [size]="12"
+                          aria-hidden="true"
+                        ></i-lucide>
+                      }
+                    </button>
+                  </th>
+                  <th scope="col" class="tabela__num">
+                    <button type="button" class="ordenar" (click)="ordenarPor('difValor')">
+                      Dif. valor
+                      @if (campoOrdem() === 'difValor') {
+                        <i-lucide
+                          [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                          [size]="12"
+                          aria-hidden="true"
+                        ></i-lucide>
+                      }
+                    </button>
+                  </th>
                 }
-                <th scope="col">Situação</th>
+                <th scope="col">
+                  <button type="button" class="ordenar" (click)="ordenarPor('situacao')">
+                    Situação
+                    @if (campoOrdem() === 'situacao') {
+                      <i-lucide
+                        [img]="ordemCrescente() ? icones.ordemAsc : icones.ordemDesc"
+                        [size]="12"
+                        aria-hidden="true"
+                      ></i-lucide>
+                    }
+                  </button>
+                </th>
                 <th scope="col"><span class="visivel-leitor">Detalhes</span></th>
               </tr>
             </thead>
             <tbody>
-              @for (item of itensVisiveis(); track item.id) {
+              @for (item of itensOrdenados(); track item.id) {
                 <tr
                   [class.linha--divergente]="(diferencaDe(item) ?? 0) !== 0"
                   [class.linha--aberta]="itemAberto() === item.id"

@@ -453,3 +453,31 @@
 .cartao__rodape .botao {
   margin-left: auto;
 }
+
+.ordenar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+
+  i-lucide {
+    display: flex;
+    color: var(--acao);
+  }
+
+  &:hover {
+    color: var(--texto);
+  }
+}
+
+.tabela__num .ordenar {
+  justify-content: flex-end;
+  width: 100%;
+}
