@@ -8,7 +8,31 @@
  * inalcançável é pior que uma obra mal agrupada.
  */
 
+import { Filial, Segmento } from '../models/obra.model';
+
 export const SEM_FILIAL = 'SEM_FILIAL';
+
+/**
+ * A filial com o código na frente: `CCISA66 - CIDADE MOOCA`. É assim que ela
+ * se chama no CF, e é pelo código que se procura — ordenar por ele agrupa as
+ * filiais na ordem em que a empresa pensa nelas.
+ */
+export function rotuloDaFilial(filial: Filial | null | undefined): string | null {
+  if (!filial) {
+    return null;
+  }
+
+  return filial.codigo ? `${filial.codigo} - ${filial.nome}` : filial.nome;
+}
+
+/**
+ * A mesma obra existe duas vezes no CF, uma por segmento, com estoques
+ * separados. O nome vem sem o segmento, então sem isto as duas aparecem
+ * idênticas em qualquer lista e não há como escolher a certa.
+ */
+export function rotuloDaObra(obra: { nome: string; segmento: Segmento }): string {
+  return obra.segmento === 'INSTALL' ? `${obra.nome} - INSTALL` : obra.nome;
+}
 
 export interface OpcaoFilial {
   id: string;

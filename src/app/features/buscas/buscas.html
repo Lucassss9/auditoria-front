@@ -199,7 +199,7 @@
                 @if (filialTeste()) {
                   <option value="">Escolher obra…</option>
                   @for (obra of obrasDaFilial(); track obra.id) {
-                    <option [value]="obra.id">{{ obra.nome }}</option>
+                    <option [value]="obra.id">{{ rotuloDaObra(obra) }}</option>
                   }
                 } @else {
                   <option value="">Escolha a filial primeiro</option>

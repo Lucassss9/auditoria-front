@@ -5,7 +5,12 @@ import { InsumoEstoque, ListaFavorita } from '../../core/models/insumo.model';
 import { Filial, Obra } from '../../core/models/obra.model';
 import { EstoqueService } from '../../core/services/estoque.service';
 import { ObrasService } from '../../core/services/obras.service';
-import { obrasDaFilial, opcoesDeFilial } from '../../core/utils/filtro-filial';
+import {
+  obrasDaFilial,
+  opcoesDeFilial,
+  rotuloDaFilial,
+  rotuloDaObra,
+} from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { normalizar } from '../../core/utils/texto';
 import { AvisoErro } from '../../shared/components/aviso-erro/aviso-erro';
@@ -48,9 +53,11 @@ export class Buscas {
 
   protected readonly filialTeste = signal('');
 
+  protected readonly rotuloDaObra = rotuloDaObra;
+
   protected readonly filiais = computed(() => {
-    const nomes = new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f.nome]));
-    return opcoesDeFilial(this.obras(), (obra) => nomes.get(obra.filialId ?? ''));
+    const porId = new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f]));
+    return opcoesDeFilial(this.obras(), (obra) => rotuloDaFilial(porId.get(obra.filialId ?? '')));
   });
 
   protected readonly obrasDaFilial = computed(() =>

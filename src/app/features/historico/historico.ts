@@ -5,7 +5,12 @@ import { Auditoria } from '../../core/models/auditoria.model';
 import { ObraResumo } from '../../core/models/obra.model';
 import { AuditoriasService } from '../../core/services/auditorias.service';
 import { ObrasService } from '../../core/services/obras.service';
-import { obrasDaFilial, opcoesDeFilial } from '../../core/utils/filtro-filial';
+import {
+  obrasDaFilial,
+  opcoesDeFilial,
+  rotuloDaFilial,
+  rotuloDaObra,
+} from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { AvisoErro } from '../../shared/components/aviso-erro/aviso-erro';
 import { CabecalhoPagina } from '../../shared/components/cabecalho-pagina/cabecalho-pagina';
@@ -47,8 +52,10 @@ export class Historico {
 
   protected readonly obras = computed(() => this.estado().dados?.obras ?? []);
 
+  protected readonly rotuloDaObra = rotuloDaObra;
+
   protected readonly filiais = computed(() =>
-    opcoesDeFilial(this.obras(), (obra) => obra.filial?.nome),
+    opcoesDeFilial(this.obras(), (obra) => rotuloDaFilial(obra.filial)),
   );
 
   protected readonly obrasDaFilial = computed(() =>
