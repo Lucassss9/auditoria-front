@@ -431,6 +431,17 @@ select.entrada {
   font-style: italic;
 }
 
+/* A mensagem que o servidor mandou, no formato { mensagem, campo } da 3.4. */
+.erro-servidor {
+  margin: 0;
+  padding: var(--esp-2) var(--esp-3);
+  border: 1px solid var(--critico-contorno);
+  border-radius: var(--raio);
+  background: var(--critico-fundo);
+  color: var(--critico);
+  font-size: var(--t-13);
+}
+
 .visivel-leitor {
   position: absolute;
   top: 0;

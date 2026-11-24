@@ -47,6 +47,10 @@
     <span class="contagem">{{ responsaveis().length }} responsáveis</span>
   </section>
 
+  @if (erroAcao(); as mensagem) {
+    <p class="erro-servidor espaco-abaixo" role="alert">{{ mensagem }}</p>
+  }
+
   @if (!agrupados().length) {
     <app-estado-vazio
       titulo="Nenhum responsável cadastrado"
@@ -227,6 +231,10 @@
         <input type="checkbox" formControlName="receberEmail" />
         <span>Recebe o e-mail de auditoria desta obra</span>
       </label>
+
+      @if (erroSalvar(); as mensagem) {
+        <p class="erro-servidor" role="alert">{{ mensagem }}</p>
+      }
     </form>
 
     <div rodape>

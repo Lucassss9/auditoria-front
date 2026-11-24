@@ -9,6 +9,7 @@ import { FUNCOES, FuncaoObra, Responsavel } from '../../core/models/equipe.model
 import { Filial, Obra } from '../../core/models/obra.model';
 import { EquipeService } from '../../core/services/equipe.service';
 import { ObrasService } from '../../core/services/obras.service';
+import { mensagemDeErro } from '../../core/utils/erro';
 import { SEM_FILIAL, obrasDaFilial, opcoesDeFilial } from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { ValidacaoFormulario } from '../../core/utils/validacao-formulario';
@@ -64,6 +65,8 @@ export class Equipes {
   protected readonly editando = signal<Responsavel | null>(null);
   protected readonly formularioAberto = signal(false);
   protected readonly salvando = signal(false);
+  protected readonly erroSalvar = signal<string | null>(null);
+  protected readonly erroAcao = signal<string | null>(null);
   protected readonly confirmandoRemocao = signal<string | null>(null);
 
   protected readonly formulario = this.fb.nonNullable.group({
@@ -134,6 +137,7 @@ export class Equipes {
 
   protected abrirNovo(): void {
     this.editando.set(null);
+    this.erroSalvar.set(null);
     this.filialFormulario.set(this.filialSelecionada());
     this.formulario.reset({
       nome: '',
@@ -149,6 +153,7 @@ export class Equipes {
 
   protected abrirEdicao(pessoa: Responsavel): void {
     this.editando.set(pessoa);
+    this.erroSalvar.set(null);
 
     const obra = this.obras().find((item) => item.id === pessoa.obraId);
     this.filialFormulario.set(obra ? (obra.filialId ?? SEM_FILIAL) : '');
@@ -175,12 +180,18 @@ export class Equipes {
     }
 
     this.salvando.set(true);
+    this.erroSalvar.set(null);
     const valores = this.formulario.getRawValue();
     const atual = this.editando();
 
     this.servico.salvar({ ...valores, id: atual?.id }).subscribe({
       next: () => this.recarregar(),
-      error: () => this.salvando.set(false),
+      error: (erro: unknown) => {
+        // Sem isto o modal só parava de girar: o 409 de e-mail repetido, que
+        // vem da 3.4, ficava invisível e a pessoa tentava salvar de novo.
+        this.erroSalvar.set(mensagemDeErro(erro));
+        this.salvando.set(false);
+      },
     });
   }
 
@@ -194,13 +205,19 @@ export class Equipes {
 
   protected remover(pessoa: Responsavel): void {
     this.confirmandoRemocao.set(null);
-    this.servico.remover(pessoa.id).subscribe(() => this.requisicao.executar());
+    this.erroAcao.set(null);
+    this.servico.remover(pessoa.id).subscribe({
+      next: () => this.requisicao.executar(),
+      error: (erro: unknown) => this.erroAcao.set(mensagemDeErro(erro)),
+    });
   }
 
   protected alternarRecebimento(pessoa: Responsavel): void {
-    this.servico
-      .salvar({ ...pessoa, receberEmail: !pessoa.receberEmail })
-      .subscribe(() => this.requisicao.executar());
+    this.erroAcao.set(null);
+    this.servico.salvar({ ...pessoa, receberEmail: !pessoa.receberEmail }).subscribe({
+      next: () => this.requisicao.executar(),
+      error: (erro: unknown) => this.erroAcao.set(mensagemDeErro(erro)),
+    });
   }
 
   protected rotuloFuncao(valor: FuncaoObra): string {

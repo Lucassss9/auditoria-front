@@ -1,5 +1,6 @@
 import { signal, Signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { mensagemDeErro } from './erro';
 
 export interface EstadoRequisicao<T> {
   carregando: boolean;
@@ -28,7 +29,7 @@ export class Requisicao<T> {
       error: (erro: unknown) =>
         this.interno.set({
           carregando: false,
-          erro: erro instanceof Error ? erro.message : 'Falha na comunicação com o servidor',
+          erro: mensagemDeErro(erro),
           dados: null,
         }),
     });
