@@ -19,7 +19,7 @@ export const OBRAS_MOCK: Obra[] = [
 export const RESPONSAVEIS_MOCK: Responsavel[] = [
   {
     id: 'r1',
-    obraId: 'o1',
+    obraIds: ['o1'],
     nome: 'Helena Braga',
     funcao: 'RESIDENTE',
     email: 'residente.alvorada1@exemplo.com.br',
@@ -28,7 +28,7 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r2',
-    obraId: 'o1',
+    obraIds: ['o1'],
     nome: 'Tarcísio Lemos',
     funcao: 'ALMOXARIFE',
     email: 'almoxarifado.alvorada1@exemplo.com.br',
@@ -37,7 +37,7 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r3',
-    obraId: 'o1',
+    obraIds: ['o1'],
     nome: 'Rubens Fontes',
     funcao: 'GERENTE',
     email: 'gerencia.alvorada@exemplo.com.br',
@@ -46,16 +46,16 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r4',
-    obraId: 'o1',
+    obraIds: ['o1'],
     nome: 'Ivone Castro',
-    funcao: 'ENGENHEIRO',
+    funcao: 'PRODUCAO',
     email: 'engenharia.alvorada1@exemplo.com.br',
     ativo: true,
     receberEmail: false,
   },
   {
     id: 'r5',
-    obraId: 'o2',
+    obraIds: ['o2'],
     nome: 'Marcos Aurélio Pinto',
     funcao: 'RESIDENTE',
     email: 'residente.alvorada2@exemplo.com.br',
@@ -64,7 +64,7 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r6',
-    obraId: 'o2',
+    obraIds: ['o2'],
     nome: 'Dalva Siqueira',
     funcao: 'ALMOXARIFE',
     email: 'almoxarifado.alvorada2@exemplo.com.br',
@@ -73,7 +73,7 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r7',
-    obraId: 'o2',
+    obraIds: ['o2'],
     nome: 'Rubens Fontes',
     funcao: 'GERENTE',
     email: 'gerencia.alvorada@exemplo.com.br',
@@ -82,7 +82,7 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r8',
-    obraId: 'o4',
+    obraIds: ['o4'],
     nome: 'Cléber Matos',
     funcao: 'RESIDENTE',
     email: 'residente.aurora@exemplo.com.br',
@@ -91,7 +91,7 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r9',
-    obraId: 'o4',
+    obraIds: ['o4'],
     nome: 'Sueli Andrade',
     funcao: 'ALMOXARIFE',
     email: 'almoxarifado.aurora@exemplo.com.br',
@@ -100,7 +100,7 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r10',
-    obraId: 'o4',
+    obraIds: ['o4'],
     nome: 'Paulo Renato Dias',
     funcao: 'GERENTE',
     email: 'gerencia.aurora@exemplo.com.br',
@@ -109,7 +109,7 @@ export const RESPONSAVEIS_MOCK: Responsavel[] = [
   },
   {
     id: 'r11',
-    obraId: 'o5',
+    obraIds: ['o5'],
     nome: 'Nadir Gomes',
     funcao: 'ALMOXARIFE',
     email: 'almoxarifado.porto@exemplo.com.br',

@@ -36,3 +36,24 @@
   color: var(--critico);
   white-space: nowrap;
 }
+
+.obras-escolha {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--esp-1) var(--esp-3);
+  max-height: 180px;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--esp-2);
+  list-style: none;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+
+.obras-escolha__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--t-13);
+  cursor: pointer;
+}

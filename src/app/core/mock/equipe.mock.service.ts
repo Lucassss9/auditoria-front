@@ -18,7 +18,7 @@ export class EquipeMockService extends EquipeService {
     return responder(
       this.store
         .responsaveis()
-        .filter((item) => item.obraId === obraId)
+        .filter((item) => item.obraIds.includes(obraId))
         .map((item) => ({ ...item })),
     );
   }

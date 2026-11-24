@@ -1,8 +1,16 @@
-export type FuncaoObra = 'RESIDENTE' | 'ALMOXARIFE' | 'GERENTE' | 'ENGENHEIRO' | 'OUTRO';
+export type FuncaoObra =
+  | 'RESIDENTE'
+  | 'PRODUCAO'
+  | 'ADM'
+  | 'ALMOXARIFE'
+  | 'GERENTE'
+  | 'GERENTE_GERAL'
+  | 'DIRETOR'
+  | 'OUTRO';
 
 export interface Responsavel {
   id: string;
-  obraId: string;
+  obraIds: string[];
   nome: string;
   funcao: FuncaoObra;
   email: string;
@@ -12,8 +20,11 @@ export interface Responsavel {
 
 export const FUNCOES: ReadonlyArray<{ valor: FuncaoObra; rotulo: string }> = [
   { valor: 'RESIDENTE', rotulo: 'Residente' },
+  { valor: 'PRODUCAO', rotulo: 'Produção' },
+  { valor: 'ADM', rotulo: 'Administrativo' },
   { valor: 'ALMOXARIFE', rotulo: 'Almoxarife' },
   { valor: 'GERENTE', rotulo: 'Gerente' },
-  { valor: 'ENGENHEIRO', rotulo: 'Engenheiro' },
+  { valor: 'GERENTE_GERAL', rotulo: 'Gerente geral' },
+  { valor: 'DIRETOR', rotulo: 'Diretor' },
   { valor: 'OUTRO', rotulo: 'Outro' },
 ];

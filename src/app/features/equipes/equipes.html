@@ -146,28 +146,6 @@
     (fechar)="fechar()"
   >
     <form [formGroup]="formulario" class="formulario" (ngSubmit)="salvar()">
-      @if (!editando() && pessoasCadastradas().length) {
-        <div class="campo">
-          <label class="campo__rotulo" for="vincular">Vincular pessoa já cadastrada</label>
-          <select
-            id="vincular"
-            class="entrada"
-            [value]="emailVinculado()"
-            (change)="vincularPessoa($any($event.target).value)"
-          >
-            <option value="">Cadastrar uma pessoa nova</option>
-            @for (pessoa of pessoasCadastradas(); track pessoa.email) {
-              <option [value]="pessoa.email">{{ pessoa.nome }} — {{ pessoa.email }}</option>
-            }
-          </select>
-          @if (obrasDaPessoa().length) {
-            <span class="campo__dica">
-              Já responde por: {{ obrasDaPessoa().join(', ') }}. Escolha outra obra.
-            </span>
-          }
-        </div>
-      }
-
       <div class="campo">
         <label class="campo__rotulo" for="nome">Nome</label>
         <input
@@ -207,27 +185,36 @@
           </select>
         </div>
 
-        <div class="campo">
-          <label class="campo__rotulo" for="obraId">Obra</label>
-          <select
-            id="obraId"
-            class="entrada"
-            [class.entrada--invalido]="campoInvalido('obraId')"
-            formControlName="obraId"
-          >
-            @if (filialFormulario()) {
-              <option value="">Selecione…</option>
-              @for (obra of obrasDoFormulario(); track obra.id) {
-                <option [value]="obra.id">{{ rotuloDaObra(obra) }}</option>
-              }
-            } @else {
-              <option value="">Escolha a filial primeiro</option>
+      </div>
+
+      <div class="campo">
+        <span class="campo__rotulo">Obras</span>
+        @if (filialFormulario()) {
+          <ul class="obras-escolha">
+            @for (obra of obrasDoFormulario(); track obra.id) {
+              <li>
+                <label class="obras-escolha__item">
+                  <input
+                    type="checkbox"
+                    [checked]="obraEscolhida(obra.id)"
+                    (change)="alternarObra(obra.id)"
+                  />
+                  <span>{{ rotuloDaObra(obra) }}</span>
+                </label>
+              </li>
             }
-          </select>
-          @if (campoInvalido('obraId')) {
-            <span class="campo__erro">Escolha a obra deste responsável.</span>
-          }
-        </div>
+          </ul>
+        } @else {
+          <span class="campo__dica">Escolha a filial primeiro.</span>
+        }
+        @if (rotulosEscolhidos().length) {
+          <span class="campo__dica">
+            Responde por: {{ rotulosEscolhidos().join(', ') }}
+          </span>
+        }
+        @if (erroObras()) {
+          <span class="campo__erro">Escolha pelo menos uma obra.</span>
+        }
       </div>
 
       <div class="campo">
@@ -251,7 +238,7 @@
 
       <label class="opcao">
         <input type="checkbox" formControlName="receberEmail" />
-        <span>Recebe o e-mail de auditoria desta obra</span>
+        <span>Recebe o e-mail das auditorias destas obras</span>
       </label>
 
       @if (erroSalvar(); as mensagem) {
