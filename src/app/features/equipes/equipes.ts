@@ -10,7 +10,13 @@ import { Filial, Obra } from '../../core/models/obra.model';
 import { EquipeService } from '../../core/services/equipe.service';
 import { ObrasService } from '../../core/services/obras.service';
 import { mensagemDeErro } from '../../core/utils/erro';
-import { SEM_FILIAL, obrasDaFilial, opcoesDeFilial } from '../../core/utils/filtro-filial';
+import {
+  SEM_FILIAL,
+  obrasDaFilial,
+  opcoesDeFilial,
+  rotuloDaFilial,
+  rotuloDaObra,
+} from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { ValidacaoFormulario } from '../../core/utils/validacao-formulario';
 import { AvisoErro } from '../../shared/components/aviso-erro/aviso-erro';
@@ -82,9 +88,44 @@ export class Equipes {
 
   protected readonly obras = computed(() => this.estado().dados?.obras ?? []);
 
+  protected readonly rotuloDaObra = rotuloDaObra;
+
+  protected readonly emailVinculado = signal('');
+
+  protected readonly todasAsPessoas = computed(() => this.estado().dados?.responsaveis ?? []);
+
+  protected readonly pessoasCadastradas = computed(() => {
+    const porEmail = new Map<string, Responsavel>();
+
+    for (const pessoa of this.todasAsPessoas()) {
+      const chave = pessoa.email.toLowerCase();
+
+      if (!porEmail.has(chave)) {
+        porEmail.set(chave, pessoa);
+      }
+    }
+
+    return [...porEmail.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  });
+
+  protected readonly obrasDaPessoa = computed(() => {
+    const email = this.emailVinculado().toLowerCase();
+
+    if (!email) {
+      return [];
+    }
+
+    const nomes = new Map(this.obras().map((obra) => [obra.id, rotuloDaObra(obra)]));
+
+    return this.todasAsPessoas()
+      .filter((pessoa) => pessoa.email.toLowerCase() === email)
+      .map((pessoa) => nomes.get(pessoa.obraId) ?? 'Obra não cadastrada')
+      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  });
+
   protected readonly filiais = computed(() => {
-    const nomes = new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f.nome]));
-    return opcoesDeFilial(this.obras(), (obra) => nomes.get(obra.filialId ?? ''));
+    const porId = new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f]));
+    return opcoesDeFilial(this.obras(), (obra) => rotuloDaFilial(porId.get(obra.filialId ?? '')));
   });
 
   protected readonly obrasDaFilial = computed(() =>
@@ -127,7 +168,9 @@ export class Equipes {
     for (const pessoa of this.responsaveis()) {
       const obra = this.obras().find((item) => item.id === pessoa.obraId);
       const chave = pessoa.obraId;
-      const atual = grupos.get(chave) ?? { obra: obra?.nome ?? 'Obra não cadastrada', pessoas: [] };
+      const atual =
+        grupos.get(chave) ??
+        { obra: obra ? rotuloDaObra(obra) : 'Obra não cadastrada', pessoas: [] };
       atual.pessoas.push(pessoa);
       grupos.set(chave, atual);
     }
@@ -135,9 +178,20 @@ export class Equipes {
     return [...grupos.values()].sort((a, b) => a.obra.localeCompare(b.obra, 'pt-BR'));
   });
 
+  protected vincularPessoa(email: string): void {
+    this.emailVinculado.set(email);
+
+    const pessoa = this.pessoasCadastradas().find((item) => item.email === email);
+
+    if (pessoa) {
+      this.formulario.patchValue({ nome: pessoa.nome, email: pessoa.email, funcao: pessoa.funcao });
+    }
+  }
+
   protected abrirNovo(): void {
     this.editando.set(null);
     this.erroSalvar.set(null);
+    this.emailVinculado.set('');
     this.filialFormulario.set(this.filialSelecionada());
     this.formulario.reset({
       nome: '',
@@ -154,6 +208,7 @@ export class Equipes {
   protected abrirEdicao(pessoa: Responsavel): void {
     this.editando.set(pessoa);
     this.erroSalvar.set(null);
+    this.emailVinculado.set('');
 
     const obra = this.obras().find((item) => item.id === pessoa.obraId);
     this.filialFormulario.set(obra ? (obra.filialId ?? SEM_FILIAL) : '');

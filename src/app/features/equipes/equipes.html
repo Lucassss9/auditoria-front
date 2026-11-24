@@ -37,7 +37,7 @@
       @if (filialSelecionada()) {
         <option value="">Todas as obras da filial</option>
         @for (obra of obrasDaFilial(); track obra.id) {
-          <option [value]="obra.id">{{ obra.nome }}</option>
+          <option [value]="obra.id">{{ rotuloDaObra(obra) }}</option>
         }
       } @else {
         <option value="">Escolha a filial primeiro</option>
@@ -146,6 +146,28 @@
     (fechar)="fechar()"
   >
     <form [formGroup]="formulario" class="formulario" (ngSubmit)="salvar()">
+      @if (!editando() && pessoasCadastradas().length) {
+        <div class="campo">
+          <label class="campo__rotulo" for="vincular">Vincular pessoa já cadastrada</label>
+          <select
+            id="vincular"
+            class="entrada"
+            [value]="emailVinculado()"
+            (change)="vincularPessoa($any($event.target).value)"
+          >
+            <option value="">Cadastrar uma pessoa nova</option>
+            @for (pessoa of pessoasCadastradas(); track pessoa.email) {
+              <option [value]="pessoa.email">{{ pessoa.nome }} — {{ pessoa.email }}</option>
+            }
+          </select>
+          @if (obrasDaPessoa().length) {
+            <span class="campo__dica">
+              Já responde por: {{ obrasDaPessoa().join(', ') }}. Escolha outra obra.
+            </span>
+          }
+        </div>
+      }
+
       <div class="campo">
         <label class="campo__rotulo" for="nome">Nome</label>
         <input
@@ -196,7 +218,7 @@
             @if (filialFormulario()) {
               <option value="">Selecione…</option>
               @for (obra of obrasDoFormulario(); track obra.id) {
-                <option [value]="obra.id">{{ obra.nome }}</option>
+                <option [value]="obra.id">{{ rotuloDaObra(obra) }}</option>
               }
             } @else {
               <option value="">Escolha a filial primeiro</option>
