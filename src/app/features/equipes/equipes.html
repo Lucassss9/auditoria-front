@@ -13,6 +13,19 @@
   <app-aviso-erro [detalhe]="estado().erro ?? ''" (tentarNovamente)="requisicao.executar()" />
 } @else {
   <section class="barra-ferramentas quadro espaco-abaixo">
+    <label class="visivel-leitor" for="filtro-estado">Estado</label>
+    <select
+      id="filtro-estado"
+      class="entrada largura-auto"
+      [value]="estadoSelecionado()"
+      (change)="trocarEstado($any($event.target).value)"
+    >
+      <option value="">Todos os estados</option>
+      @for (estadoOpcao of estados; track estadoOpcao.valor) {
+        <option [value]="estadoOpcao.valor">{{ estadoOpcao.rotulo }}</option>
+      }
+    </select>
+
     <label class="visivel-leitor" for="filtro-filial">Filial</label>
     <select
       id="filtro-filial"

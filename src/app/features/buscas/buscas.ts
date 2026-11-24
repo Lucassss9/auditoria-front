@@ -10,6 +10,8 @@ import {
   opcoesDeFilial,
   rotuloDaFilial,
   rotuloDaObra,
+  obrasDoEstado,
+  ESTADOS,
 } from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { normalizar } from '../../core/utils/texto';
@@ -51,18 +53,41 @@ export class Buscas {
   protected readonly listas = computed(() => this.estado().dados?.listas ?? []);
   protected readonly obras = computed(() => this.estado().dados?.obras ?? []);
 
+  protected readonly estadoTeste = signal('');
   protected readonly filialTeste = signal('');
 
   protected readonly rotuloDaObra = rotuloDaObra;
 
-  protected readonly filiais = computed(() => {
-    const porId = new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f]));
-    return opcoesDeFilial(this.obras(), (obra) => rotuloDaFilial(porId.get(obra.filialId ?? '')));
-  });
+  protected readonly estados = ESTADOS;
+
+  private readonly filiaisPorId = computed(
+    () => new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f])),
+  );
+
+  protected readonly obrasVisiveis = computed(() =>
+    obrasDoEstado(
+      this.obras(),
+      this.estadoTeste(),
+      (obra) => this.filiaisPorId().get(obra.filialId ?? '')?.regional,
+    ),
+  );
+
+  protected readonly filiais = computed(() =>
+    opcoesDeFilial(this.obrasVisiveis(), (obra) =>
+      rotuloDaFilial(this.filiaisPorId().get(obra.filialId ?? '')),
+    ),
+  );
 
   protected readonly obrasDaFilial = computed(() =>
-    obrasDaFilial(this.obras(), this.filialTeste()),
+    obrasDaFilial(this.obrasVisiveis(), this.filialTeste()),
   );
+
+  protected trocarEstadoTeste(valor: string): void {
+    this.estadoTeste.set(valor);
+    this.filialTeste.set('');
+    this.obraTeste.set('');
+    this.resultadoTeste.set(null);
+  }
 
   protected trocarFilialTeste(valor: string): void {
     this.filialTeste.set(valor);

@@ -23,6 +23,18 @@
           (input)="buscaObra.set($any($event.target).value)"
         />
       </div>
+      <label class="visivel-leitor" for="nova-estado">Estado</label>
+      <select
+        id="nova-estado"
+        class="entrada largura-auto"
+        [value]="estadoSelecionado()"
+        (change)="estadoSelecionado.set($any($event.target).value)"
+      >
+        <option value="">Todos os estados</option>
+        @for (estadoOpcao of estados; track estadoOpcao.valor) {
+          <option [value]="estadoOpcao.valor">{{ estadoOpcao.rotulo }}</option>
+        }
+      </select>
       <span class="contagem">{{ obrasFiltradas().length }} obras ativas</span>
       @if (obra()) {
         <button type="button" class="botao botao--pequeno" (click)="cancelarTroca()">

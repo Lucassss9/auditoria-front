@@ -8,6 +8,7 @@ import { ObrasService } from '../../../core/services/obras.service';
 import { PreferenciasService } from '../../../core/services/preferencias.service';
 import { SessaoService } from '../../../core/services/sessao.service';
 import { contemTermo } from '../../../core/utils/texto';
+import { ESTADOS, obrasDoEstado } from '../../../core/utils/filtro-filial';
 import { Requisicao } from '../../../core/utils/requisicao';
 import { AvisoErro } from '../../../shared/components/aviso-erro/aviso-erro';
 import { CabecalhoPagina } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina';
@@ -67,14 +68,21 @@ export class NovaAuditoria {
 
   protected readonly obra = this.contexto.obraSelecionada;
 
+  protected readonly estados = ESTADOS;
+  protected readonly estadoSelecionado = signal('');
+
+  protected readonly obrasDoEstadoEscolhido = computed(() =>
+    obrasDoEstado(this.obras(), this.estadoSelecionado(), (obra) => obra.filial?.regional),
+  );
+
   protected readonly obrasFiltradas = computed(() => {
     const termo = this.buscaObra().trim();
 
     if (!termo) {
-      return this.obras();
+      return this.obrasDoEstadoEscolhido();
     }
 
-    return this.obras().filter(
+    return this.obrasDoEstadoEscolhido().filter(
       (item) =>
         contemTermo(item.nome, termo) ||
         contemTermo(item.codigo, termo) ||

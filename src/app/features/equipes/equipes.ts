@@ -16,6 +16,8 @@ import {
   opcoesDeFilial,
   rotuloDaFilial,
   rotuloDaObra,
+  obrasDoEstado,
+  ESTADOS,
 } from '../../core/utils/filtro-filial';
 import { Requisicao } from '../../core/utils/requisicao';
 import { ValidacaoFormulario } from '../../core/utils/validacao-formulario';
@@ -65,6 +67,7 @@ export class Equipes {
   );
 
   protected readonly estado = this.requisicao.estado;
+  protected readonly estadoSelecionado = signal('');
   protected readonly filialSelecionada = signal('');
   protected readonly obraSelecionada = signal('');
   protected readonly filialFormulario = signal('');
@@ -100,14 +103,35 @@ export class Equipes {
       .sort((a, b) => a.localeCompare(b, 'pt-BR'));
   });
 
-  protected readonly filiais = computed(() => {
-    const porId = new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f]));
-    return opcoesDeFilial(this.obras(), (obra) => rotuloDaFilial(porId.get(obra.filialId ?? '')));
-  });
+  protected readonly estados = ESTADOS;
+
+  private readonly filiaisPorId = computed(
+    () => new Map((this.estado().dados?.filiais ?? []).map((f) => [f.id, f])),
+  );
+
+  protected readonly obrasVisiveis = computed(() =>
+    obrasDoEstado(
+      this.obras(),
+      this.estadoSelecionado(),
+      (obra) => this.filiaisPorId().get(obra.filialId ?? '')?.regional,
+    ),
+  );
+
+  protected readonly filiais = computed(() =>
+    opcoesDeFilial(this.obrasVisiveis(), (obra) =>
+      rotuloDaFilial(this.filiaisPorId().get(obra.filialId ?? '')),
+    ),
+  );
 
   protected readonly obrasDaFilial = computed(() =>
-    obrasDaFilial(this.obras(), this.filialSelecionada()),
+    obrasDaFilial(this.obrasVisiveis(), this.filialSelecionada()),
   );
+
+  protected trocarEstado(valor: string): void {
+    this.estadoSelecionado.set(valor);
+    this.filialSelecionada.set('');
+    this.obraSelecionada.set('');
+  }
 
   protected readonly obrasDoFormulario = computed(() =>
     obrasDaFilial(this.obras(), this.filialFormulario()),

@@ -7,6 +7,8 @@ import { AuditoriasService } from '../../core/services/auditorias.service';
 import { ObrasService } from '../../core/services/obras.service';
 import {
   obrasDaFilial,
+  obrasDoEstado,
+  ESTADOS,
   opcoesDeFilial,
   rotuloDaFilial,
   rotuloDaObra,
@@ -44,6 +46,7 @@ export class Historico {
 
   protected readonly estado = this.requisicao.estado;
 
+  protected readonly estadoSelecionado = signal('');
   protected readonly filialSelecionada = signal('');
   protected readonly obraSelecionada = signal('');
   protected readonly situacao = signal<FiltroSituacao>('');
@@ -53,14 +56,25 @@ export class Historico {
   protected readonly obras = computed(() => this.estado().dados?.obras ?? []);
 
   protected readonly rotuloDaObra = rotuloDaObra;
+  protected readonly estados = ESTADOS;
+
+  protected readonly obrasVisiveis = computed(() =>
+    obrasDoEstado(this.obras(), this.estadoSelecionado(), (obra) => obra.filial?.regional),
+  );
 
   protected readonly filiais = computed(() =>
-    opcoesDeFilial(this.obras(), (obra) => rotuloDaFilial(obra.filial)),
+    opcoesDeFilial(this.obrasVisiveis(), (obra) => rotuloDaFilial(obra.filial)),
   );
 
   protected readonly obrasDaFilial = computed(() =>
-    obrasDaFilial(this.obras(), this.filialSelecionada()),
+    obrasDaFilial(this.obrasVisiveis(), this.filialSelecionada()),
   );
+
+  protected trocarEstado(valor: string): void {
+    this.estadoSelecionado.set(valor);
+    this.filialSelecionada.set('');
+    this.obraSelecionada.set('');
+  }
 
   protected trocarFilial(valor: string): void {
     this.filialSelecionada.set(valor);
@@ -75,17 +89,22 @@ export class Historico {
     const ate = this.ate() ? new Date(this.ate() + 'T23:59:59').getTime() : null;
 
     // Filial escolhida sem obra: vale o histórico de todas as obras dela.
-    const daFilial =
-      !obraId && this.filialSelecionada()
-        ? new Set(this.obrasDaFilial().map((obra) => obra.id))
-        : null;
+    // Estado sem filial: idem, para todas as obras daquele estado.
+    const escopo =
+      obraId || (!this.filialSelecionada() && !this.estadoSelecionado())
+        ? null
+        : new Set(
+            (this.filialSelecionada() ? this.obrasDaFilial() : this.obrasVisiveis()).map(
+              (obra) => obra.id,
+            ),
+          );
 
     return todas.filter((auditoria) => {
       if (obraId && auditoria.obraId !== obraId) {
         return false;
       }
 
-      if (daFilial && !daFilial.has(auditoria.obraId)) {
+      if (escopo && !escopo.has(auditoria.obraId)) {
         return false;
       }
 
@@ -116,6 +135,7 @@ export class Historico {
   );
 
   protected limpar(): void {
+    this.estadoSelecionado.set('');
     this.filialSelecionada.set('');
     this.obraSelecionada.set('');
     this.situacao.set('');

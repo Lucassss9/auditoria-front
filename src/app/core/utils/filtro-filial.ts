@@ -8,7 +8,7 @@
  * inalcançável é pior que uma obra mal agrupada.
  */
 
-import { Filial, Segmento } from '../models/obra.model';
+import { Filial, Regional, Segmento } from '../models/obra.model';
 
 export const SEM_FILIAL = 'SEM_FILIAL';
 
@@ -84,4 +84,32 @@ export function obrasDaFilial<T extends ComFilial>(obras: readonly T[], filialId
   return obras.filter((obra) =>
     filialId === SEM_FILIAL ? !obra.filialId : obra.filialId === filialId,
   );
+}
+
+/**
+ * Os dois estados em que a empresa opera. O CF chama de `estado` na obra e
+ * devolve como `regional` na filial — aqui o nome que vale é o da tela.
+ */
+export const ESTADOS: ReadonlyArray<{ valor: Regional; rotulo: string }> = [
+  { valor: 'SP', rotulo: 'São Paulo' },
+  { valor: 'RJ', rotulo: 'Rio de Janeiro' },
+];
+
+/**
+ * Corta a lista de obras por estado. Vem antes do filtro de filial porque são
+ * mais de 90 filiais, e o estado parte isso quase ao meio.
+ *
+ * Quem chama diz como achar a regional de cada obra, porque numas telas ela
+ * vem dentro de `obra.filial` e noutras só pelo mapa de filiais.
+ */
+export function obrasDoEstado<T>(
+  obras: readonly T[],
+  estado: string,
+  regionalDaObra: (obra: T) => string | null | undefined,
+): readonly T[] {
+  if (!estado) {
+    return obras;
+  }
+
+  return obras.filter((obra) => regionalDaObra(obra) === estado);
 }
