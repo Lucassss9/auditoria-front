@@ -30,6 +30,19 @@ type CampoOrdem = 'descricao' | 'codigo' | 'quantidade' | 'valor';
 
 const ESPERA_BUSCA = 220;
 
+/**
+ * A vírgula separa termos. O chip de busca salva já escrevia assim
+ * (`termos.join(', ')`) e o salvar já lia assim, mas o que a pessoa digitava
+ * ia inteiro para o backend — e "Aço, CA" não existe em descrição nenhuma,
+ * então a tela voltava vazia.
+ */
+function separarTermos(valor: string): string[] {
+  return valor
+    .split(',')
+    .map((parte) => parte.trim())
+    .filter(Boolean);
+}
+
 @Component({
   selector: 'app-selecao-materiais',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +83,7 @@ export class SelecaoMateriais {
         return;
       }
 
-      untracked(() => this.executarBusca([this.termo()]));
+      untracked(() => this.executarBusca(separarTermos(this.termo())));
     });
   }
 
@@ -141,7 +154,10 @@ export class SelecaoMateriais {
       clearTimeout(this.temporizador);
     }
 
-    this.temporizador = setTimeout(() => this.executarBusca([valor]), ESPERA_BUSCA);
+    this.temporizador = setTimeout(
+      () => this.executarBusca(separarTermos(valor)),
+      ESPERA_BUSCA,
+    );
   }
 
   protected ordenarPor(campo: CampoOrdem): void {
@@ -208,10 +224,7 @@ export class SelecaoMateriais {
 
   protected salvarComoFavorita(): void {
     const nome = this.nomeNovaLista().trim();
-    const termos = this.termo()
-      .split(',')
-      .map((parte) => parte.trim())
-      .filter(Boolean);
+    const termos = separarTermos(this.termo());
 
     if (!nome || !termos.length) {
       return;
