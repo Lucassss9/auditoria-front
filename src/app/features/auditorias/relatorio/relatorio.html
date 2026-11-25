@@ -22,9 +22,14 @@
     >
       <a class="botao" [routerLink]="['/auditorias', auditoria()!.id]">Voltar à conferência</a>
       <a class="botao" [routerLink]="['/auditorias', auditoria()!.id, 'email']">Preparar e-mail</a>
-      <button type="button" class="botao botao--primario" (click)="salvarPdf()">
+      <button
+        type="button"
+        class="botao botao--primario"
+        title="Abre a janela de impressão. Para gerar o arquivo, escolha o destino Salvar como PDF."
+        (click)="salvarPdf()"
+      >
         <i-lucide [img]="icones.pdf" [size]="15" aria-hidden="true"></i-lucide>
-        Salvar em PDF
+        Imprimir ou salvar em PDF
       </button>
     </app-cabecalho-pagina>
   </div>

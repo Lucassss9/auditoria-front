@@ -1,5 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { ObraResumo } from '../../../core/models/obra.model';
 import { AuditoriasService } from '../../../core/services/auditorias.service';
@@ -10,6 +18,7 @@ import { SessaoService } from '../../../core/services/sessao.service';
 import { contemTermo } from '../../../core/utils/texto';
 import { ESTADOS, obrasDoEstado } from '../../../core/utils/filtro-filial';
 import { Requisicao } from '../../../core/utils/requisicao';
+import { EquipeService } from '../../../core/services/equipe.service';
 import { AvisoErro } from '../../../shared/components/aviso-erro/aviso-erro';
 import { CabecalhoPagina } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina';
 import { Carregando } from '../../../shared/components/carregando/carregando';
@@ -30,6 +39,7 @@ interface GrupoDeFilial {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     LucideAngularModule,
+    RouterLink,
     AvisoErro,
     CabecalhoPagina,
     Carregando,
@@ -59,6 +69,12 @@ export class NovaAuditoria {
     this.preferencias.valores().responsavelPadrao || (this.sessao.usuario()?.nome ?? ''),
   );
 
+  private readonly equipeServico = inject(EquipeService);
+
+  constructor() {
+    this.observarEquipe();
+  }
+
   protected readonly requisicao = new Requisicao<ObraResumo[]>(() => this.obrasServico.listar());
   protected readonly estado = this.requisicao.estado;
 
@@ -67,6 +83,15 @@ export class NovaAuditoria {
   );
 
   protected readonly obra = this.contexto.obraSelecionada;
+
+  /**
+   * Quantas pessoas respondem pela obra escolhida. Vale `null` enquanto a
+   * resposta não chegou, para a tela não piscar "sem equipe" antes da hora.
+   *
+   * Sem isto, a pessoa conta a obra inteira, conclui — que é irreversível — e
+   * só descobre na tela de e-mail que não há para quem mandar.
+   */
+  protected readonly equipeDaObra = signal<number | null>(null);
 
   protected readonly estados = ESTADOS;
   protected readonly estadoSelecionado = signal('');
@@ -133,6 +158,25 @@ export class NovaAuditoria {
   protected readonly itensSemValor = computed(
     () => this.selecionados().filter((item) => item.insumo.valorUnitario === null).length,
   );
+
+  private observarEquipe(): void {
+    effect(() => {
+      const atual = this.obra();
+
+      if (!atual) {
+        this.equipeDaObra.set(null);
+        return;
+      }
+
+      untracked(() => {
+        this.equipeDaObra.set(null);
+        this.equipeServico.listarPorObra(atual.id).subscribe({
+          next: (pessoas) => this.equipeDaObra.set(pessoas.length),
+          error: () => this.equipeDaObra.set(null),
+        });
+      });
+    });
+  }
 
   protected escolherObra(obra: ObraResumo): void {
     const atual = this.obra();

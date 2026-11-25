@@ -148,6 +148,17 @@
     </p>
   }
 
+  @if (equipeDaObra() === 0) {
+    <p class="aviso-faixa aviso-faixa--atencao espaco-abaixo" role="alert">
+      <i-lucide [img]="icones.atencao" [size]="14" aria-hidden="true"></i-lucide>
+      <span>
+        Esta obra não tem ninguém cadastrado na equipe. Dá para auditar, mas no fim não haverá
+        para quem enviar o resultado — e depois de concluída a auditoria não volta atrás.
+        <a routerLink="/equipes">Cadastrar a equipe antes</a>
+      </span>
+    </p>
+  }
+
   <p class="aviso-faixa aviso-faixa--info espaco-abaixo">
     <i-lucide [img]="icones.atencao" [size]="14" aria-hidden="true"></i-lucide>
     Ao iniciar, as quantidades e os valores de hoje são copiados para dentro da auditoria.
