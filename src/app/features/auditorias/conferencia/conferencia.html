@@ -662,6 +662,55 @@
           </section>
 
           <section class="bloco">
+            <p class="rotulo-secao">Fotos</p>
+
+            @if (item.evidencias.length) {
+              <ul class="fotos">
+                @for (foto of item.evidencias; track foto.id) {
+                  <li class="fotos__item">
+                    <a [href]="foto.url" target="_blank" rel="noopener">
+                      <img class="fotos__miniatura" [src]="foto.url" [alt]="foto.nomeOriginal" />
+                    </a>
+                    @if (!somenteLeitura()) {
+                      <button
+                        type="button"
+                        class="fotos__remover"
+                        [attr.aria-label]="'Remover ' + foto.nomeOriginal"
+                        (click)="removerEvidencia(foto)"
+                      >
+                        <i-lucide [img]="icones.remover" [size]="12" aria-hidden="true"></i-lucide>
+                      </button>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="campo__dica">Nenhuma foto anexada.</p>
+            }
+
+            @if (!somenteLeitura()) {
+              <label class="botao botao--pequeno fotos__enviar">
+                @if (enviandoFoto()) {
+                  Enviando...
+                } @else {
+                  Anexar foto
+                }
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  class="visivel-leitor"
+                  [disabled]="enviandoFoto()"
+                  (change)="anexarEvidencia(item, $any($event.target))"
+                />
+              </label>
+            }
+
+            @if (erroFoto()) {
+              <span class="campo__erro">{{ erroFoto() }}</span>
+            }
+          </section>
+
+          <section class="bloco">
             <p class="rotulo-secao">Resultado</p>
             <div class="resultado">
               <span class="resultado__rotulo">Diferença</span>

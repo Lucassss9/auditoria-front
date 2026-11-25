@@ -23,5 +23,11 @@ export abstract class AuditoriasService {
   abstract removerItemForaDoEstoque(auditoriaId: string, itemId: string): Observable<Auditoria>;
   abstract concluir(auditoriaId: string): Observable<Auditoria>;
   abstract cancelar(auditoriaId: string): Observable<Auditoria>;
+  abstract anexarEvidencia(
+    auditoriaId: string,
+    itemId: string,
+    arquivo: File,
+  ): Observable<Auditoria>;
+  abstract removerEvidencia(auditoriaId: string, evidenciaId: string): Observable<Auditoria>;
   abstract salvarComunicado(auditoriaId: string, comunicado: Comunicado): Observable<Auditoria>;
 }

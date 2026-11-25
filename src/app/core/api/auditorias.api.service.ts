@@ -57,6 +57,22 @@ export class AuditoriasApiService extends AuditoriasService {
     return this.http.post<Auditoria>(`${this.base}/${auditoriaId}/cancelar`, {});
   }
 
+  anexarEvidencia(auditoriaId: string, itemId: string, arquivo: File): Observable<Auditoria> {
+    const corpo = new FormData();
+    corpo.append('arquivo', arquivo);
+
+    return this.http.post<Auditoria>(
+      `${this.base}/${auditoriaId}/itens/${itemId}/evidencias`,
+      corpo,
+    );
+  }
+
+  removerEvidencia(auditoriaId: string, evidenciaId: string): Observable<Auditoria> {
+    return this.http.delete<Auditoria>(
+      `${this.base}/${auditoriaId}/evidencias/${evidenciaId}`,
+    );
+  }
+
   salvarComunicado(auditoriaId: string, comunicado: Comunicado): Observable<Auditoria> {
     return this.http.put<Auditoria>(`${this.base}/${auditoriaId}/comunicado`, comunicado);
   }

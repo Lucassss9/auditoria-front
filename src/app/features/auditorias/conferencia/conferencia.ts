@@ -19,6 +19,7 @@ import {
 import {
   Auditoria,
   ContagemItem,
+  Evidencia,
   ItemAuditoria,
   ItemForaDoEstoque,
   MotivoNaoContagem,
@@ -28,6 +29,7 @@ import { AuditoriasService } from '../../../core/services/auditorias.service';
 import { ContextoService } from '../../../core/services/contexto.service';
 import { PreferenciasService } from '../../../core/services/preferencias.service';
 import { contemTermo } from '../../../core/utils/texto';
+import { mensagemDeErro } from '../../../core/utils/erro';
 import { Requisicao } from '../../../core/utils/requisicao';
 import { AvisoErro } from '../../../shared/components/aviso-erro/aviso-erro';
 import { CabecalhoPagina } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina';
@@ -253,6 +255,42 @@ export class Conferencia {
 
     return base.filter((item) => item.situacao === filtro);
   });
+
+  protected readonly enviandoFoto = signal(false);
+  protected readonly erroFoto = signal<string | null>(null);
+
+  protected anexarEvidencia(item: ItemAuditoria, campo: HTMLInputElement): void {
+    const arquivo = campo.files?.[0];
+
+    if (!arquivo) {
+      return;
+    }
+
+    this.enviandoFoto.set(true);
+    this.erroFoto.set(null);
+
+    this.servico.anexarEvidencia(this.id, item.id, arquivo).subscribe({
+      next: (auditoria) => {
+        this.requisicao.definir(auditoria);
+        this.enviandoFoto.set(false);
+        campo.value = '';
+      },
+      error: (erro: unknown) => {
+        this.erroFoto.set(mensagemDeErro(erro));
+        this.enviandoFoto.set(false);
+        campo.value = '';
+      },
+    });
+  }
+
+  protected removerEvidencia(foto: Evidencia): void {
+    this.erroFoto.set(null);
+
+    this.servico.removerEvidencia(this.id, foto.id).subscribe({
+      next: (auditoria) => this.requisicao.definir(auditoria),
+      error: (erro: unknown) => this.erroFoto.set(mensagemDeErro(erro)),
+    });
+  }
 
   protected readonly campoOrdem = signal<CampoOrdem>('descricao');
   protected readonly ordemCrescente = signal(true);

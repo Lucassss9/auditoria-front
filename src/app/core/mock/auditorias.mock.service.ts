@@ -61,6 +61,7 @@ export class AuditoriasMockService extends AuditoriasService {
           motivoNaoContagem: null,
           local: null,
           observacao: '',
+          evidencias: [],
         };
 
         return item;
@@ -159,6 +160,14 @@ export class AuditoriasMockService extends AuditoriasService {
     };
 
     return responder(this.store.substituirAuditoria(atualizada));
+  }
+
+  anexarEvidencia(auditoriaId: string, _itemId: string, _arquivo: File): Observable<Auditoria> {
+    return this.buscarPorId(auditoriaId) as Observable<Auditoria>;
+  }
+
+  removerEvidencia(auditoriaId: string, _evidenciaId: string): Observable<Auditoria> {
+    return this.buscarPorId(auditoriaId) as Observable<Auditoria>;
   }
 
   salvarComunicado(auditoriaId: string, comunicado: Comunicado): Observable<Auditoria> {

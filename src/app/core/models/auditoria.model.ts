@@ -10,6 +10,14 @@ export type MotivoNaoContagem =
   | 'MATERIAL_EM_USO'
   | 'SEM_ACESSO_SEGURO';
 
+export interface Evidencia {
+  id: string;
+  nomeOriginal: string;
+  url: string;
+  tamanho: number;
+  enviadaEm: string;
+}
+
 export interface ItemAuditoria {
   id: string;
   codigo: string;
@@ -23,6 +31,7 @@ export interface ItemAuditoria {
   motivoNaoContagem: MotivoNaoContagem | null;
   local: string | null;
   observacao: string;
+  evidencias: Evidencia[];
 }
 
 export interface ContagemItem {

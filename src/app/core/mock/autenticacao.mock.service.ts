@@ -27,6 +27,12 @@ export const CONTAS_DEMONSTRACAO: ContaDemonstracao[] = [
 
 @Injectable()
 export class AutenticacaoMockService extends AutenticacaoService {
+  /**
+   * Quem está logado nesta aba. O mock não tem cookie de sessão, então o
+   * estado mora aqui — e começa vazio, porque ninguém entrou ainda.
+   */
+  private entrou: Usuario | null = null;
+
   entrar(credenciais: Credenciais): Observable<Usuario> {
     const email = credenciais.email.trim().toLowerCase();
     const conta = CONTAS_DEMONSTRACAO.find((item) => item.email === email);
@@ -36,16 +42,23 @@ export class AutenticacaoMockService extends AutenticacaoService {
     }
 
     const { senha: _senha, ...usuario } = conta;
+    this.entrou = usuario;
     return responder(usuario);
   }
 
   sair(): Observable<void> {
+    this.entrou = null;
     return responder(undefined);
   }
 
   sessao(): Observable<Usuario> {
-    const usuario = CONTAS_DEMONSTRACAO[0];
-    const { senha: _senha, ...usuarioSemSenha } = usuario;
-    return responder(usuarioSemSenha);
+    // Sem isto o mock devolvia a primeira conta sempre, e quem ligasse
+    // `usarDadosMock: true` apareceria logado sem ter entrado — e perderia a
+    // tarde achando que o defeito estava no guard de rota.
+    if (!this.entrou) {
+      return throwError(() => new Error('Sessão não encontrada.'));
+    }
+
+    return responder(this.entrou);
   }
 }

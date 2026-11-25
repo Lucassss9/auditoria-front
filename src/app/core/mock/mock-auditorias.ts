@@ -140,6 +140,7 @@ function montarItem(
     local: situacao === 'CONFERIDO' ? LOCAIS[indice % LOCAIS.length] : null,
     observacao:
       situacao === 'NAO_CONTADO' ? 'Registrado em campo para verificação na próxima visita.' : '',
+    evidencias: [],
   };
 }
 
