@@ -30,10 +30,15 @@ export class Configuracoes {
   protected readonly usuario = this.sessao.usuario;
 
   protected sair(): void {
-    this.autenticacao.sair().subscribe(() => {
-      this.sessao.encerrar();
-      void this.router.navigate(['/entrar']);
+    this.autenticacao.sair().subscribe({
+      next: () => this.encerrarSessao(),
+      error: () => this.encerrarSessao(),
     });
+  }
+
+  private encerrarSessao(): void {
+    this.sessao.encerrar();
+    void this.router.navigate(['/entrar']);
   }
 
   protected definirPrazo(valor: string): void {

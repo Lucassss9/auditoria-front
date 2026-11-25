@@ -60,10 +60,18 @@ export class Topbar {
   protected sair(): void {
     this.fecharMenu();
 
-    this.autenticacao.sair().subscribe(() => {
-      this.sessao.encerrar();
-      this.contexto.selecionarObra(null);
-      void this.router.navigate(['/entrar']);
+    // Sai da conta aqui aconteça o que acontecer no servidor. Se a chamada
+    // falhar e a gente só tratar o caso de sucesso, a pessoa fica presa dentro
+    // do sistema sem nenhuma forma de sair pela tela.
+    this.autenticacao.sair().subscribe({
+      next: () => this.encerrarSessao(),
+      error: () => this.encerrarSessao(),
     });
+  }
+
+  private encerrarSessao(): void {
+    this.sessao.encerrar();
+    this.contexto.selecionarObra(null);
+    void this.router.navigate(['/entrar']);
   }
 }
