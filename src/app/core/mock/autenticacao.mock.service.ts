@@ -11,7 +11,7 @@ interface ContaDemonstracao extends Usuario {
 export const CONTAS_DEMONSTRACAO: ContaDemonstracao[] = [
   {
     id: 'u1',
-    nome: 'Davi Ferreira',
+    nome: 'Lucas Gabriel',
     email: 'auditor@exemplo.com.br',
     cargo: 'Auditor de estoque',
     senha: 'demo1234',

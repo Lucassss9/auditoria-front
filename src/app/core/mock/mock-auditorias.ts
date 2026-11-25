@@ -35,7 +35,7 @@ const SEMENTES: SementeAuditoria[] = [
   {
     id: 'a1',
     obraId: 'o1',
-    responsavel: 'Davi Ferreira',
+    responsavel: 'Lucas Gabriel',
     status: 'EM_ANDAMENTO',
     iniciadaEm: '2026-11-05T08:40:00',
     concluidaEm: null,
@@ -58,7 +58,7 @@ const SEMENTES: SementeAuditoria[] = [
   {
     id: 'a2',
     obraId: 'o4',
-    responsavel: 'Davi Ferreira',
+    responsavel: 'Lucas Gabriel',
     status: 'CONCLUIDA',
     iniciadaEm: '2026-10-09T08:10:00',
     concluidaEm: '2026-10-12T17:25:00',
