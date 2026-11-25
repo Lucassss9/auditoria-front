@@ -41,6 +41,7 @@ import { MoedaPipe } from '../../../shared/pipes/moeda.pipe';
 import { QuantidadePipe } from '../../../shared/pipes/quantidade.pipe';
 import { ICONES } from '../../../shared/icones';
 import { FormForaDoEstoque } from './form-fora-do-estoque/form-fora-do-estoque';
+import { Modal } from '../../../shared/components/modal/modal';
 import { rotuloDaObra } from '../../../core/utils/filtro-filial';
 
 export type FiltroConferencia =
@@ -139,6 +140,7 @@ export const MOTIVOS: ReadonlyArray<{ valor: MotivoNaoContagem; rotulo: string }
     MoedaPipe,
     QuantidadePipe,
     FormForaDoEstoque,
+    Modal,
   ],
   templateUrl: './conferencia.html',
   styleUrl: './conferencia.scss',
@@ -238,6 +240,21 @@ export class Conferencia {
       CONFERIDO: base.filter((item) => item.situacao === 'CONFERIDO').length,
       NAO_CONTADO: base.filter((item) => item.situacao === 'NAO_CONTADO').length,
       FORA: this.auditoria()?.foraDoEstoque.length ?? 0,
+    };
+  });
+
+  /**
+   * Os números da auditoria inteira, sem filtro de busca ou de lista. O
+   * `contagens` acima conta só o que está na tela, e serve para as abas — mas
+   * na hora de concluir a pessoa precisa ver o total, não o recorte.
+   */
+  protected readonly totais = computed(() => {
+    const itens = this.auditoria()?.itens ?? [];
+
+    return {
+      CONFERIDO: itens.filter((item) => item.situacao === 'CONFERIDO').length,
+      NAO_CONTADO: itens.filter((item) => item.situacao === 'NAO_CONTADO').length,
+      NAO_CONFERIDO: itens.filter((item) => item.situacao === 'NAO_CONFERIDO').length,
     };
   });
 
@@ -459,7 +476,18 @@ export class Conferencia {
       .subscribe((auditoria) => this.requisicao.definir(auditoria));
   }
 
+  protected readonly confirmandoConclusao = signal(false);
+
+  protected pedirConclusao(): void {
+    this.confirmandoConclusao.set(true);
+  }
+
+  protected desistirDaConclusao(): void {
+    this.confirmandoConclusao.set(false);
+  }
+
   protected concluir(): void {
+    this.confirmandoConclusao.set(false);
     this.concluindo.set(true);
 
     this.servico.concluir(this.id).subscribe({

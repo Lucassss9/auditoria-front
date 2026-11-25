@@ -64,6 +64,13 @@ export class SelecaoMateriais {
   protected readonly campoOrdem = signal<CampoOrdem>('descricao');
   protected readonly ordemCrescente = signal(true);
   protected readonly listaDestino = signal('');
+
+  /**
+   * Verdadeiro enquanto o nome da lista é o do chip que você clicou, e não um
+   * que você digitou. Serve para o nome sumir junto quando a busca muda — se
+   * ficar, os próximos itens entram carimbados com a lista anterior.
+   */
+  private listaVeioDoChip = false;
   protected readonly nomeNovaLista = signal('');
   protected readonly favoritaAplicada = signal<string | null>(null);
   protected readonly confirmandoRemocao = signal<string | null>(null);
@@ -150,6 +157,11 @@ export class SelecaoMateriais {
     this.termo.set(valor);
     this.favoritaAplicada.set(null);
 
+    if (this.listaVeioDoChip) {
+      this.listaDestino.set('');
+      this.listaVeioDoChip = false;
+    }
+
     if (this.temporizador) {
       clearTimeout(this.temporizador);
     }
@@ -173,8 +185,14 @@ export class SelecaoMateriais {
   protected aplicarFavorita(favorita: ListaFavorita): void {
     this.termo.set(favorita.termos.join(', '));
     this.listaDestino.set(favorita.nome);
+    this.listaVeioDoChip = true;
     this.favoritaAplicada.set(favorita.id);
     this.executarBusca(favorita.termos);
+  }
+
+  protected definirListaDestino(valor: string): void {
+    this.listaDestino.set(valor);
+    this.listaVeioDoChip = false;
   }
 
   protected alternar(insumo: InsumoEstoque): void {

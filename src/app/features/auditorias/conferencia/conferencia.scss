@@ -525,3 +525,46 @@
 .fotos__enviar {
   cursor: pointer;
 }
+
+.confirmacao-conclusao {
+  display: grid;
+  gap: var(--esp-3);
+  font-size: var(--t-13);
+  line-height: 1.6;
+}
+
+.confirmacao-conclusao__numeros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    gap: 2px;
+    padding: var(--esp-2);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    text-align: center;
+  }
+
+  span {
+    font-size: var(--t-11);
+    color: var(--texto-fraco);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  strong {
+    font-size: var(--t-18);
+  }
+}
+
+.confirmacao-conclusao__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  flex-wrap: wrap;
+}

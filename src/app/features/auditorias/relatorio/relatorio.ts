@@ -108,7 +108,15 @@ export class Relatorio {
     }
 
     const fatias = [
-      { rotulo: 'Conferidos', total: total.conferidos - total.divergentes, classe: 'ok' },
+      // "Conferidos" aqui é o que bateu com o sistema. O bloco de totais logo
+      // abaixo usa o mesmo verbo para TODOS os conferidos, divergentes
+      // incluídos — por isso este diz "sem divergência", senão o relatório
+      // mostra dois números com o mesmo nome na mesma página.
+      {
+        rotulo: 'Conferidos sem divergência',
+        total: total.conferidos - total.divergentes,
+        classe: 'ok',
+      },
       { rotulo: 'Com divergência', total: total.divergentes, classe: 'critico' },
       { rotulo: 'Não contados', total: total.naoContados, classe: 'atencao' },
       { rotulo: 'Não conferidos', total: total.naoConferidos, classe: 'neutro' },

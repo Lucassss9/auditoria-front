@@ -21,7 +21,7 @@
         type="button"
         class="botao botao--primario"
         [disabled]="concluindo()"
-        (click)="concluir()"
+        (click)="pedirConclusao()"
       >
         {{ concluindo() ? 'Concluindo…' : 'Concluir conferência' }}
       </button>
@@ -737,6 +737,47 @@
       </aside>
     }
   </div>
+
+  @if (confirmandoConclusao()) {
+    <app-modal titulo="Concluir a conferência?" (fechar)="desistirDaConclusao()">
+      <div class="confirmacao-conclusao">
+        <p>
+          Depois de concluída, esta auditoria não aceita mais contagem, material fora do estoque
+          nem foto. <strong>Não dá para voltar atrás.</strong>
+        </p>
+
+        <ul class="confirmacao-conclusao__numeros">
+          <li><span>Conferidos</span><strong>{{ totais().CONFERIDO }}</strong></li>
+          <li><span>Não contados</span><strong>{{ totais().NAO_CONTADO }}</strong></li>
+          <li>
+            <span>Ainda pendentes</span>
+            <strong [class.texto-falta]="totais().NAO_CONFERIDO > 0">
+              {{ totais().NAO_CONFERIDO }}
+            </strong>
+          </li>
+        </ul>
+
+        @if (totais().NAO_CONFERIDO > 0) {
+          <p class="aviso-faixa aviso-faixa--atencao" role="alert">
+            <i-lucide [img]="icones.atencao" [size]="14" aria-hidden="true"></i-lucide>
+            <span>
+              {{ totais().NAO_CONFERIDO }} itens continuam sem contagem. Eles entram no
+              relatório como não conferidos.
+            </span>
+          </p>
+        }
+
+        <div class="confirmacao-conclusao__acoes">
+          <button type="button" class="botao" (click)="desistirDaConclusao()">
+            Voltar e continuar contando
+          </button>
+          <button type="button" class="botao botao--primario" (click)="concluir()">
+            Concluir mesmo assim
+          </button>
+        </div>
+      </div>
+    </app-modal>
+  }
 
   @if (foraDoEstoqueAberto()) {
     <app-form-fora-do-estoque

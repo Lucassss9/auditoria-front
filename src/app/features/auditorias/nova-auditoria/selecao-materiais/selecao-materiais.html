@@ -225,8 +225,14 @@
         list="listas-existentes"
         placeholder="Opcional — agrupa os itens na conferência"
         [value]="listaDestino()"
-        (input)="listaDestino.set($any($event.target).value)"
+        (input)="definirListaDestino($any($event.target).value)"
       />
+      @if (listaDestino()) {
+        <span class="campo__dica">
+          Os próximos materiais que você marcar entram na lista
+          <strong>{{ listaDestino() }}</strong>.
+        </span>
+      }
       <datalist id="listas-existentes">
         @for (nome of nomesDeListas(); track nome) {
           <option [value]="nome"></option>
